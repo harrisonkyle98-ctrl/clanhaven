@@ -1,0 +1,92 @@
+generator client {
+  provider             = "prisma-client-py"
+  recursive_type_depth = -1
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Platform Users (Discord-authenticated) ───
+
+model User {
+  id        String   @id @default(cuid())
+  discordId String   @unique @map("discord_id")
+  username  String
+  avatar    String?
+  email     String?
+  roles     String[] @default([])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  memberships ClanMember[]
+  ownedClans  Clan[]       @relation("ClanOwner")
+
+  @@map("users")
+}
+
+// ─── Clans (multi-tenant) ───
+
+model Clan {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  gameType    GameType @map("game_type")
+  description String?
+  iconUrl     String?  @map("icon_url")
+  isPublic    Boolean  @default(true) @map("is_public")
+  memberCount Int      @default(0) @map("member_count")
+  ownerId     String   @map("owner_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  owner   User         @relation("ClanOwner", fields: [ownerId], references: [id])
+  members ClanMember[]
+
+  @@index([slug])
+  @@index([gameType])
+  @@map("clans")
+}
+
+// ─── Clan Members (links users + RSN to a clan) ───
+
+model ClanMember {
+  id          String   @id @default(cuid())
+  clanId      String   @map("clan_id")
+  userId      String?  @map("user_id")
+  rsn         String
+  clanRank    String?  @map("clan_rank")
+  clanRole    ClanRole @default(MEMBER) @map("clan_role")
+  totalXp     BigInt   @default(0) @map("total_xp")
+  totalLevel  Int      @default(0) @map("total_level")
+  combatLevel Int      @default(0) @map("combat_level")
+  stats       Json?
+  active      Boolean  @default(true)
+  joinedAt    DateTime? @map("joined_at")
+  leftAt      DateTime? @map("left_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  clan User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  clanRef Clan @relation(fields: [clanId], references: [id], onDelete: Cascade)
+
+  @@unique([clanId, rsn])
+  @@index([clanId, active])
+  @@index([userId])
+  @@map("clan_members")
+}
+
+// ─── Enums ───
+
+enum GameType {
+  RS3
+  OSRS
+}
+
+enum ClanRole {
+  OWNER
+  ADMIN
+  MODERATOR
+  MEMBER
+}
