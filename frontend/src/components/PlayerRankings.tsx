@@ -15,9 +15,11 @@ function RankBadge({ rank }: { rank: number }) {
 
 export default function PlayerRankings() {
   return (
-    <div className="ch-panel">
-      <div className="ch-panel-header">Trending Players</div>
-      <div className="ch-panel-body space-y-2 relative z-1">
+    <div className="ch-panel ch-panel--amber">
+      <div className="ch-panel-header">
+        <h2 className="ch-panel-header-title">Trending Players</h2>
+      </div>
+      <div className="ch-panel-body space-y-2">
         {topPlayers.slice(0, 6).map((player) => (
           <div
             key={player.username}

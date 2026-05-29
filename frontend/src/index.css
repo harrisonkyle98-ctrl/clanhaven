@@ -41,8 +41,6 @@ body {
 
 /* ===========================================
    OUTER CONTAINER - Base slab surface
-   Stormlight: "Carved rather than drawn,
-   inset rather than floating, lit rather than flat"
    =========================================== */
 .bg-container {
   background: linear-gradient(
@@ -52,7 +50,6 @@ body {
   );
 }
 
-/* Subtle stone grain texture */
 .bg-container::before {
   content: "";
   position: absolute;
@@ -65,119 +62,175 @@ body {
 }
 
 /* ===========================================
-   PANEL SYSTEM - Carved inset feel
-   Darker recessed background with multi-layered
-   carved frame effect (golden-brown tones)
+   PANEL SYSTEM - Stormlight /test panel structure
+   Panel wrapper encloses colored header + body
    =========================================== */
 .ch-panel {
-  background: rgba(24, 21, 16, 0.7);
-  border: none;
+  display: flex;
+  flex-direction: column;
   border-radius: 2px;
-  box-shadow:
-    inset 0 0 0 1px rgba(12, 10, 6, 0.9),
-    inset 0 0 0 2px rgba(58, 50, 38, 0.7),
-    inset 0 0 0 3px rgba(105, 90, 68, 0.25),
-    inset 0 4px 12px rgba(0, 0, 0, 0.5),
-    inset 0 -2px 8px rgba(0, 0, 0, 0.2),
-    inset 0 0 40px rgba(0, 0, 0, 0.15);
-  position: relative;
   overflow: hidden;
+  border: 1px solid rgba(58, 50, 38, 0.7);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Panel top highlight - directional golden lighting */
-.ch-panel::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    rgba(115, 95, 68, 0.1) 0%,
-    rgba(195, 165, 120, 0.35) 30%,
-    rgba(215, 185, 140, 0.4) 50%,
-    rgba(195, 165, 120, 0.35) 70%,
-    rgba(115, 95, 68, 0.1) 100%
+/* ===========================================
+   PANEL HEADER - Colored bar with diamond pattern
+   Uses CSS variables for per-panel color tints
+   =========================================== */
+.ch-panel-header {
+  --panel-header-color: rgba(140, 115, 75, 0.9);
+  --panel-header-pattern: rgba(255, 255, 255, 0.5);
+  --panel-header-border: rgba(100, 80, 50, 0.9);
+
+  position: relative;
+  padding: 0.625rem 1rem;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--panel-header-color);
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 30%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.08) 80%,
+    rgba(0, 0, 0, 0.15) 100%
   );
-  pointer-events: none;
-  z-index: 2;
+  border: none;
+  border-bottom: 1px solid var(--panel-header-border);
+  box-shadow:
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  isolation: isolate;
 }
 
-/* Panel ambient lighting - top-lit spotlight */
-.ch-panel::after {
+/* Diamond grid pattern overlay on header */
+.ch-panel-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--panel-header-pattern);
+  -webkit-mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: 20px 20px;
+  mask-size: 20px 20px;
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+  opacity: 0.15;
+}
+
+/* Header title text */
+.ch-panel-header-title {
+  position: relative;
+  z-index: 1;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #f5efe6;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.6),
+    0 0 8px rgba(0, 0, 0, 0.3);
+  margin: 0;
+  padding: 0;
+}
+
+/* Header right-side content (tabs, badges) */
+.ch-panel-header-right {
+  position: relative;
+  z-index: 1;
+  margin-left: auto;
+}
+
+/* ===========================================
+   PANEL HEADER COLOR VARIANTS
+   Each section has a distinct tint
+   =========================================== */
+
+/* Platform Overview / Hero — warm gold (primary) */
+.ch-panel--gold .ch-panel-header {
+  --panel-header-color: rgba(165, 130, 70, 0.95);
+  --panel-header-pattern: rgba(215, 180, 100, 0.6);
+  --panel-header-border: rgba(115, 90, 45, 0.95);
+}
+
+/* Clan Rankings — sapphire blue */
+.ch-panel--blue .ch-panel-header {
+  --panel-header-color: rgba(65, 90, 115, 0.95);
+  --panel-header-pattern: rgba(100, 140, 180, 0.6);
+  --panel-header-border: rgba(40, 60, 85, 0.95);
+}
+
+/* Featured Clans — amethyst purple */
+.ch-panel--purple .ch-panel-header {
+  --panel-header-color: rgba(95, 80, 120, 0.95);
+  --panel-header-pattern: rgba(140, 120, 170, 0.6);
+  --panel-header-border: rgba(60, 50, 85, 0.95);
+}
+
+/* Community — emerald green */
+.ch-panel--green .ch-panel-header {
+  --panel-header-color: rgba(60, 100, 75, 0.95);
+  --panel-header-pattern: rgba(90, 150, 110, 0.6);
+  --panel-header-border: rgba(35, 70, 50, 0.95);
+}
+
+/* Trending Players — amber/orange */
+.ch-panel--amber .ch-panel-header {
+  --panel-header-color: rgba(140, 95, 55, 0.95);
+  --panel-header-pattern: rgba(190, 140, 80, 0.6);
+  --panel-header-border: rgba(100, 65, 35, 0.95);
+}
+
+/* Live Activity — crimson red */
+.ch-panel--red .ch-panel-header {
+  --panel-header-color: rgba(120, 65, 65, 0.95);
+  --panel-header-pattern: rgba(170, 100, 100, 0.6);
+  --panel-header-border: rgba(85, 40, 40, 0.95);
+}
+
+/* ===========================================
+   PANEL BODY - Content area below header
+   =========================================== */
+.ch-panel-body {
+  background: rgba(24, 21, 16, 0.7);
+  padding: 0.875rem;
+  position: relative;
+  flex: 1;
+  border: none;
+  border-radius: 0;
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 0 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Panel body ambient lighting */
+.ch-panel-body::after {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 100px;
+  height: 80px;
+  pointer-events: none;
   background:
     radial-gradient(
       ellipse 70% 50% at 50% 0%,
-      rgba(255, 235, 200, 0.1) 0%,
-      rgba(255, 220, 180, 0.04) 50%,
+      rgba(255, 235, 200, 0.08) 0%,
+      rgba(255, 220, 180, 0.03) 50%,
       transparent 100%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(255, 240, 210, 0.04) 0%,
-      transparent 80%
     );
-  pointer-events: none;
-  z-index: 0;
   opacity: 0.8;
-  transition: opacity 0.2s ease;
-}
-
-.ch-panel:hover::after {
-  opacity: 1;
-}
-
-/* Panel header - mounted plaque feel */
-.ch-panel-header {
-  padding: 0.75rem 1rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: #dccaaa;
-  text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.8),
-    0 2px 4px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(215, 180, 120, 0.15);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Plaque underline — engraved groove */
-.ch-panel-header::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.4) 0%,
-    rgba(68, 58, 42, 0.6) 50%,
-    rgba(135, 112, 78, 0.3) 100%
-  );
-}
-
-.ch-panel-body {
-  padding: 0.875rem;
-  position: relative;
-  z-index: 1;
 }
 
 /* ===========================================
    STAT CELL - Carved recessed data cell
-   Used for stat items and inner content cells
    =========================================== */
 .ch-stat-cell {
   background: rgba(22, 19, 14, 0.8);
@@ -194,7 +247,6 @@ body {
   transition: background-color 0.2s ease;
 }
 
-/* Stat cell top highlight */
 .ch-stat-cell::before {
   content: "";
   position: absolute;
@@ -217,8 +269,7 @@ body {
 }
 
 /* ===========================================
-   ROW ITEM - Same carved cell but for list rows
-   No top highlight bar
+   ROW ITEM - Carved cell for list rows
    =========================================== */
 .ch-row {
   background: rgba(22, 19, 14, 0.8);
@@ -237,6 +288,110 @@ body {
 
 .ch-row:hover {
   background: rgba(28, 24, 18, 0.85);
+}
+
+/* ===========================================
+   LOG ROW - Stormlight-style activity rows
+   with colored accent pattern background
+   =========================================== */
+.ch-log-row {
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+/* Pattern background layer using row accent color */
+.ch-log-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--row-accent, #c9a227);
+  -webkit-mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: 20px 20px;
+  mask-size: 20px 20px;
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+  opacity: 0.05;
+}
+
+/* Content renders above pattern */
+.ch-log-row > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ch-log-row:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.ch-log-row:focus-visible {
+  outline: 2px solid rgba(232, 213, 176, 0.6);
+  outline-offset: -2px;
+}
+
+/* Log row text elements */
+.ch-log-text {
+  color: #ccc0a8;
+  font-weight: 400;
+  font-size: 0.875rem;
+}
+
+.ch-log-username {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.ch-log-timestamp {
+  color: #a49680;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Log icon container */
+.ch-log-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 3px;
+  transition: transform 0.15s ease;
+}
+
+.ch-log-row:hover .ch-log-icon {
+  transform: scale(1.05);
+}
+
+/* Chevron indicator */
+.ch-log-chevron {
+  color: #a49680;
+  opacity: 0.5;
+  transform: translateX(0);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+
+.ch-log-row:hover .ch-log-chevron {
+  opacity: 0.9;
+  transform: translateX(3px);
 }
 
 /* ===========================================

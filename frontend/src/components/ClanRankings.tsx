@@ -35,23 +35,25 @@ export default function ClanRankings() {
   const clans = tabData[activeTab]
 
   return (
-    <div className="ch-panel">
-      <div className="ch-panel-header justify-between">
-        <span>Clan Rankings</span>
-        <div className="ch-tabs">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => { setActiveTab(tab.key) }}
-              className={`ch-tab ${activeTab === tab.key ? "ch-tab-active" : ""}`}
-            >
-              {tab.label}
-            </button>
-          ))}
+    <div className="ch-panel ch-panel--blue">
+      <div className="ch-panel-header">
+        <h2 className="ch-panel-header-title">Clan Rankings</h2>
+        <div className="ch-panel-header-right">
+          <div className="ch-tabs">
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => { setActiveTab(tab.key) }}
+                className={`ch-tab ${activeTab === tab.key ? "ch-tab-active" : ""}`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="ch-panel-body space-y-2 relative z-1">
+      <div className="ch-panel-body space-y-2">
         {clans.map((clan) => (
           <div
             key={clan.name}

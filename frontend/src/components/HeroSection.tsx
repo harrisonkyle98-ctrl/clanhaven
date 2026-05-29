@@ -10,9 +10,9 @@ const stats = [
 
 export default function HeroSection() {
   return (
-    <div className="ch-panel">
-      <div className="ch-panel-header justify-center">
-        <span>Clan Haven — The Home of RuneScape Clans</span>
+    <div className="ch-panel ch-panel--gold">
+      <div className="ch-panel-header">
+        <h2 className="ch-panel-header-title">Clan Haven — The Home of RuneScape Clans</h2>
       </div>
       <div className="ch-panel-body">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

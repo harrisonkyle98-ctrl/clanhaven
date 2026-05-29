@@ -3,8 +3,10 @@ import { Users, TrendingUp } from "lucide-react"
 
 export default function FeaturedClans() {
   return (
-    <div className="ch-panel">
-      <div className="ch-panel-header">Featured Clans</div>
+    <div className="ch-panel ch-panel--purple">
+      <div className="ch-panel-header">
+        <h2 className="ch-panel-header-title">Featured Clans</h2>
+      </div>
       <div className="ch-panel-body grid grid-cols-1 sm:grid-cols-2 gap-3">
         {featuredClans.map((clan) => (
           <div
