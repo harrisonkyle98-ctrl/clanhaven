@@ -66,9 +66,9 @@ export default function Sidebar() {
           className={`${ribbonClass} cursor-pointer shrink-0 mt-1.5 mb-0.5`}
         >
           {collapsed ? "" : (
-            <span className="flex items-center justify-center w-full gap-1.5">
+            <span className="relative flex items-center justify-center w-full">
               Main
-              <ChevronDown className={`w-3 h-3 opacity-60 transition-transform duration-200 ${mainOpen ? "" : "-rotate-90"}`} />
+              <ChevronDown className={`absolute right-0 w-3 h-3 opacity-60 transition-transform duration-200 ${mainOpen ? "" : "-rotate-90"}`} />
             </span>
           )}
         </button>
@@ -97,9 +97,9 @@ export default function Sidebar() {
           className={`${ribbonClass} cursor-pointer shrink-0 mt-1.5 mb-0.5`}
         >
           {collapsed ? "" : (
-            <span className="flex items-center justify-center w-full gap-1.5">
+            <span className="relative flex items-center justify-center w-full">
               Account
-              <ChevronDown className={`w-3 h-3 opacity-60 transition-transform duration-200 ${accountOpen ? "" : "-rotate-90"}`} />
+              <ChevronDown className={`absolute right-0 w-3 h-3 opacity-60 transition-transform duration-200 ${accountOpen ? "" : "-rotate-90"}`} />
             </span>
           )}
         </button>
@@ -154,9 +154,9 @@ export default function Sidebar() {
           className={`${ribbonClass} cursor-pointer shrink-0 mt-1.5 mb-0.5`}
         >
           {collapsed ? "" : (
-            <span className="flex items-center justify-center w-full gap-1.5">
+            <span className="relative flex items-center justify-center w-full">
               System
-              <ChevronDown className={`w-3 h-3 opacity-60 transition-transform duration-200 ${systemOpen ? "" : "-rotate-90"}`} />
+              <ChevronDown className={`absolute right-0 w-3 h-3 opacity-60 transition-transform duration-200 ${systemOpen ? "" : "-rotate-90"}`} />
             </span>
           )}
         </button>
