@@ -38,7 +38,7 @@ export default function Sidebar() {
   return (
     <aside
       className={`
-        hidden lg:flex sticky top-0 left-0 h-screen
+        hidden lg:flex shrink-0 h-full
         sidebar-bg
         transition-all duration-200 ease-in-out
         ${collapsed ? "w-[60px]" : "w-[220px]"}
@@ -63,7 +63,7 @@ export default function Sidebar() {
         {/* Main section */}
         <button
           onClick={() => { if (!collapsed) setMainOpen(!mainOpen) }}
-          className={`${ribbonClass} cursor-pointer shrink-0`}
+          className={`${ribbonClass} cursor-pointer shrink-0 my-1.5`}
         >
           {collapsed ? "" : (
             <span className="flex items-center justify-center w-full gap-1.5">
@@ -73,7 +73,7 @@ export default function Sidebar() {
           )}
         </button>
         {mainOpen && (
-          <div className="py-2 px-2.5 space-y-1 shrink-0">
+          <div className="px-2.5 space-y-1 shrink-0">
             {mainNavItems.map((item) => {
               const isActive = location.pathname === item.to
               return (
@@ -94,7 +94,7 @@ export default function Sidebar() {
         {/* Account section */}
         <button
           onClick={() => { if (!collapsed) setAccountOpen(!accountOpen) }}
-          className={`${ribbonClass} cursor-pointer shrink-0`}
+          className={`${ribbonClass} cursor-pointer shrink-0 my-1.5`}
         >
           {collapsed ? "" : (
             <span className="flex items-center justify-center w-full gap-1.5">
@@ -104,7 +104,7 @@ export default function Sidebar() {
           )}
         </button>
         {accountOpen && (
-          <div className="py-2 px-2.5 space-y-1 shrink-0">
+          <div className="px-2.5 space-y-1 shrink-0">
             {user ? (
               <>
                 <div className={`flex items-center gap-3 px-3 py-2 ${collapsed ? "justify-center" : ""}`}>
@@ -151,7 +151,7 @@ export default function Sidebar() {
         {/* System section */}
         <button
           onClick={() => { if (!collapsed) setSystemOpen(!systemOpen) }}
-          className={`${ribbonClass} cursor-pointer shrink-0`}
+          className={`${ribbonClass} cursor-pointer shrink-0 my-1.5`}
         >
           {collapsed ? "" : (
             <span className="flex items-center justify-center w-full gap-1.5">
@@ -161,7 +161,7 @@ export default function Sidebar() {
           )}
         </button>
         {systemOpen && (
-          <div className="py-2 px-2.5 shrink-0">
+          <div className="px-2.5 shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); setCollapsed(!collapsed) }}
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
