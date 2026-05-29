@@ -68,6 +68,7 @@ body {
 .ch-panel {
   display: flex;
   flex-direction: column;
+  flex: 1;
   border-radius: 2px;
   overflow: hidden;
   border: 1px solid rgba(58, 50, 38, 0.7);
@@ -207,7 +208,7 @@ body {
   --panel-header-border: rgba(35, 70, 50, 0.95);
 }
 
-/* Trending Players — amber/orange */
+/* Today's Top Players — amber/orange */
 .ch-panel--amber .ch-panel-header {
   --panel-header-color: rgba(140, 95, 55, 0.95);
   --panel-header-pattern: rgba(190, 140, 80, 0.6);

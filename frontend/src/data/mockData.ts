@@ -123,6 +123,28 @@ export const featuredClans: FeaturedClan[] = [
     accentColor: "text-emerald-400",
     founded: "2021",
   },
+  {
+    name: "Phoenix Rising",
+    tagline: "From the ashes, we rise",
+    memberCount: 298,
+    activeMembers: 194,
+    weeklyXp: "2.7B",
+    gameType: "RS3",
+    bannerColor: "from-sky-600 to-cyan-700",
+    accentColor: "text-sky-400",
+    founded: "2020",
+  },
+  {
+    name: "Wilderness Wolves",
+    tagline: "Masters of the wild",
+    memberCount: 401,
+    activeMembers: 278,
+    weeklyXp: "2.5B",
+    gameType: "OSRS",
+    bannerColor: "from-violet-600 to-fuchsia-700",
+    accentColor: "text-violet-400",
+    founded: "2017",
+  },
 ]
 
 export const topPlayers: RankedPlayer[] = [

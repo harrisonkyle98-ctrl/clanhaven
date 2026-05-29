@@ -17,7 +17,7 @@ function RankBadge({ rank }: { rank: number }) {
 
 export default function PlayerRankings() {
   return (
-    <CollapsiblePanel variant="amber" title="Trending Players">
+    <CollapsiblePanel variant="amber" title="Today's Top Players">
       <div className="space-y-2">
         {topPlayers.slice(0, 6).map((player) => (
           <div

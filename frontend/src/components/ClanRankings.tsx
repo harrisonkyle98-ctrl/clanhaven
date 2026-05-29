@@ -1,21 +1,18 @@
 import { useState } from "react"
-import { topRS3Clans, topOSRSClans, fastestGrowingClans } from "@/data/mockData"
+import { topRS3Clans, topOSRSClans } from "@/data/mockData"
 import type { RankedClan } from "@/data/mockData"
-import { TrendingUp } from "lucide-react"
 import CollapsiblePanel from "@/components/CollapsiblePanel"
 
-type Tab = "rs3" | "osrs" | "growing"
+type Tab = "rs3" | "osrs"
 
 const tabs: { key: Tab; label: string }[] = [
   { key: "rs3", label: "RS3" },
   { key: "osrs", label: "OSRS" },
-  { key: "growing", label: "Growing" },
 ]
 
 const tabData: Record<Tab, RankedClan[]> = {
   rs3: topRS3Clans,
   osrs: topOSRSClans,
-  growing: fastestGrowingClans,
 }
 
 function RankBadge({ rank }: { rank: number }) {
@@ -71,14 +68,7 @@ export default function ClanRankings() {
               <div className="text-[11px] text-text-muted">{clan.totalXp}</div>
             </div>
             <div className="text-right">
-              {activeTab === "growing" && clan.growthPercent ? (
-                <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-xp-green">
-                  <TrendingUp className="w-3 h-3" />
-                  {clan.growthPercent}%
-                </span>
-              ) : (
-                <span className="text-xs font-semibold text-xp-green">+{clan.weeklyXp}</span>
-              )}
+              <span className="text-xs font-semibold text-xp-green">+{clan.weeklyXp}</span>
             </div>
             <span className={clan.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
               {clan.gameType}
