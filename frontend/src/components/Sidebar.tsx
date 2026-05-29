@@ -63,7 +63,7 @@ export default function Sidebar() {
         {/* Main section */}
         <button
           onClick={() => { if (!collapsed) setMainOpen(!mainOpen) }}
-          className={`${ribbonClass} cursor-pointer shrink-0 my-1.5`}
+          className={`${ribbonClass} cursor-pointer shrink-0 mt-1.5 mb-0.5`}
         >
           {collapsed ? "" : (
             <span className="flex items-center justify-center w-full gap-1.5">
@@ -94,7 +94,7 @@ export default function Sidebar() {
         {/* Account section */}
         <button
           onClick={() => { if (!collapsed) setAccountOpen(!accountOpen) }}
-          className={`${ribbonClass} cursor-pointer shrink-0 my-1.5`}
+          className={`${ribbonClass} cursor-pointer shrink-0 mt-1.5 mb-0.5`}
         >
           {collapsed ? "" : (
             <span className="flex items-center justify-center w-full gap-1.5">
@@ -151,7 +151,7 @@ export default function Sidebar() {
         {/* System section */}
         <button
           onClick={() => { if (!collapsed) setSystemOpen(!systemOpen) }}
-          className={`${ribbonClass} cursor-pointer shrink-0 my-1.5`}
+          className={`${ribbonClass} cursor-pointer shrink-0 mt-1.5 mb-0.5`}
         >
           {collapsed ? "" : (
             <span className="flex items-center justify-center w-full gap-1.5">
