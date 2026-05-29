@@ -2,6 +2,7 @@ import { useState } from "react"
 import { topRS3Clans, topOSRSClans, fastestGrowingClans } from "@/data/mockData"
 import type { RankedClan } from "@/data/mockData"
 import { TrendingUp } from "lucide-react"
+import CollapsiblePanel from "@/components/CollapsiblePanel"
 
 type Tab = "rs3" | "osrs" | "growing"
 
@@ -18,42 +19,40 @@ const tabData: Record<Tab, RankedClan[]> = {
 }
 
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) {
-    return <span className="w-6 h-6 rounded-sm text-xs font-bold flex items-center justify-center ch-stat-cell text-gold">1</span>
+  const colors: Record<number, string> = {
+    1: "text-gold",
+    2: "text-zinc-300",
+    3: "text-orange-400",
   }
-  if (rank === 2) {
-    return <span className="w-6 h-6 rounded-sm text-xs font-bold flex items-center justify-center ch-stat-cell text-zinc-300">2</span>
-  }
-  if (rank === 3) {
-    return <span className="w-6 h-6 rounded-sm text-xs font-bold flex items-center justify-center ch-stat-cell text-orange-400">3</span>
-  }
-  return <span className="w-6 h-6 rounded-sm text-text-muted text-xs font-medium flex items-center justify-center">{rank}</span>
+  const colorClass = colors[rank] ?? "text-text-muted"
+  return (
+    <span className={`w-6 h-6 rounded-sm text-xs font-bold flex items-center justify-center ch-stat-cell ${colorClass}`}>
+      {rank}
+    </span>
+  )
 }
 
 export default function ClanRankings() {
   const [activeTab, setActiveTab] = useState<Tab>("rs3")
   const clans = tabData[activeTab]
 
-  return (
-    <div className="ch-panel ch-panel--blue">
-      <div className="ch-panel-header">
-        <h2 className="ch-panel-header-title">Clan Rankings</h2>
-        <div className="ch-panel-header-right">
-          <div className="ch-tabs">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => { setActiveTab(tab.key) }}
-                className={`ch-tab ${activeTab === tab.key ? "ch-tab-active" : ""}`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+  const tabsElement = (
+    <div className="ch-tabs">
+      {tabs.map((tab) => (
+        <button
+          key={tab.key}
+          onClick={() => { setActiveTab(tab.key) }}
+          className={`ch-tab ${activeTab === tab.key ? "ch-tab-active" : ""}`}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  )
 
-      <div className="ch-panel-body space-y-2">
+  return (
+    <CollapsiblePanel variant="blue" title="Clan Rankings" headerRight={tabsElement}>
+      <div className="space-y-2">
         {clans.map((clan) => (
           <div
             key={clan.name}
@@ -87,6 +86,6 @@ export default function ClanRankings() {
           </div>
         ))}
       </div>
-    </div>
+    </CollapsiblePanel>
   )
 }

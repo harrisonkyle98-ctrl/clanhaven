@@ -2,6 +2,7 @@ import { recentActivity } from "@/data/mockData"
 import type { ActivityEvent } from "@/data/mockData"
 import { Star, Trophy, Users, Award, Plus, ChevronRight } from "lucide-react"
 import type { CSSProperties } from "react"
+import CollapsiblePanel from "@/components/CollapsiblePanel"
 
 const eventConfig: Record<ActivityEvent["type"], { Icon: typeof Star; color: string }> = {
   xp_milestone: { Icon: Star, color: "#c9a227" },
@@ -13,17 +14,8 @@ const eventConfig: Record<ActivityEvent["type"], { Icon: typeof Star; color: str
 
 export default function ActivityFeed() {
   return (
-    <div className="ch-panel ch-panel--red">
-      <div className="ch-panel-header">
-        <h2 className="ch-panel-header-title">Live Activity</h2>
-        <div className="ch-panel-header-right">
-          <span className="flex items-center gap-1.5 text-[10px] font-medium text-xp-green">
-            <span className="w-1.5 h-1.5 rounded-full bg-xp-green animate-pulse" />
-            Live
-          </span>
-        </div>
-      </div>
-      <div className="ch-panel-body space-y-2">
+    <CollapsiblePanel variant="red" title="Recent Activity">
+      <div className="space-y-2">
         {recentActivity.map((event) => {
           const { Icon, color } = eventConfig[event.type]
           return (
@@ -66,6 +58,6 @@ export default function ActivityFeed() {
           )
         })}
       </div>
-    </div>
+    </CollapsiblePanel>
   )
 }

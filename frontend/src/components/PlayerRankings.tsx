@@ -1,25 +1,24 @@
 import { topPlayers } from "@/data/mockData"
+import CollapsiblePanel from "@/components/CollapsiblePanel"
 
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) {
-    return <span className="w-6 h-6 rounded-sm text-xs font-bold flex items-center justify-center ch-stat-cell text-gold">1</span>
+  const colors: Record<number, string> = {
+    1: "text-gold",
+    2: "text-zinc-300",
+    3: "text-orange-400",
   }
-  if (rank === 2) {
-    return <span className="w-6 h-6 rounded-sm text-xs font-bold flex items-center justify-center ch-stat-cell text-zinc-300">2</span>
-  }
-  if (rank === 3) {
-    return <span className="w-6 h-6 rounded-sm text-xs font-bold flex items-center justify-center ch-stat-cell text-orange-400">3</span>
-  }
-  return <span className="w-6 h-6 rounded-sm text-text-muted text-xs font-medium flex items-center justify-center">{rank}</span>
+  const colorClass = colors[rank] ?? "text-text-muted"
+  return (
+    <span className={`w-6 h-6 rounded-sm text-xs font-bold flex items-center justify-center ch-stat-cell ${colorClass}`}>
+      {rank}
+    </span>
+  )
 }
 
 export default function PlayerRankings() {
   return (
-    <div className="ch-panel ch-panel--amber">
-      <div className="ch-panel-header">
-        <h2 className="ch-panel-header-title">Trending Players</h2>
-      </div>
-      <div className="ch-panel-body space-y-2">
+    <CollapsiblePanel variant="amber" title="Trending Players">
+      <div className="space-y-2">
         {topPlayers.slice(0, 6).map((player) => (
           <div
             key={player.username}
@@ -44,6 +43,6 @@ export default function PlayerRankings() {
           </div>
         ))}
       </div>
-    </div>
+    </CollapsiblePanel>
   )
 }

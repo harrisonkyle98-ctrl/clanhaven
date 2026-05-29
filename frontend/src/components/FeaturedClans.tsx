@@ -1,13 +1,11 @@
 import { featuredClans } from "@/data/mockData"
 import { Users, TrendingUp } from "lucide-react"
+import CollapsiblePanel from "@/components/CollapsiblePanel"
 
 export default function FeaturedClans() {
   return (
-    <div className="ch-panel ch-panel--purple">
-      <div className="ch-panel-header">
-        <h2 className="ch-panel-header-title">Featured Clans</h2>
-      </div>
-      <div className="ch-panel-body grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <CollapsiblePanel variant="purple" title="Featured Clans">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {featuredClans.map((clan) => (
           <div
             key={clan.name}
@@ -45,6 +43,6 @@ export default function FeaturedClans() {
           </div>
         ))}
       </div>
-    </div>
+    </CollapsiblePanel>
   )
 }
