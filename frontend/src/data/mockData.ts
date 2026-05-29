@@ -162,8 +162,8 @@ export const recentActivity: ActivityEvent[] = [
   {
     id: 1,
     type: "xp_milestone",
-    title: "200M XP Milestone",
-    description: "xP_Wizard reached 200M Invention XP",
+    title: "xP_Wizard",
+    description: "Reached 200M Invention XP",
     timeAgo: "12 minutes ago",
     clanName: "Celestial Order",
     gameType: "RS3",
@@ -189,8 +189,8 @@ export const recentActivity: ActivityEvent[] = [
   {
     id: 4,
     type: "player_achievement",
-    title: "Max Cape Achieved",
-    description: "Dark_Mage_42 achieved Max Cape (level 99 in all skills)",
+    title: "Dark_Mage_42",
+    description: "Achieved Max Cape (level 99 in all skills)",
     timeAgo: "2 hours ago",
     clanName: "Dark Alliance",
     gameType: "RS3",
@@ -207,8 +207,8 @@ export const recentActivity: ActivityEvent[] = [
   {
     id: 6,
     type: "xp_milestone",
-    title: "99 Slayer",
-    description: "Pk3r_Supreme reached level 99 Slayer",
+    title: "Pk3r_Supreme",
+    description: "Reached level 99 Slayer",
     timeAgo: "4 hours ago",
     clanName: "Wilderness Wolves",
     gameType: "OSRS",
