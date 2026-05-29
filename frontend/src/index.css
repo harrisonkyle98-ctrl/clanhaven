@@ -508,6 +508,7 @@ body {
   border-right: 1px solid rgba(68, 58, 44, 0.4);
   position: relative;
   overflow: visible;
+  z-index: 10;
 }
 
 /* ===========================================
@@ -518,12 +519,13 @@ body {
   --ribbon-top: #4f6ebc;
   --ribbon-mid: #445ea1;
   --ribbon-bot: #394f8b;
-  --fold-size: 10px;
+  --fold-w: 16px;
+  --fold-drop: 5px;
 
   position: relative;
-  padding: 0.375rem 0.75rem;
+  padding: 0.4rem 0.75rem;
   margin-left: -1px;
-  margin-right: calc(var(--fold-size) * -1);
+  text-align: center;
 
   font-family: 'Cinzel', 'Times New Roman', serif;
   font-size: 0.6rem;
@@ -557,11 +559,6 @@ body {
       rgba(255, 255, 255, 0.04) 4%,
       rgba(255, 255, 255, 0) 10%
     ),
-    /* Fold shading - right side */
-    conic-gradient(
-      at right 1.2em bottom 0.5em,
-      #0004 62.5%, #0008 0 75%, #0000 0
-    ) 100% / 50% 100% no-repeat,
     /* Base gradient */
     linear-gradient(
       to bottom,
@@ -578,28 +575,27 @@ body {
   z-index: 2;
 }
 
-/* Right fold tab - extends beyond sidebar */
+/* Right fold tab — visually extends beyond sidebar edge */
 .ch-sidebar-ribbon::after {
   content: "";
   position: absolute;
-  top: 3px;
-  right: calc(var(--fold-size) * -1);
-  width: var(--fold-size);
-  bottom: -3px;
+  top: var(--fold-drop);
+  right: calc(var(--fold-w) * -1);
+  width: var(--fold-w);
+  bottom: calc(var(--fold-drop) * -1);
   background: linear-gradient(
     180deg,
-    #364983 0%,
-    #2d3f72 50%,
-    #253565 100%
+    #4a6aad 0%,
+    #3d5a96 40%,
+    #314b80 100%
   );
   clip-path: polygon(
     0 0,
-    100% 12%,
-    55% 50%,
-    100% 88%,
+    100% 15%,
+    50% 50%,
+    100% 85%,
     0 100%
   );
-  z-index: -1;
 }
 
 /* Collapsed sidebar: thin blue bar */
