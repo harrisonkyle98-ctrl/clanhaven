@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { AuthProvider } from "@/contexts/AuthContext"
-import Navbar from "@/components/Navbar"
+import AppLayout from "@/components/AppLayout"
 import Home from "@/pages/Home"
 import Clans from "@/pages/Clans"
 import Dashboard from "@/pages/Dashboard"
@@ -10,22 +10,22 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="min-h-screen flex flex-col">
-          <Navbar />
-          <main className="flex-1">
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Home />} />
-              <Route path="/clans" element={<Clans />} />
+        <AppLayout>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/clans" element={<Clans />} />
+            <Route path="/rankings" element={<Clans />} />
+            <Route path="/competitions" element={<Clans />} />
+            <Route path="/players" element={<Clans />} />
 
-              {/* Authenticated routes */}
-              <Route path="/dashboard" element={<Dashboard />} />
+            {/* Authenticated routes */}
+            <Route path="/dashboard" element={<Dashboard />} />
 
-              {/* Catch-all */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-        </div>
+            {/* Catch-all */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AppLayout>
       </BrowserRouter>
     </AuthProvider>
   )
