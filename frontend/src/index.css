@@ -3,22 +3,43 @@
 @theme {
   --color-background: #0a0a0f;
   --color-foreground: #e4e4e7;
-  --color-card: #18181b;
+  --color-card: #13131a;
   --color-card-foreground: #e4e4e7;
   --color-primary: #6366f1;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #27272a;
+  --color-secondary: #1e1e2a;
   --color-secondary-foreground: #e4e4e7;
   --color-muted: #27272a;
   --color-muted-foreground: #a1a1aa;
   --color-accent: #6366f1;
-  --color-border: #27272a;
+  --color-border: #1e1e2e;
   --color-ring: #6366f1;
+  --color-surface: #16161f;
   --radius: 0.5rem;
 }
 
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
 }
