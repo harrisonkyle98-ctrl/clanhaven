@@ -5,13 +5,13 @@ import CollapsiblePanel from "@/components/CollapsiblePanel"
 export default function FeaturedClans() {
   return (
     <CollapsiblePanel variant="purple" title="Featured Clans">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
         {featuredClans.map((clan) => (
           <div
             key={clan.name}
-            className="ch-stat-cell p-4 cursor-pointer group"
+            className="ch-stat-cell p-4 cursor-pointer group flex flex-col"
           >
-            <div className="relative z-1">
+            <div className="relative z-1 flex flex-col flex-1">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div className={`w-9 h-9 rounded-sm bg-gradient-to-br ${clan.bannerColor} flex items-center justify-center`}>
@@ -28,7 +28,7 @@ export default function FeaturedClans() {
                   {clan.gameType}
                 </span>
               </div>
-              <div className="flex items-center gap-4 text-[11px]">
+              <div className="flex items-center gap-4 text-[11px] mt-auto">
                 <span className="flex items-center gap-1 text-text-muted">
                   <Users className="w-3 h-3" />
                   {clan.memberCount}
