@@ -19,15 +19,15 @@ const tabData: Record<Tab, RankedClan[]> = {
 
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1) {
-    return <span className="w-6 h-6 rounded-sm bg-gold/15 text-gold text-xs font-bold flex items-center justify-center border border-gold/20">1</span>
+    return <span className="w-6 h-6 rounded-sm text-xs font-bold flex items-center justify-center ch-stat-cell text-gold">1</span>
   }
   if (rank === 2) {
-    return <span className="w-6 h-6 rounded-sm bg-zinc-400/10 text-zinc-300 text-xs font-bold flex items-center justify-center border border-zinc-500/15">2</span>
+    return <span className="w-6 h-6 rounded-sm text-xs font-bold flex items-center justify-center ch-stat-cell text-zinc-300">2</span>
   }
   if (rank === 3) {
-    return <span className="w-6 h-6 rounded-sm bg-orange-500/10 text-orange-400 text-xs font-bold flex items-center justify-center border border-orange-500/15">3</span>
+    return <span className="w-6 h-6 rounded-sm text-xs font-bold flex items-center justify-center ch-stat-cell text-orange-400">3</span>
   }
-  return <span className="w-6 h-6 rounded-sm text-muted-foreground text-xs font-medium flex items-center justify-center">{rank}</span>
+  return <span className="w-6 h-6 rounded-sm text-text-muted text-xs font-medium flex items-center justify-center">{rank}</span>
 }
 
 export default function ClanRankings() {
@@ -35,19 +35,15 @@ export default function ClanRankings() {
   const clans = tabData[activeTab]
 
   return (
-    <div className="ch-panel overflow-hidden">
+    <div className="ch-panel">
       <div className="ch-panel-header justify-between">
         <span>Clan Rankings</span>
-        <div className="flex gap-0.5">
+        <div className="ch-tabs">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => { setActiveTab(tab.key) }}
-              className={`px-2.5 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
-                activeTab === tab.key
-                  ? "bg-gold/12 text-gold border border-gold/20"
-                  : "text-muted-foreground hover:text-foreground border border-transparent"
-              }`}
+              className={`ch-tab ${activeTab === tab.key ? "ch-tab-active" : ""}`}
             >
               {tab.label}
             </button>
@@ -55,25 +51,23 @@ export default function ClanRankings() {
         </div>
       </div>
 
-      <div className="relative z-1">
-        {clans.map((clan, i) => (
+      <div className="ch-panel-body space-y-2 relative z-1">
+        {clans.map((clan) => (
           <div
             key={clan.name}
-            className={`flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors ${
-              i < clans.length - 1 ? "border-b border-border/60" : ""
-            }`}
+            className="ch-row flex items-center gap-3 px-4 py-2.5"
           >
             <RankBadge rank={clan.rank} />
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-foreground truncate">
+              <div className="text-sm font-medium text-text-highlight truncate">
                 {clan.name}
               </div>
-              <div className="text-[11px] text-muted-foreground">
+              <div className="text-[11px] text-text-muted">
                 {clan.memberCount} members
               </div>
             </div>
             <div className="text-right hidden sm:block">
-              <div className="text-[11px] text-muted-foreground">{clan.totalXp}</div>
+              <div className="text-[11px] text-text-muted">{clan.totalXp}</div>
             </div>
             <div className="text-right">
               {activeTab === "growing" && clan.growthPercent ? (
@@ -85,11 +79,7 @@ export default function ClanRankings() {
                 <span className="text-xs font-semibold text-xp-green">+{clan.weeklyXp}</span>
               )}
             </div>
-            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-sm border ${
-              clan.gameType === "RS3"
-                ? "bg-rs3/10 text-rs3 border-rs3/15"
-                : "bg-osrs/10 text-osrs border-osrs/15"
-            }`}>
+            <span className={clan.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
               {clan.gameType}
             </span>
           </div>

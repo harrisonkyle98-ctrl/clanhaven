@@ -10,7 +10,7 @@ const onlineClans = [
 
 export default function CommunityOverview() {
   return (
-    <div className="ch-panel overflow-hidden">
+    <div className="ch-panel">
       <div className="ch-panel-header justify-between">
         <span>Community</span>
         <span className="flex items-center gap-1.5 text-[10px] font-normal normal-case tracking-normal text-xp-green">
@@ -20,39 +20,37 @@ export default function CommunityOverview() {
       </div>
 
       {/* Quick stats */}
-      <div className="grid grid-cols-3 relative z-1">
-        <div className="p-3 text-center border-r border-border/60">
-          <Gamepad2 className="w-4 h-4 text-rs3 mx-auto mb-1" />
-          <div className="text-sm font-bold text-foreground">412</div>
-          <div className="text-[10px] text-muted-foreground">RS3 Clans</div>
+      <div className="ch-panel-body relative z-1">
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="ch-stat-cell p-3 text-center">
+            <Gamepad2 className="w-4 h-4 text-rs3 mx-auto mb-1" />
+            <div className="text-sm font-bold text-text-highlight">412</div>
+            <div className="text-[10px] text-text-muted">RS3 Clans</div>
+          </div>
+          <div className="ch-stat-cell p-3 text-center">
+            <Gamepad2 className="w-4 h-4 text-osrs mx-auto mb-1" />
+            <div className="text-sm font-bold text-text-highlight">435</div>
+            <div className="text-[10px] text-text-muted">OSRS Clans</div>
+          </div>
+          <div className="ch-stat-cell p-3 text-center">
+            <Zap className="w-4 h-4 text-purple-400 mx-auto mb-1" />
+            <div className="text-sm font-bold text-text-highlight">234</div>
+            <div className="text-[10px] text-text-muted">Competitions</div>
+          </div>
         </div>
-        <div className="p-3 text-center border-r border-border/60">
-          <Gamepad2 className="w-4 h-4 text-osrs mx-auto mb-1" />
-          <div className="text-sm font-bold text-foreground">435</div>
-          <div className="text-[10px] text-muted-foreground">OSRS Clans</div>
-        </div>
-        <div className="p-3 text-center">
-          <Zap className="w-4 h-4 text-purple-400 mx-auto mb-1" />
-          <div className="text-sm font-bold text-foreground">234</div>
-          <div className="text-[10px] text-muted-foreground">Competitions</div>
-        </div>
-      </div>
 
-      {/* Most active clans */}
-      <div className="px-4 py-3 border-t border-border/60 relative z-1">
+        {/* Most active clans */}
         <div className="flex items-center gap-1.5 mb-2.5">
           <Clock className="w-3 h-3 text-gold-dim" />
           <span className="text-[10px] text-gold-dim font-semibold uppercase tracking-wider">Most Active Now</span>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {onlineClans.map((clan) => (
-            <div key={clan.name} className="flex items-center justify-between">
-              <span className="text-[13px] text-foreground">{clan.name}</span>
-              <div className="flex items-center gap-2">
+            <div key={clan.name} className="ch-row flex items-center justify-between px-3 py-2">
+              <span className="text-[13px] text-text-warm relative z-1">{clan.name}</span>
+              <div className="flex items-center gap-2 relative z-1">
                 <span className="text-[11px] text-xp-green">{clan.members} online</span>
-                <span className={`text-[9px] font-bold px-1 py-0.5 rounded-sm border ${
-                  clan.game === "RS3" ? "bg-rs3/10 text-rs3 border-rs3/15" : "bg-osrs/10 text-osrs border-osrs/15"
-                }`}>
+                <span className={clan.game === "RS3" ? "badge-rs3" : "badge-osrs"}>
                   {clan.game}
                 </span>
               </div>

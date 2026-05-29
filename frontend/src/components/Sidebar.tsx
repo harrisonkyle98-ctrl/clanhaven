@@ -31,27 +31,27 @@ export default function Sidebar() {
   const { user, login, logout } = useAuth()
 
   const sidebarContent = (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col h-full">
       {/* Brand */}
       <div className="px-4 pt-5 pb-4 shrink-0">
         <div className={`flex items-center ${collapsed ? "justify-center" : "gap-3"}`}>
-          <div className="w-9 h-9 rounded bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center shrink-0 shadow-[0_0_12px_#d4a53730]">
+          <div className="w-9 h-9 rounded-sm bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center shrink-0">
             <span className="text-xs font-black text-background tracking-tight">CH</span>
           </div>
           {!collapsed && (
             <div>
-              <div className="text-sm font-bold tracking-wide text-foreground">Clan Haven</div>
+              <div className="text-sm font-bold tracking-wide text-text-highlight">Clan Haven</div>
               <div className="text-[10px] text-gold-dim font-medium tracking-wider uppercase">Community Hub</div>
             </div>
           )}
         </div>
       </div>
 
-      <div className="divider-glow mx-3" />
+      <div className="divider-subtle mx-3" />
 
       {/* Navigation */}
       <nav className="flex-1 py-4 px-2.5 space-y-1 overflow-y-auto">
-        <div className={`text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2 ${collapsed ? "text-center" : "px-3"}`}>
+        <div className={`text-[10px] font-semibold text-text-muted uppercase tracking-widest mb-2 ${collapsed ? "text-center" : "px-3"}`}>
           {collapsed ? "•" : "Navigate"}
         </div>
         {navItems.map((item) => {
@@ -62,18 +62,9 @@ export default function Sidebar() {
               to={item.to}
               onClick={() => { setMobileOpen(false) }}
               title={collapsed ? item.label : undefined}
-              className={`flex items-center gap-3 px-3 py-2 rounded text-sm font-medium transition-all group relative ${
-                isActive
-                  ? "bg-gold/8 text-gold"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
-              }`}
+              className={`ch-nav-item ${isActive ? "ch-nav-item-active" : ""} ${collapsed ? "justify-center" : ""}`}
             >
-              {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-gold rounded-r" />
-              )}
-              <item.icon className={`w-[18px] h-[18px] shrink-0 ${
-                isActive ? "text-gold" : "text-muted-foreground group-hover:text-foreground"
-              }`} />
+              <item.icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? "opacity-100" : "opacity-70"}`} />
               {!collapsed && <span>{item.label}</span>}
             </Link>
           )
@@ -82,13 +73,13 @@ export default function Sidebar() {
 
       {/* Bottom section */}
       <div className="px-2.5 pb-3 space-y-1 shrink-0">
-        <div className="divider-glow mx-1 mb-3" />
+        <div className="divider-subtle mx-1 mb-3" />
 
         {user ? (
           <>
             <div className={`flex items-center gap-3 px-3 py-2 ${collapsed ? "justify-center" : ""}`}>
-              <div className="w-7 h-7 rounded bg-gradient-to-br from-secondary to-muted flex items-center justify-center shrink-0 border border-border">
-                <span className="text-[10px] font-bold text-foreground">
+              <div className="w-7 h-7 rounded-sm bg-gradient-to-br from-secondary to-muted flex items-center justify-center shrink-0">
+                <span className="text-[10px] font-bold text-text-highlight">
                   {user.username[0]?.toUpperCase()}
                 </span>
               </div>
@@ -99,9 +90,9 @@ export default function Sidebar() {
             <button
               onClick={() => { logout(); setMobileOpen(false) }}
               title={collapsed ? "Logout" : undefined}
-              className="flex items-center gap-3 px-3 py-2 rounded text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/[0.03] transition-colors w-full cursor-pointer"
+              className="ch-nav-item w-full cursor-pointer"
             >
-              <LogOut className="w-[18px] h-[18px] shrink-0" />
+              <LogOut className="w-[18px] h-[18px] shrink-0 opacity-70" />
               {!collapsed && <span>Logout</span>}
             </button>
           </>
@@ -109,9 +100,9 @@ export default function Sidebar() {
           <button
             onClick={() => { login(); setMobileOpen(false) }}
             title={collapsed ? "Login" : undefined}
-            className="flex items-center gap-3 px-3 py-2 rounded text-sm font-medium text-muted-foreground hover:text-gold hover:bg-gold/5 transition-colors w-full cursor-pointer"
+            className="ch-nav-item w-full cursor-pointer"
           >
-            <LogIn className="w-[18px] h-[18px] shrink-0" />
+            <LogIn className="w-[18px] h-[18px] shrink-0 opacity-70" />
             {!collapsed && <span>Login with Discord</span>}
           </button>
         )}
@@ -120,16 +111,9 @@ export default function Sidebar() {
           to="/dashboard"
           onClick={() => { setMobileOpen(false) }}
           title={collapsed ? "Settings" : undefined}
-          className={`flex items-center gap-3 px-3 py-2 rounded text-sm font-medium transition-all relative ${
-            location.pathname === "/dashboard"
-              ? "bg-gold/8 text-gold"
-              : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
-          }`}
+          className={`ch-nav-item ${location.pathname === "/dashboard" ? "ch-nav-item-active" : ""} ${collapsed ? "justify-center" : ""}`}
         >
-          {location.pathname === "/dashboard" && (
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-gold rounded-r" />
-          )}
-          <Settings className="w-[18px] h-[18px] shrink-0" />
+          <Settings className={`w-[18px] h-[18px] shrink-0 ${location.pathname === "/dashboard" ? "opacity-100" : "opacity-70"}`} />
           {!collapsed && <span>Settings</span>}
         </Link>
       </div>
@@ -138,14 +122,14 @@ export default function Sidebar() {
       <button
         onClick={() => { setCollapsed(!collapsed) }}
         title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className="hidden lg:flex items-center justify-center gap-2 h-11 border-t border-border text-muted-foreground hover:text-gold transition-colors cursor-pointer group"
+        className="hidden lg:flex items-center justify-center gap-2 h-11 border-t border-border text-text-muted hover:text-text-highlight transition-colors cursor-pointer"
       >
         {collapsed ? (
-          <PanelLeftOpen className="w-4 h-4 group-hover:text-gold transition-colors" />
+          <PanelLeftOpen className="w-4 h-4" />
         ) : (
           <>
-            <PanelLeftClose className="w-4 h-4 group-hover:text-gold transition-colors" />
-            <span className="text-[10px] font-medium uppercase tracking-wider group-hover:text-gold transition-colors">Collapse</span>
+            <PanelLeftClose className="w-4 h-4" />
+            <span className="text-[10px] font-medium uppercase tracking-wider">Collapse</span>
           </>
         )}
       </button>
@@ -154,10 +138,10 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile toggle button */}
+      {/* Mobile toggle */}
       <button
         onClick={() => { setMobileOpen(!mobileOpen) }}
-        className="lg:hidden fixed top-3 left-3 z-50 p-2 rounded bg-panel border border-border text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+        className="lg:hidden fixed top-3 left-3 z-50 ch-nav-item cursor-pointer"
       >
         {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
@@ -165,7 +149,7 @@ export default function Sidebar() {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-40 bg-black/70 backdrop-blur-sm"
+          className="lg:hidden fixed inset-0 z-40 bg-black/70"
           onClick={() => { setMobileOpen(false) }}
         />
       )}
