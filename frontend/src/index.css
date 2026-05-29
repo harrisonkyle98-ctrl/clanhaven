@@ -523,9 +523,9 @@ body {
   --ribbon-top: #4f6ebc;
   --ribbon-mid: #445ea1;
   --ribbon-bot: #394f8b;
-  --s: 24px;   /* fold side width */
-  --d: 8px;    /* depth / drop — how far fold sits behind body */
-  --c: 8px;    /* V-notch cutout depth */
+  --s: 14px;   /* fold side width */
+  --d: 5px;    /* depth / drop — how far fold sits behind body */
+  --c: 5px;    /* V-notch cutout depth */
 
   position: relative;
   padding: 0.4rem 0.75rem;
