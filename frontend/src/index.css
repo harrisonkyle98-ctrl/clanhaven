@@ -1,36 +1,31 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #0b0c10;
+  --color-background: #080a0e;
   --color-foreground: #c5c6c7;
-  --color-card: #111318;
+  --color-card: #0f1118;
   --color-card-foreground: #c5c6c7;
   --color-primary: #d4a537;
-  --color-primary-foreground: #0b0c10;
-  --color-secondary: #161921;
+  --color-primary-foreground: #080a0e;
+  --color-secondary: #13151e;
   --color-secondary-foreground: #c5c6c7;
-  --color-muted: #1a1d27;
-  --color-muted-foreground: #7a7d85;
+  --color-muted: #181b25;
+  --color-muted-foreground: #6b6e78;
   --color-accent: #d4a537;
-  --color-border: #1e2130;
+  --color-border: #191c28;
+  --color-border-highlight: #252a3a;
   --color-ring: #d4a537;
-  --color-surface: #0e1017;
-  --color-panel: #12141c;
-  --color-sidebar: #0d0e14;
+  --color-surface: #0c0e15;
+  --color-panel: #0e1018;
+  --color-sidebar: #0a0c12;
   --color-gold: #d4a537;
   --color-gold-dim: #a37e2c;
+  --color-gold-glow: #d4a53720;
   --color-xp-green: #4ade80;
   --color-rs3: #6366f1;
   --color-osrs: #d4a537;
-  --radius: 0.375rem;
-}
-
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+  --color-warm-glow: #d4a53708;
+  --radius: 0.25rem;
 }
 
 body {
@@ -41,25 +36,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Subtle noise texture on backgrounds */
-.bg-noise {
-  position: relative;
-}
-
-.bg-noise::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
+/* Atmospheric background — warm radial glow */
+.bg-atmosphere {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, #d4a53706 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 20% 20%, #6366f103 0%, transparent 50%),
+    var(--color-background);
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -67,31 +55,85 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e2130;
+  background: #1a1d28;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2a2d3a;
+  background: #252838;
 }
 
-/* Panel styling base class */
-.panel {
-  background-color: var(--color-panel);
+/* Panel system — Clan Haven's visual language */
+.ch-panel {
+  background: linear-gradient(180deg, #10121a 0%, #0d0f16 100%);
   border: 1px solid var(--color-border);
+  border-top: 2px solid var(--color-gold-dim);
   border-radius: var(--radius);
+  position: relative;
 }
 
-.panel-header {
-  padding: 0.75rem 1rem;
+.ch-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(180deg, #d4a53705 0%, transparent 100%);
+  border-radius: var(--radius) var(--radius) 0 0;
+  pointer-events: none;
+}
+
+.ch-panel-header {
+  padding: 0.625rem 0.875rem;
   border-bottom: 1px solid var(--color-border);
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: 0.6875rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-muted-foreground);
+  letter-spacing: 0.08em;
+  color: var(--color-gold-dim);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.panel-body {
-  padding: 1rem;
+.ch-panel-header::before {
+  content: "";
+  width: 3px;
+  height: 12px;
+  background: var(--color-gold);
+  border-radius: 1px;
+  opacity: 0.6;
+}
+
+.ch-panel-body {
+  padding: 0.875rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Sidebar atmospheric treatment */
+.sidebar-bg {
+  background:
+    linear-gradient(180deg, #0d0f16 0%, #090b10 40%, #0a0c12 100%);
+  border-right: 1px solid var(--color-border);
+}
+
+.sidebar-bg::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, #d4a53715 0%, transparent 30%, transparent 70%, #d4a53710 100%);
+  pointer-events: none;
+}
+
+/* Subtle divider with glow */
+.divider-glow {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-border-highlight) 30%, var(--color-border-highlight) 70%, transparent);
 }
