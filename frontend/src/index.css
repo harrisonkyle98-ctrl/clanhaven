@@ -513,18 +513,26 @@ body {
 
 /* ===========================================
    SIDEBAR RIBBON - Category header
-   Stormlight blue ribbon with right-side fold only
+   Stormlight blue ribbon with right-side fold only.
+   Uses same single-element clip-path technique as
+   .fantasy-banner: main body is RAISED, fold is
+   DROPPED behind by --d.  Conic-gradient darkens
+   the fold area to create depth.
    =========================================== */
 .ch-sidebar-ribbon {
   --ribbon-top: #4f6ebc;
   --ribbon-mid: #445ea1;
   --ribbon-bot: #394f8b;
-  --fold-w: 16px;
-  --fold-drop: 5px;
+  --s: 24px;   /* fold side width */
+  --d: 8px;    /* depth / drop — how far fold sits behind body */
+  --c: 8px;    /* V-notch cutout depth */
 
   position: relative;
   padding: 0.4rem 0.75rem;
+  padding-right: calc(var(--s) + 0.75rem);
+  padding-bottom: calc(0.4rem + var(--d));
   margin-left: -1px;
+  margin-right: calc((var(--s) + var(--d)) * -1);
   text-align: center;
 
   font-family: 'Cinzel', 'Times New Roman', serif;
@@ -538,27 +546,24 @@ body {
     0 0 12px rgba(100, 130, 200, 0.15);
 
   background:
-    /* Cloth fiber grain */
-    repeating-linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.008) 0px,
-      rgba(255, 255, 255, 0.008) 1px,
-      transparent 1px,
-      transparent 3px
-    ),
-    /* Drape center highlight */
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 255, 255, 0.10) 0%,
-      rgba(255, 255, 255, 0) 70%
-    ),
-    /* Top edge highlight */
+    /* Top highlight — thin bright edge */
     linear-gradient(
       to bottom,
-      rgba(255, 255, 255, 0.12) 0%,
-      rgba(255, 255, 255, 0.04) 4%,
-      rgba(255, 255, 255, 0) 10%
+      rgba(255, 255, 255, 0.10) 0%,
+      rgba(255, 255, 255, 0.04) 3%,
+      rgba(255, 255, 255, 0) 8%
     ),
+    /* Ambient glow — cloth sheen */
+    radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0) 70%
+    ),
+    /* Fold shading — right side only (darkens fold area) */
+    conic-gradient(
+      at right var(--s) bottom var(--d),
+      #0004 62.5%, #0008 0 75%, #0000 0
+    ) 100% / 50% 100% no-repeat,
     /* Base gradient */
     linear-gradient(
       to bottom,
@@ -567,49 +572,67 @@ body {
       var(--ribbon-bot)
     );
 
-  box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.3),
-    inset 0 0 10px rgba(255, 255, 255, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  /* Right-fold-only clip-path (adapted from .fantasy-banner).
+     Body sits at y=0..100%-d, fold at y=d..100%.
+     Fold is visually BEHIND the main face. */
+  clip-path: polygon(
+    0 0,                                              /* body top-left */
+    calc(100% - var(--s)) 0,                          /* body top-right */
+    calc(100% - var(--s)) var(--d),                   /* fold inner-top (dropped) */
+    100% var(--d),                                    /* fold outer-top (dropped) */
+    calc(100% - var(--c)) calc(50% + var(--d) / 2),   /* V-notch */
+    100% 100%,                                        /* fold outer-bottom */
+    calc(100% - var(--s) - var(--d)) 100%,            /* fold hinge-bottom */
+    calc(100% - var(--s) - var(--d)) calc(100% - var(--d)), /* body bottom-right */
+    0 calc(100% - var(--d))                           /* body bottom-left */
+  );
+
+  /* clip-path removes box-shadow; use filter instead */
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
 
   z-index: 2;
 }
 
-/* Right fold tab — visually extends beyond sidebar edge */
-.ch-sidebar-ribbon::after {
+/* Cloth fiber grain overlay (::before kept inside clip-path) */
+.ch-sidebar-ribbon::before {
   content: "";
   position: absolute;
-  top: var(--fold-drop);
-  right: calc(var(--fold-w) * -1);
-  width: var(--fold-w);
-  bottom: calc(var(--fold-drop) * -1);
-  background: linear-gradient(
-    180deg,
-    #4a6aad 0%,
-    #3d5a96 40%,
-    #314b80 100%
-  );
-  clip-path: polygon(
-    0 0,
-    100% 15%,
-    50% 50%,
-    100% 85%,
-    0 100%
-  );
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.006) 0px,
+      rgba(255, 255, 255, 0.006) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0) 70%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.10) 0%,
+      rgba(255, 255, 255, 0) 30%
+    );
 }
 
-/* Collapsed sidebar: thin blue bar */
+/* Collapsed sidebar: thin blue bar, no fold */
 .ch-sidebar-ribbon--collapsed {
+  --s: 0px;
+  --d: 0px;
+  --c: 0px;
   margin-right: 0;
   padding: 0.25rem 0;
   font-size: 0;
   min-height: 4px;
   max-height: 4px;
   overflow: hidden;
-}
-
-.ch-sidebar-ribbon--collapsed::after {
-  display: none;
+  clip-path: none;
+  filter: none;
 }
 
 /* ===========================================
