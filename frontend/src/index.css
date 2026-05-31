@@ -734,7 +734,7 @@ body {
   position: relative;
   padding: calc(0.4rem + var(--d)) 0.75rem;
   padding-right: calc(var(--s) + 0.75rem);
-  padding-bottom: calc(0.4rem + var(--d));
+  padding-bottom: calc(0.4rem + var(--d) + var(--d));
   margin-left: -1px;
   margin-right: calc((var(--s) + var(--d)) * -1);
   display: flex;
