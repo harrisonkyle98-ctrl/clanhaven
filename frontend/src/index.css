@@ -701,7 +701,7 @@ body {
   --c: 4px;    /* V-notch cutout depth */
 
   position: relative;
-  padding: 0.4rem 0.75rem;
+  padding: calc(0.4rem + var(--d)) 0.75rem;
   padding-right: calc(var(--s) + 0.75rem);
   padding-bottom: calc(0.4rem + var(--d));
   margin-left: -1px;
