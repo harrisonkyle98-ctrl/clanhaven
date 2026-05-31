@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
-import { ChevronDown } from "lucide-react"
 
 const mainNavItems = [
   { label: "Home", to: "/" },
@@ -48,10 +47,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           onClick={() => { setMainOpen(!mainOpen) }}
           className={`${ribbonClass} cursor-pointer shrink-0 mb-0.5`}
         >
-          <span className="ch-sidebar-ribbon-label">
-            <span className="ch-sidebar-ribbon-text">Main</span>
-            <ChevronDown className={`w-3 h-3 opacity-60 shrink-0 transition-transform duration-200 ${mainOpen ? "" : "-rotate-90"}`} />
-          </span>
+          <span className="ch-sidebar-ribbon-text">Main</span>
         </button>
         <div className={`ch-sidebar-section ${mainOpen ? "ch-sidebar-section-open" : ""}`}>
           <div className="px-2.5 space-y-1.5 shrink-0">
@@ -75,10 +71,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           onClick={() => { setAccountOpen(!accountOpen) }}
           className={`${ribbonClass} cursor-pointer shrink-0 mt-1.5 mb-0.5`}
         >
-          <span className="ch-sidebar-ribbon-label">
-            <span className="ch-sidebar-ribbon-text">Account</span>
-            <ChevronDown className={`w-3 h-3 opacity-60 shrink-0 transition-transform duration-200 ${accountOpen ? "" : "-rotate-90"}`} />
-          </span>
+          <span className="ch-sidebar-ribbon-text">Account</span>
         </button>
         <div className={`ch-sidebar-section ${accountOpen ? "ch-sidebar-section-open" : ""}`}>
           <div className="px-2.5 space-y-1.5 shrink-0">
@@ -114,10 +107,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           onClick={() => { setSystemOpen(!systemOpen) }}
           className={`${ribbonClass} cursor-pointer shrink-0 mt-1.5 mb-0.5`}
         >
-          <span className="ch-sidebar-ribbon-label">
-            <span className="ch-sidebar-ribbon-text">System</span>
-            <ChevronDown className={`w-3 h-3 opacity-60 shrink-0 transition-transform duration-200 ${systemOpen ? "" : "-rotate-90"}`} />
-          </span>
+          <span className="ch-sidebar-ribbon-text">System</span>
         </button>
         <div className={`ch-sidebar-section ${systemOpen ? "ch-sidebar-section-open" : ""}`}>
           <div className="px-2.5 shrink-0">
