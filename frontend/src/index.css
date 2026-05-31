@@ -911,7 +911,7 @@ body {
 .ch-home-slider {
   position: relative;
   z-index: 2;
-  margin: -28px 1rem 0;
+  margin: -56px 0 1rem;
   background: rgba(18, 15, 11, 0.92);
   border-radius: 4px;
   box-shadow:
@@ -932,7 +932,7 @@ body {
 .ch-home-slider-image {
   position: relative;
   flex-shrink: 0;
-  width: 240px;
+  width: 70%;
   display: flex;
   align-items: center;
   justify-content: center;
