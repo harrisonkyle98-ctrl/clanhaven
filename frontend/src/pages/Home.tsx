@@ -4,6 +4,7 @@ import FeaturedClans from "@/components/FeaturedClans"
 import PlayerRankings from "@/components/PlayerRankings"
 import ActivityFeed from "@/components/ActivityFeed"
 import CommunityOverview from "@/components/CommunityOverview"
+import HomeSlider from "@/components/HomeSlider"
 
 export default function Home() {
   return (
@@ -18,6 +19,8 @@ export default function Home() {
         <h1 className="ch-page-banner-title">Home</h1>
       </div>
       <div className="ch-page-content p-4 lg:p-6 space-y-4">
+      {/* Featured slider — floats between banner and content */}
+      <HomeSlider />
       {/* Atmospheric identity header */}
       <HeroSection />
 
