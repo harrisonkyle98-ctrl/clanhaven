@@ -766,6 +766,10 @@ body {
   z-index: 2;
 }
 
+.ch-sidebar-ribbon > span {
+  transform: translateY(calc(var(--d) / 2));
+}
+
 /* Cloth fiber grain overlay (::before kept inside clip-path) */
 .ch-sidebar-ribbon::before {
   content: "";
