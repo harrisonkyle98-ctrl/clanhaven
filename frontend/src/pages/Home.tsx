@@ -7,7 +7,19 @@ import CommunityOverview from "@/components/CommunityOverview"
 
 export default function Home() {
   return (
-    <div className="p-4 lg:p-6 space-y-4">
+    <div>
+      {/* Page banner — edge-to-edge at top of content area */}
+      <div className="ch-page-banner">
+        <img
+          src="/images/home-banner.jpg"
+          alt="Home banner"
+          className="ch-page-banner-img"
+        />
+        <h1 className="ch-page-banner-title">Home</h1>
+      </div>
+      <div className="ch-page-banner-divider" />
+
+      <div className="p-4 lg:p-6 space-y-4">
       {/* Atmospheric identity header */}
       <HeroSection />
 
@@ -33,6 +45,7 @@ export default function Home() {
 
       {/* Full-width activity feed */}
       <ActivityFeed />
+      </div>
     </div>
   )
 }
