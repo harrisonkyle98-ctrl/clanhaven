@@ -35,9 +35,9 @@ export default function CollapsiblePanel({
           <ChevronUp className="w-4 h-4" />
         </button>
       </div>
-      {!collapsed && (
+      <div className={`ch-panel-collapse ${collapsed ? "" : "ch-panel-collapse-open"}`}>
         <div className="ch-panel-body">{children}</div>
-      )}
+      </div>
     </div>
   )
 }

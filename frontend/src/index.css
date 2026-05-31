@@ -222,6 +222,22 @@ body {
   --panel-header-border: rgba(85, 40, 40, 0.95);
 }
 
+/* Panel collapse/expand animation */
+.ch-panel-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+  overflow: hidden;
+}
+
+.ch-panel-collapse > div {
+  overflow: hidden;
+}
+
+.ch-panel-collapse-open {
+  grid-template-rows: 1fr;
+}
+
 /* ===========================================
    PANEL BODY - Content area below header
    =========================================== */
