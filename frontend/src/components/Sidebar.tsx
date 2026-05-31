@@ -27,7 +27,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
   return (
     <aside
-      className={`hidden lg:flex shrink-0 h-full sidebar-bg transition-all duration-300 ease-in-out w-[220px] ${open ? "ml-0 opacity-100" : "-ml-[220px] opacity-0 pointer-events-none"}`}
+      className={`hidden lg:flex shrink-0 h-full sidebar-bg transition-all duration-300 ease-in-out ch-sidebar-width ${open ? "ml-0 opacity-100" : "ch-sidebar-hidden opacity-0 pointer-events-none"}`}
     >
       <div className="flex flex-col h-full w-full">
         {/* Brand + branding image */}
