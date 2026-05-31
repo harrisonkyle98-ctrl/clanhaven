@@ -631,9 +631,9 @@ body {
    the fold area to create depth.
    =========================================== */
 .ch-sidebar-ribbon {
-  --ribbon-top: #596e84;
-  --ribbon-mid: #415a73;
-  --ribbon-bot: #374d62;
+  --ribbon-top: #4f6ebc;
+  --ribbon-mid: #445ea1;
+  --ribbon-bot: #394f8b;
   --s: 11px;   /* fold side width */
   --d: 4px;    /* depth / drop — how far fold sits behind body */
   --c: 4px;    /* V-notch cutout depth */
