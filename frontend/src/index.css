@@ -448,41 +448,65 @@ body {
    TAB SYSTEM - Recessed tab strip
    =========================================== */
 .ch-tabs {
-  background: rgba(18, 15, 11, 0.6);
-  border: none;
-  box-shadow:
-    inset 0 0 0 1px rgba(12, 10, 6, 0.8),
-    inset 0 2px 4px rgba(0, 0, 0, 0.3);
-  border-radius: 3px;
   display: inline-flex;
-  gap: 2px;
-  padding: 2px;
+  gap: 4px;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
 }
 
 .ch-tab {
+  position: relative;
+  overflow: hidden;
   color: #b0a088;
   font-size: 0.625rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: 0.1875rem 0.5rem;
+  padding: 0.25rem 0.625rem;
   border-radius: 2px;
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
-  background: transparent;
+  background: rgba(22, 19, 14, 0.8);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.4),
+    inset 0 1px 0 rgba(115, 98, 72, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .ch-tab:hover {
   color: #dccaaa;
+  background: rgba(28, 24, 18, 0.85);
 }
 
 .ch-tab-active {
-  background: rgba(56, 48, 36, 0.6);
+  background: rgba(22, 19, 14, 0.8);
   color: #dccaaa;
   box-shadow:
-    inset 0 1px 0 rgba(135, 112, 78, 0.2),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ch-tab-active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: #c9a227;
+  -webkit-mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: 20px 20px;
+  mask-size: 20px 20px;
+  opacity: 0.08;
 }
 
 /* ===========================================
