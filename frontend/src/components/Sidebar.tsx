@@ -30,9 +30,9 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
   return (
     <aside
-      className={`hidden lg:flex shrink-0 h-full sidebar-bg overflow-hidden transition-all duration-300 ease-in-out ${open ? "w-[220px]" : "w-0"}`}
+      className={`hidden lg:flex shrink-0 h-full sidebar-bg transition-all duration-300 ease-in-out w-[220px] ${open ? "ml-0 opacity-100" : "-ml-[220px] opacity-0 pointer-events-none"}`}
     >
-      <div className="flex flex-col h-full w-[220px] min-w-[220px]">
+      <div className="flex flex-col h-full w-full">
         {/* Brand */}
         <div className="px-4 pt-5 pb-4 shrink-0">
           <div className="flex items-center gap-3">
