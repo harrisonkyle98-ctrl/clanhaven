@@ -10,7 +10,9 @@ RUN npm run build
 FROM python:3.12-slim AS production
 WORKDIR /app
 
-RUN pip install --no-cache-dir poetry && \
+RUN apt-get update && apt-get install -y --no-install-recommends libatomic1 && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip install --no-cache-dir poetry && \
     poetry config virtualenvs.create false
 
 COPY backend/pyproject.toml backend/poetry.lock ./
