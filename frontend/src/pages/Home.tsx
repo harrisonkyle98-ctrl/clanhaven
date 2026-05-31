@@ -7,7 +7,7 @@ import CommunityOverview from "@/components/CommunityOverview"
 
 export default function Home() {
   return (
-    <div className="p-4 lg:p-6 space-y-4 max-w-[1400px]">
+    <div className="p-4 lg:p-6 space-y-4">
       {/* Atmospheric identity header */}
       <HeroSection />
 
