@@ -500,6 +500,139 @@ body {
 }
 
 /* ===========================================
+   SIDEBAR BUTTONS - Polished mini-containers
+   Inspired by ch-stat-cell / Featured Clans cards
+   =========================================== */
+.ch-sidebar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: #ccc0a8;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: center;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  background: rgba(22, 19, 14, 0.8);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Top highlight bar */
+.ch-sidebar-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(175, 150, 110, 0.2) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Pattern hover layer — fades in from center */
+.ch-sidebar-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: rgba(180, 150, 100, 0.9);
+  -webkit-mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: 20px 20px;
+  mask-size: 20px 20px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ch-sidebar-btn > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ch-sidebar-btn:hover {
+  color: #f8f3ea;
+  background: rgba(32, 28, 22, 0.9);
+}
+
+.ch-sidebar-btn:hover::after {
+  opacity: 0.12;
+}
+
+.ch-sidebar-btn-active {
+  color: #f8f3ea;
+  background: rgba(32, 28, 22, 0.9);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(72, 62, 46, 0.7),
+    inset 0 1px 0 rgba(135, 115, 85, 0.25),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ch-sidebar-btn-active::after {
+  opacity: 0.08;
+}
+
+/* ===========================================
+   SIDEBAR OPEN BUTTON - Themed reopen trigger
+   Visible when sidebar is fully hidden
+   =========================================== */
+.ch-sidebar-open-btn {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  color: #ccc0a8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  cursor: pointer;
+  background: rgba(22, 19, 14, 0.95);
+  border: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
+}
+
+.ch-sidebar-open-btn:hover {
+  color: #f8f3ea;
+  background: rgba(32, 28, 22, 0.98);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(72, 62, 46, 0.7),
+    inset 0 1px 0 rgba(135, 115, 85, 0.3),
+    0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* ===========================================
    SIDEBAR - Warm dark base surface
    =========================================== */
 .sidebar-bg {
