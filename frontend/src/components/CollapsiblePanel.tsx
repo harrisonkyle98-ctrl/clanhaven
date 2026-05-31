@@ -39,7 +39,9 @@ export default function CollapsiblePanel({
         </div>
       </div>
       <div className={`ch-panel-collapse ${collapsed ? "" : "ch-panel-collapse-open"}`}>
-        <div className="ch-panel-body">{children}</div>
+        <div className="ch-panel-collapse-inner">
+          <div className="ch-panel-body">{children}</div>
+        </div>
       </div>
     </div>
   )

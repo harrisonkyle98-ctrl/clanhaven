@@ -230,8 +230,9 @@ body {
   overflow: hidden;
 }
 
-.ch-panel-collapse > div {
+.ch-panel-collapse-inner {
   overflow: hidden;
+  min-height: 0;
 }
 
 .ch-panel-collapse-open {
