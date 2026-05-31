@@ -766,11 +766,16 @@ body {
   z-index: 2;
 }
 
-.ch-sidebar-ribbon > span {
+.ch-sidebar-ribbon-label {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-top: calc(var(--d) / 2);
+  width: 100%;
+  line-height: 1;
+}
+
+.ch-sidebar-ribbon-text {
+  flex: 1;
+  text-align: center;
 }
 
 /* Cloth fiber grain overlay (::before kept inside clip-path) */
