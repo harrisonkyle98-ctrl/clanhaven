@@ -911,23 +911,21 @@ body {
   z-index: 1;
 }
 
-/* Shadow above accent (onto banner) — fades at edges */
+/* Shadow above accent (onto banner) — darkest in center, fades at edges */
 .ch-page-content::after {
   content: "";
   position: absolute;
-  top: -10px;
+  top: -8px;
   left: 0;
   right: 0;
-  height: 10px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(0, 0, 0, 0.65) 20%,
-    rgba(0, 0, 0, 0.65) 80%,
+  height: 8px;
+  background: radial-gradient(
+    ellipse 60% 100% at 50% 100%,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.2) 60%,
     transparent 100%
   );
   pointer-events: none;
-  filter: blur(4px);
 }
 
 
