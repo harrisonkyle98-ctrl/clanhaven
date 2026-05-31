@@ -969,11 +969,13 @@ body {
 
 .ch-page-banner-img {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 100%;
+  min-width: 1400px;
   height: 100%;
   object-fit: cover;
-  object-position: center 18%;
+  object-position: left 18%;
   image-rendering: auto;
 }
 
