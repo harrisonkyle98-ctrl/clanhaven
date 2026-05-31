@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
+import { ChevronDown } from "lucide-react"
 
 const mainNavItems = [
   { label: "Home", to: "/" },
@@ -48,6 +49,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           className={`${ribbonClass} cursor-pointer shrink-0 mb-0.5`}
         >
           <span className="ch-sidebar-ribbon-text">Main</span>
+          <ChevronDown className={`ch-sidebar-ribbon-arrow ${mainOpen ? "" : "ch-sidebar-ribbon-arrow--collapsed"}`} />
         </button>
         <div className={`ch-sidebar-section ${mainOpen ? "ch-sidebar-section-open" : ""}`}>
           <div className="px-2.5 space-y-1.5 shrink-0">
@@ -72,6 +74,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           className={`${ribbonClass} cursor-pointer shrink-0 mt-1.5 mb-0.5`}
         >
           <span className="ch-sidebar-ribbon-text">Account</span>
+          <ChevronDown className={`ch-sidebar-ribbon-arrow ${accountOpen ? "" : "ch-sidebar-ribbon-arrow--collapsed"}`} />
         </button>
         <div className={`ch-sidebar-section ${accountOpen ? "ch-sidebar-section-open" : ""}`}>
           <div className="px-2.5 space-y-1.5 shrink-0">
@@ -108,6 +111,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           className={`${ribbonClass} cursor-pointer shrink-0 mt-1.5 mb-0.5`}
         >
           <span className="ch-sidebar-ribbon-text">System</span>
+          <ChevronDown className={`ch-sidebar-ribbon-arrow ${systemOpen ? "" : "ch-sidebar-ribbon-arrow--collapsed"}`} />
         </button>
         <div className={`ch-sidebar-section ${systemOpen ? "ch-sidebar-section-open" : ""}`}>
           <div className="px-2.5 shrink-0">

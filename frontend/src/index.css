@@ -737,10 +737,12 @@ body {
   padding-bottom: calc(0.4rem + var(--d));
   margin-left: -1px;
   margin-right: calc((var(--s) + var(--d)) * -1);
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
   font-family: 'Cinzel', 'Times New Roman', serif;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -798,7 +800,20 @@ body {
 }
 
 .ch-sidebar-ribbon-text {
+  flex: 1;
   text-align: center;
+}
+
+.ch-sidebar-ribbon-arrow {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+.ch-sidebar-ribbon-arrow--collapsed {
+  transform: rotate(-90deg);
 }
 
 /* Cloth fiber grain overlay (::before kept inside clip-path) */
