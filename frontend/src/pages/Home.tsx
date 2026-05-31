@@ -16,7 +16,9 @@ export default function Home() {
           alt="Home banner"
           className="ch-page-banner-img"
         />
-        <h1 className="ch-page-banner-title">Home</h1>
+        <div className="ch-page-banner-content">
+          <h1 className="ch-page-banner-title">Home</h1>
+        </div>
       </div>
       <div className="ch-page-content p-4 lg:p-6 space-y-4">
       {/* Featured slider — floats between banner and content */}

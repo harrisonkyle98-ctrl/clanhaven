@@ -972,6 +972,19 @@ body {
   height: 100%;
   object-fit: cover;
   object-position: center 18%;
+  image-rendering: auto;
+}
+
+.ch-page-banner-content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
 }
 
 /* Transparent pattern overlay — fades in from left to right */
@@ -1012,11 +1025,7 @@ body {
 
 /* Banner title */
 .ch-page-banner-title {
-  position: absolute;
-  left: 2.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
+  position: relative;
   font-family: 'Cinzel', 'Times New Roman', serif;
   font-size: 2rem;
   font-weight: 700;
