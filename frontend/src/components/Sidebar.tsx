@@ -1,10 +1,7 @@
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
-import {
-  ChevronDown,
-  PanelLeftClose,
-} from "lucide-react"
+import { ChevronDown } from "lucide-react"
 
 const mainNavItems = [
   { label: "Home", to: "/" },
@@ -128,7 +125,6 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               onClick={(e) => { e.stopPropagation(); onClose() }}
               className="ch-sidebar-btn w-full cursor-pointer"
             >
-              <PanelLeftClose className="w-3.5 h-3.5 opacity-70" />
               <span>Collapse</span>
             </button>
           </div>

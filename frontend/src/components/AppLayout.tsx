@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from "react"
 import Sidebar from "@/components/Sidebar"
 import Footer from "@/components/Footer"
-import { PanelLeftOpen } from "lucide-react"
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -16,7 +15,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             className="ch-sidebar-open-btn"
             aria-label="Open sidebar"
           >
-            <PanelLeftOpen className="w-4 h-4" />
             <span>Menu</span>
           </button>
         )}
