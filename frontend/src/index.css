@@ -945,6 +945,7 @@ body {
   inset: 0;
 }
 
+
 .ch-home-slider-icon {
   position: relative;
   z-index: 1;
@@ -959,7 +960,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 1.25rem 1.5rem;
+  padding: 1.25rem 3.5rem 1.25rem 1.5rem;
   gap: 0.5rem;
   background: rgb(18, 15, 11);
   position: relative;
@@ -1016,37 +1017,40 @@ body {
   border-color: rgba(201, 162, 39, 0.4);
 }
 
-/* Arrow controls */
+/* Arrow controls — hidden by default, visible on slider hover */
 .ch-home-slider-arrow {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: rgba(18, 15, 11, 0.85);
-  border: 1px solid rgba(52, 45, 34, 0.6);
-  border-radius: 2px;
+  width: 48px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   color: #b0a088;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: opacity 0.3s ease, background 0.2s ease;
   z-index: 3;
+  opacity: 0;
+}
+
+.ch-home-slider:hover .ch-home-slider-arrow {
+  opacity: 1;
 }
 
 .ch-home-slider-arrow:hover {
-  background: rgba(30, 25, 18, 0.95);
+  background: rgba(18, 15, 11, 0.5);
   color: #e8d5b0;
-  border-color: rgba(115, 98, 72, 0.4);
 }
 
 .ch-home-slider-arrow--prev {
-  left: 8px;
+  left: 0;
 }
 
 .ch-home-slider-arrow--next {
-  right: 8px;
+  right: 0;
 }
 
 /* Dot indicators */
