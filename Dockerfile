@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir poetry && \
     poetry config virtualenvs.create false
 
 COPY backend/pyproject.toml backend/poetry.lock ./
-RUN poetry install --no-dev --no-root --no-interaction
+RUN poetry install --only main --no-root --no-interaction
 
 COPY backend/app ./app
 COPY backend/prisma ./prisma
