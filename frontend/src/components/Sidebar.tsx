@@ -33,15 +33,23 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       className={`hidden lg:flex shrink-0 h-full sidebar-bg transition-all duration-300 ease-in-out w-[220px] ${open ? "ml-0 opacity-100" : "-ml-[220px] opacity-0 pointer-events-none"}`}
     >
       <div className="flex flex-col h-full w-full">
-        {/* Brand */}
-        <div className="px-4 pt-5 pb-4 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-sm bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center shrink-0">
-              <span className="text-xs font-black text-background tracking-tight">CH</span>
-            </div>
-            <div>
-              <div className="text-sm font-bold tracking-wide text-text-highlight">Clan Haven</div>
-              <div className="text-[10px] text-gold-dim font-medium tracking-wider uppercase">Community Hub</div>
+        {/* Brand + branding image */}
+        <div className="ch-sidebar-branding shrink-0">
+          <img
+            src="/images/sidebar-branding.jpg"
+            alt=""
+            className="ch-sidebar-branding-img"
+          />
+          <div className="ch-sidebar-branding-pattern" />
+          <div className="ch-sidebar-branding-content">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-sm bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center shrink-0">
+                <span className="text-xs font-black text-background tracking-tight">CH</span>
+              </div>
+              <div>
+                <div className="text-sm font-bold tracking-wide text-text-highlight">Clan Haven</div>
+                <div className="text-[10px] text-gold-dim font-medium tracking-wider uppercase">Community Hub</div>
+              </div>
             </div>
           </div>
         </div>
@@ -49,7 +57,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         {/* Main section */}
         <button
           onClick={() => { setMainOpen(!mainOpen) }}
-          className={`${ribbonClass} cursor-pointer shrink-0 mt-1.5 mb-0.5`}
+          className={`${ribbonClass} cursor-pointer shrink-0 mb-0.5`}
         >
           <span className="relative flex items-center justify-center w-full">
             Main

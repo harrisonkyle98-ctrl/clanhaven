@@ -500,6 +500,43 @@ body {
 }
 
 /* ===========================================
+   SIDEBAR BRANDING — Image area behind title
+   =========================================== */
+.ch-sidebar-branding {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.ch-sidebar-branding-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  opacity: 0.3;
+}
+
+.ch-sidebar-branding-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  background-size: 20px 20px;
+  background-repeat: repeat;
+  opacity: 0.06;
+}
+
+.ch-sidebar-branding-content {
+  position: relative;
+  z-index: 2;
+  padding: 1.25rem 1rem 1rem;
+}
+
+/* ===========================================
    SIDEBAR BUTTONS - Polished mini-containers
    Inspired by ch-stat-cell / Featured Clans cards
    =========================================== */
