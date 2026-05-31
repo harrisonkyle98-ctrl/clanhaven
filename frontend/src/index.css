@@ -910,7 +910,7 @@ body {
    =========================================== */
 .ch-home-slider {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   margin: -56px 0 1rem;
   background: rgb(18, 15, 11);
   border-radius: 4px;
@@ -960,6 +960,9 @@ body {
   justify-content: center;
   padding: 1.25rem 1.5rem;
   gap: 0.5rem;
+  background: rgb(18, 15, 11);
+  position: relative;
+  z-index: 1;
 }
 
 .ch-home-slider-title {
