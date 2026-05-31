@@ -228,11 +228,14 @@ body {
   grid-template-rows: 0fr;
   transition: grid-template-rows 0.25s ease;
   overflow: hidden;
+  flex: 1;
 }
 
 .ch-panel-collapse-inner {
   overflow: hidden;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .ch-panel--collapsed {

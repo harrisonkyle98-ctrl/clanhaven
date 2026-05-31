@@ -18,11 +18,11 @@ function RankBadge({ rank }: { rank: number }) {
 export default function PlayerRankings() {
   return (
     <CollapsiblePanel variant="amber" title="Today's Top Players">
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2 flex-1">
         {topPlayers.slice(0, 6).map((player) => (
           <div
             key={player.username}
-            className="ch-row flex items-center gap-3 px-4 py-2.5"
+            className="ch-row flex items-center gap-3 px-4 py-2.5 flex-1"
           >
             <RankBadge rank={player.rank} />
             <div className="flex-1 min-w-0">

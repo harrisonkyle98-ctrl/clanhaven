@@ -49,11 +49,11 @@ export default function ClanRankings() {
 
   return (
     <CollapsiblePanel variant="blue" title="Clan Rankings" headerRight={tabsElement}>
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2 flex-1">
         {clans.map((clan) => (
           <div
             key={clan.name}
-            className="ch-row flex items-center gap-3 px-4 py-2.5"
+            className="ch-row flex items-center gap-3 px-4 py-2.5 flex-1"
           >
             <RankBadge rank={clan.rank} />
             <div className="flex-1 min-w-0">

@@ -9,7 +9,7 @@ export default function FeaturedClans() {
         {featuredClans.map((clan) => (
           <div
             key={clan.name}
-            className="ch-stat-cell p-4 cursor-pointer group flex flex-col"
+            className="ch-stat-cell p-4 cursor-pointer group flex flex-col h-full"
           >
             <div className="relative z-1 flex flex-col flex-1">
               <div className="flex items-start justify-between mb-3">
