@@ -915,10 +915,10 @@ body {
 .ch-page-content::after {
   content: "";
   position: absolute;
-  top: -8px;
+  top: -12px;
   left: 0;
   right: 0;
-  height: 8px;
+  height: 12px;
   background: radial-gradient(
     ellipse 60% 100% at 50% 100%,
     rgba(0, 0, 0, 0.5) 0%,
