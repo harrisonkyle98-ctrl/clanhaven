@@ -853,11 +853,11 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
   background:
     url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
-  background-size: 20px 20px;
+  background-size: 48px 48px;
   background-repeat: repeat;
   opacity: 0.06;
   -webkit-mask-image:
@@ -866,18 +866,20 @@ body {
     linear-gradient(90deg, transparent 0%, transparent 15%, rgba(0,0,0,1) 55%, rgba(0,0,0,1) 100%);
 }
 
-/* Dark overlay for text readability */
+/* Dark overlay for text readability + subtle center-bright vignette */
 .ch-page-banner::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(10, 8, 5, 0.75) 0%,
-    rgba(10, 8, 5, 0.45) 35%,
-    rgba(10, 8, 5, 0.15) 65%,
-    rgba(10, 8, 5, 0.05) 100%
-  );
+  background:
+    linear-gradient(
+      90deg,
+      rgba(10, 8, 5, 0.75) 0%,
+      rgba(10, 8, 5, 0.45) 30%,
+      rgba(10, 8, 5, 0.08) 50%,
+      rgba(10, 8, 5, 0.15) 75%,
+      rgba(10, 8, 5, 0.3) 100%
+    );
   pointer-events: none;
   z-index: 1;
 }
