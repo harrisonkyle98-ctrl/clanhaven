@@ -189,9 +189,9 @@ body {
 
 /* Clan Rankings — sapphire blue (slightly desaturated from sidebar ribbon) */
 .ch-panel--blue .ch-panel-header {
-  --panel-header-color: rgba(68, 88, 138, 0.95);
-  --panel-header-pattern: rgba(82, 105, 162, 0.6);
-  --panel-header-border: rgba(52, 72, 118, 0.95);
+  --panel-header-color: rgba(68, 91, 150, 0.95);
+  --panel-header-pattern: rgba(80, 108, 176, 0.6);
+  --panel-header-border: rgba(55, 76, 129, 0.95);
 }
 
 /* Featured Clans — amethyst purple */
