@@ -912,7 +912,7 @@ body {
 .ch-home-slider {
   position: relative;
   z-index: 3;
-  margin: -56px 0 1rem;
+  margin: -92px 0 1rem;
   background: rgb(18, 15, 11);
   border-radius: 4px;
   box-shadow:
@@ -925,7 +925,7 @@ body {
 
 .ch-home-slider-inner {
   display: flex;
-  min-height: 140px;
+  min-height: 230px;
   transition: opacity 0.3s ease;
 }
 
