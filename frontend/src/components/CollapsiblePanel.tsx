@@ -19,7 +19,7 @@ export default function CollapsiblePanel({
   const [collapsed, setCollapsed] = useState(defaultCollapsed)
 
   return (
-    <div className={`ch-panel ch-panel--${variant}`}>
+    <div className={`ch-panel ch-panel--${variant}${collapsed ? " ch-panel--collapsed" : ""}`}>
       <div
         className="ch-panel-header cursor-pointer"
         onClick={() => { setCollapsed(!collapsed) }}
@@ -27,8 +27,14 @@ export default function CollapsiblePanel({
         aria-label={collapsed ? `Expand ${title}` : `Collapse ${title}`}
       >
         <h2 className="ch-panel-header-title">{title}</h2>
-        {headerRight && !collapsed && (
-          <div className="ch-panel-header-right" onClick={(e) => { e.stopPropagation() }}>{headerRight}</div>
+        {headerRight && (
+          <div
+            className="ch-panel-header-right"
+            style={collapsed ? { visibility: "hidden", pointerEvents: "none" } : undefined}
+            onClick={(e) => { e.stopPropagation() }}
+          >
+            {headerRight}
+          </div>
         )}
         <div
           className="ch-panel-header-toggle"

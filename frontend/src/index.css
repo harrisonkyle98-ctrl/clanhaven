@@ -235,6 +235,10 @@ body {
   min-height: 0;
 }
 
+.ch-panel--collapsed {
+  flex: none;
+}
+
 .ch-panel-collapse-open {
   grid-template-rows: 1fr;
 }
