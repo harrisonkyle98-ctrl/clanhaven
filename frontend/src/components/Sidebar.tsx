@@ -56,7 +56,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <ChevronDown className={`absolute right-0 w-3 h-3 opacity-60 transition-transform duration-200 ${mainOpen ? "" : "-rotate-90"}`} />
           </span>
         </button>
-        {mainOpen && (
+        <div className={`ch-sidebar-section ${mainOpen ? "ch-sidebar-section-open" : ""}`}>
           <div className="px-2.5 space-y-1.5 shrink-0">
             {mainNavItems.map((item) => {
               const isActive = location.pathname === item.to
@@ -71,7 +71,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               )
             })}
           </div>
-        )}
+        </div>
 
         {/* Account section */}
         <button
@@ -83,7 +83,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <ChevronDown className={`absolute right-0 w-3 h-3 opacity-60 transition-transform duration-200 ${accountOpen ? "" : "-rotate-90"}`} />
           </span>
         </button>
-        {accountOpen && (
+        <div className={`ch-sidebar-section ${accountOpen ? "ch-sidebar-section-open" : ""}`}>
           <div className="px-2.5 space-y-1.5 shrink-0">
             {user ? (
               <>
@@ -110,7 +110,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               <span>Settings</span>
             </Link>
           </div>
-        )}
+        </div>
 
         {/* System section */}
         <button
@@ -122,7 +122,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <ChevronDown className={`absolute right-0 w-3 h-3 opacity-60 transition-transform duration-200 ${systemOpen ? "" : "-rotate-90"}`} />
           </span>
         </button>
-        {systemOpen && (
+        <div className={`ch-sidebar-section ${systemOpen ? "ch-sidebar-section-open" : ""}`}>
           <div className="px-2.5 shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); onClose() }}
@@ -132,7 +132,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               <span>Collapse</span>
             </button>
           </div>
-        )}
+        </div>
       </div>
     </aside>
   )

@@ -547,6 +547,22 @@ body {
   text-align: center;
 }
 
+/* Sidebar section collapse/expand animation */
+.ch-sidebar-section {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+  overflow: hidden;
+}
+
+.ch-sidebar-section > div {
+  overflow: hidden;
+}
+
+.ch-sidebar-section-open {
+  grid-template-rows: 1fr;
+}
+
 /* ===========================================
    SIDEBAR BUTTONS - Polished mini-containers
    Inspired by ch-stat-cell / Featured Clans cards
