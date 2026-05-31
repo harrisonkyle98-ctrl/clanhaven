@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react"
 import Sidebar from "@/components/Sidebar"
+import Footer from "@/components/Footer"
 import { PanelLeftOpen } from "lucide-react"
 
 export default function AppLayout({ children }: { children: ReactNode }) {
@@ -20,6 +21,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </button>
         )}
         {children}
+        <Footer />
       </main>
     </div>
   )
