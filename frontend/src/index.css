@@ -726,10 +726,6 @@ body {
   margin-left: calc(-1 * clamp(200px, 20vw, 300px));
 }
 
-.ch-main-content {
-  max-width: 1200px;
-}
-
 /* ===========================================
    SIDEBAR RIBBON - Category header
    Stormlight blue ribbon with right-side fold only.
@@ -1237,7 +1233,9 @@ body {
 .ch-page-content {
   position: relative;
   z-index: 1;
-  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.22);
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Gold accent line — fades to page color at edges */
@@ -1311,6 +1309,9 @@ body {
   align-items: center;
   justify-content: center;
   padding: 1rem 1.5rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .ch-footer-copyright {
