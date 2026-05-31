@@ -534,6 +534,17 @@ body {
   position: relative;
   z-index: 2;
   padding: 1.25rem 1rem 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.ch-sidebar-branding-title {
+  font-family: "Cinzel Decorative", serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e8d5b0;
+  letter-spacing: 0.06em;
+  text-align: center;
 }
 
 /* ===========================================

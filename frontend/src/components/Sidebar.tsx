@@ -42,15 +42,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           />
           <div className="ch-sidebar-branding-pattern" />
           <div className="ch-sidebar-branding-content">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-sm bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center shrink-0">
-                <span className="text-xs font-black text-background tracking-tight">CH</span>
-              </div>
-              <div>
-                <div className="text-sm font-bold tracking-wide text-text-highlight">Clan Haven</div>
-                <div className="text-[10px] text-gold-dim font-medium tracking-wider uppercase">Community Hub</div>
-              </div>
-            </div>
+            <span className="ch-sidebar-branding-title">Clan Haven</span>
           </div>
         </div>
 
