@@ -20,20 +20,23 @@ export default function CollapsiblePanel({
 
   return (
     <div className={`ch-panel ch-panel--${variant}`}>
-      <div className="ch-panel-header">
+      <div
+        className="ch-panel-header cursor-pointer"
+        onClick={() => { setCollapsed(!collapsed) }}
+        role="button"
+        aria-label={collapsed ? `Expand ${title}` : `Collapse ${title}`}
+      >
         <h2 className="ch-panel-header-title">{title}</h2>
         {headerRight && !collapsed && (
-          <div className="ch-panel-header-right">{headerRight}</div>
+          <div className="ch-panel-header-right" onClick={(e) => { e.stopPropagation() }}>{headerRight}</div>
         )}
-        <button
-          onClick={() => { setCollapsed(!collapsed) }}
-          className={`ch-panel-header-toggle ${!headerRight ? "" : ""}`}
+        <div
+          className="ch-panel-header-toggle"
           data-collapsed={collapsed ? "true" : undefined}
-          aria-label={collapsed ? `Expand ${title}` : `Collapse ${title}`}
           style={!headerRight ? { marginLeft: "auto" } : { marginLeft: 0 }}
         >
           <ChevronUp className="w-4 h-4" />
-        </button>
+        </div>
       </div>
       <div className={`ch-panel-collapse ${collapsed ? "" : "ch-panel-collapse-open"}`}>
         <div className="ch-panel-body">{children}</div>
