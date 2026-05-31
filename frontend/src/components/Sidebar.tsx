@@ -15,10 +15,11 @@ const mainNavItems = [
 ]
 
 interface SidebarProps {
+  open: boolean
   onClose: () => void
 }
 
-export default function Sidebar({ onClose }: SidebarProps) {
+export default function Sidebar({ open, onClose }: SidebarProps) {
   const [mainOpen, setMainOpen] = useState(true)
   const [accountOpen, setAccountOpen] = useState(true)
   const [systemOpen, setSystemOpen] = useState(true)
@@ -28,8 +29,10 @@ export default function Sidebar({ onClose }: SidebarProps) {
   const ribbonClass = "ch-sidebar-ribbon"
 
   return (
-    <aside className="hidden lg:flex shrink-0 h-full sidebar-bg w-[220px]">
-      <div className="flex flex-col h-full w-full">
+    <aside
+      className={`hidden lg:flex shrink-0 h-full sidebar-bg overflow-hidden transition-all duration-300 ease-in-out ${open ? "w-[220px]" : "w-0"}`}
+    >
+      <div className="flex flex-col h-full w-[220px] min-w-[220px]">
         {/* Brand */}
         <div className="px-4 pt-5 pb-4 shrink-0">
           <div className="flex items-center gap-3">
