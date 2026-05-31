@@ -1002,7 +1002,7 @@ body {
 /* Banner title */
 .ch-page-banner-title {
   position: absolute;
-  left: 1.5rem;
+  left: 2.5rem;
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
