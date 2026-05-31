@@ -773,6 +773,10 @@ body {
   line-height: 1;
 }
 
+.ch-sidebar-ribbon-label > svg {
+  margin-top: -1px;
+}
+
 .ch-sidebar-ribbon-text {
   flex: 1;
   text-align: center;
