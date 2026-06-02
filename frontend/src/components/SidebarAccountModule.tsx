@@ -21,7 +21,7 @@ export default function SidebarAccountModule() {
             </div>
             <div className="ch-sidebar-account-info">
               <span className="ch-sidebar-account-name">KingdomHero</span>
-              <span className="ch-sidebar-account-role">Clan Owner</span>
+              <span className="ch-sidebar-account-role">Celestial Order</span>
             </div>
           </div>
 
