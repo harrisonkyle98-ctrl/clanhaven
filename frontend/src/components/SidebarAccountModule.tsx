@@ -54,9 +54,6 @@ export default function SidebarAccountModule() {
         <div className="ch-sidebar-account-card">
           <div className="ch-sidebar-account-card-highlight" />
           <div className="ch-sidebar-account-guest">
-            <div className="ch-sidebar-account-avatar ch-sidebar-account-avatar--guest">
-              <span className="ch-sidebar-account-avatar-text">?</span>
-            </div>
             <span className="ch-sidebar-account-guest-label">Welcome,</span>
             <span className="ch-sidebar-account-guest-sub">
               Connect your Discord to Clan Haven
