@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
 
 interface Slide {
   title: string
@@ -116,14 +115,14 @@ export default function HomeSlider() {
         onClick={prev}
         aria-label="Previous slide"
       >
-        <ChevronLeft className="w-4 h-4" />
+        <span className="text-sm">‹</span>
       </button>
       <button
         className="ch-home-slider-arrow ch-home-slider-arrow--next"
         onClick={next}
         aria-label="Next slide"
       >
-        <ChevronRight className="w-4 h-4" />
+        <span className="text-sm">›</span>
       </button>
 
       {/* Dots */}

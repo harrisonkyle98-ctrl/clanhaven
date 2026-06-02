@@ -1,4 +1,3 @@
-import { Gamepad2, Clock, Zap } from "lucide-react"
 import CollapsiblePanel from "@/components/CollapsiblePanel"
 
 const onlineClans = [
@@ -14,24 +13,20 @@ export default function CommunityOverview() {
     <CollapsiblePanel variant="green" title="Community">
       <div className="grid grid-cols-3 gap-3 mb-4">
         <div className="ch-stat-cell p-3 text-center">
-          <Gamepad2 className="w-4 h-4 text-rs3 mx-auto mb-1" />
           <div className="text-sm font-bold text-text-highlight">412</div>
           <div className="text-[10px] text-text-muted">RS3 Clans</div>
         </div>
         <div className="ch-stat-cell p-3 text-center">
-          <Gamepad2 className="w-4 h-4 text-osrs mx-auto mb-1" />
           <div className="text-sm font-bold text-text-highlight">435</div>
           <div className="text-[10px] text-text-muted">OSRS Clans</div>
         </div>
         <div className="ch-stat-cell p-3 text-center">
-          <Zap className="w-4 h-4 text-purple-400 mx-auto mb-1" />
           <div className="text-sm font-bold text-text-highlight">234</div>
           <div className="text-[10px] text-text-muted">Competitions</div>
         </div>
       </div>
 
       <div className="flex items-center gap-1.5 mb-2.5">
-        <Clock className="w-3 h-3 text-gold-dim" />
         <span className="text-[10px] text-gold-dim font-semibold uppercase tracking-wider">Most Active Now</span>
       </div>
       <div className="flex flex-col gap-1.5 flex-1">

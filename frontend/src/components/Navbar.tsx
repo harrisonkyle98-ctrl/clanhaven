@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
-import { Menu, X } from "lucide-react"
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -86,7 +85,7 @@ export default function Navbar() {
             onClick={() => { setMobileOpen(!mobileOpen) }}
             className="md:hidden p-1.5 text-muted-foreground hover:text-foreground transition cursor-pointer"
           >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileOpen ? "✕" : "☰"}
           </button>
         </div>
       </div>

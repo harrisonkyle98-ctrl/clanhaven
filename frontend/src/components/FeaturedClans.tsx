@@ -1,5 +1,4 @@
 import { featuredClans } from "@/data/mockData"
-import { Users, TrendingUp } from "lucide-react"
 import CollapsiblePanel from "@/components/CollapsiblePanel"
 
 export default function FeaturedClans() {
@@ -30,11 +29,9 @@ export default function FeaturedClans() {
               </div>
               <div className="flex items-center gap-4 text-[11px] mt-auto">
                 <span className="flex items-center gap-1 text-text-muted">
-                  <Users className="w-3 h-3" />
                   {clan.memberCount}
                 </span>
                 <span className="flex items-center gap-1 text-xp-green">
-                  <TrendingUp className="w-3 h-3" />
                   +{clan.weeklyXp}/wk
                 </span>
                 <span className="text-text-muted ml-auto">Est. {clan.founded}</span>
