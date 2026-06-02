@@ -18,7 +18,7 @@ const highlights = [
     title: "Community Hub",
     description: "Connect with fellow players through clan events, recruitment boards, and cross-clan diplomacy tools.",
     image: "/images/highlight-4.webp",
-    imagePosition: "center 70%",
+    imagePosition: "center 85%",
   },
 ]
 
