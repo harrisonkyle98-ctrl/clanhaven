@@ -15,8 +15,8 @@ const highlights = [
     image: "/images/highlight-3.png",
   },
   {
-    title: "Community Hub",
-    description: "Connect with fellow players through clan events, recruitment boards, and cross-clan diplomacy tools.",
+    title: "Clan Portals",
+    description: "Create unique portals for your clan with customizable layouts, branding, and member management tools.",
     image: "/images/highlight-4.webp",
     imagePosition: "center bottom",
   },
