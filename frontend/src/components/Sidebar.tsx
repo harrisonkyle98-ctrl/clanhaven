@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { useAuth } from "@/hooks/useAuth"
 import { ChevronDown } from "lucide-react"
 import SidebarAccountModule from "@/components/SidebarAccountModule"
 
@@ -19,10 +18,8 @@ interface SidebarProps {
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const [mainOpen, setMainOpen] = useState(true)
-  const [accountOpen, setAccountOpen] = useState(true)
   const [systemOpen, setSystemOpen] = useState(true)
   const location = useLocation()
-  const { user, login, logout } = useAuth()
 
   const ribbonClass = "ch-sidebar-ribbon"
 
@@ -66,43 +63,6 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 </Link>
               )
             })}
-          </div>
-        </div>
-
-        {/* Account section */}
-        <button
-          onClick={() => { setAccountOpen(!accountOpen) }}
-          className={`${ribbonClass} cursor-pointer shrink-0 mt-1.5 mb-0.5`}
-        >
-          <span className="ch-sidebar-ribbon-text">Account</span>
-          <ChevronDown className={`ch-sidebar-ribbon-arrow ${accountOpen ? "" : "ch-sidebar-ribbon-arrow--collapsed"}`} />
-        </button>
-        <div className={`ch-sidebar-section ${accountOpen ? "ch-sidebar-section-open" : ""}`}>
-          <div className="px-2.5 space-y-1.5 shrink-0">
-            {user ? (
-              <>
-                <button
-                  onClick={(e) => { e.stopPropagation(); logout() }}
-                  className="ch-sidebar-btn w-full cursor-pointer"
-                >
-                  <span>Logout</span>
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={(e) => { e.stopPropagation(); login() }}
-                className="ch-sidebar-btn w-full cursor-pointer"
-              >
-                <span>Login with Discord</span>
-              </button>
-            )}
-
-            <Link
-              to="/dashboard"
-              className={`ch-sidebar-btn ${location.pathname === "/dashboard" ? "ch-sidebar-btn-active" : ""}`}
-            >
-              <span>Settings</span>
-            </Link>
           </div>
         </div>
 

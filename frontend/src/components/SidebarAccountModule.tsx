@@ -35,7 +35,7 @@ export default function SidebarAccountModule() {
               <span>My Clan</span>
             </button>
             <button className="ch-sidebar-account-action">
-              <span>Link Alt</span>
+              <span>Settings</span>
             </button>
             <button className="ch-sidebar-account-action">
               <span>Badges</span>
