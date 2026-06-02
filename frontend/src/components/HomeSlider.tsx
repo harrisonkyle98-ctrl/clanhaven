@@ -6,7 +6,6 @@ interface Slide {
   meta: string
   cta: string
   imageGradient: string
-  imageIcon: string
 }
 
 const slides: Slide[] = [
@@ -18,7 +17,6 @@ const slides: Slide[] = [
     cta: "Browse Clans",
     imageGradient:
       "linear-gradient(135deg, rgba(30, 58, 95, 0.9) 0%, rgba(15, 30, 50, 0.95) 100%)",
-    imageIcon: "⚔️",
   },
   {
     title: "Track Community Progress",
@@ -28,7 +26,6 @@ const slides: Slide[] = [
     cta: "View Rankings",
     imageGradient:
       "linear-gradient(135deg, rgba(50, 75, 35, 0.9) 0%, rgba(20, 35, 15, 0.95) 100%)",
-    imageIcon: "📊",
   },
   {
     title: "Compete Together",
@@ -38,7 +35,6 @@ const slides: Slide[] = [
     cta: "Explore Competitions",
     imageGradient:
       "linear-gradient(135deg, rgba(95, 55, 25, 0.9) 0%, rgba(45, 25, 10, 0.95) 100%)",
-    imageIcon: "🏆",
   },
   {
     title: "Build Your Clan Portal",
@@ -48,7 +44,6 @@ const slides: Slide[] = [
     cta: "Get Started",
     imageGradient:
       "linear-gradient(135deg, rgba(70, 30, 80, 0.9) 0%, rgba(30, 12, 40, 0.95) 100%)",
-    imageIcon: "🏰",
   },
 ]
 
@@ -95,7 +90,6 @@ export default function HomeSlider() {
             className="ch-home-slider-image-bg"
             style={{ background: slide.imageGradient }}
           />
-          <span className="ch-home-slider-icon">{slide.imageIcon}</span>
         </div>
 
         {/* Right: text area */}
