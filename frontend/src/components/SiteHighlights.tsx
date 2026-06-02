@@ -18,6 +18,7 @@ const highlights = [
     title: "Community Hub",
     description: "Connect with fellow players through clan events, recruitment boards, and cross-clan diplomacy tools.",
     image: "/images/highlight-4.webp",
+    imagePosition: "center 30%",
   },
 ]
 
@@ -27,7 +28,12 @@ export default function SiteHighlights() {
       {highlights.map((item) => (
         <div key={item.title} className="ch-highlight-card">
           <div className="ch-highlight-card-image">
-            <img src={item.image} alt={item.title} className="ch-highlight-card-img" />
+            <img
+              src={item.image}
+              alt={item.title}
+              className="ch-highlight-card-img"
+              style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined}
+            />
           </div>
           <div className="ch-highlight-card-body">
             <h3 className="ch-highlight-card-title">{item.title}</h3>
