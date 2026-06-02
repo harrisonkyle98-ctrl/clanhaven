@@ -16,7 +16,7 @@ export default function SidebarAccountModule() {
           <div className="ch-sidebar-account-card-highlight" />
           <div className="ch-sidebar-account-user">
             <div className="ch-sidebar-account-avatar">
-              <span className="ch-sidebar-account-avatar-text">KH</span>
+              <img src="/images/default-avatar.png" alt="" className="ch-sidebar-account-avatar-img" />
               <span className="ch-sidebar-account-status" />
             </div>
             <div className="ch-sidebar-account-info">
