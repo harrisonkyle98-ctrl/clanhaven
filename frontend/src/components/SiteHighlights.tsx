@@ -38,6 +38,7 @@ export default function SiteHighlights() {
           <div className="ch-highlight-card-body">
             <h3 className="ch-highlight-card-title">{item.title}</h3>
             <p className="ch-highlight-card-desc">{item.description}</p>
+            <button className="ch-highlight-card-explore">Explore</button>
           </div>
         </div>
       ))}
