@@ -1328,17 +1328,7 @@ body {
   overflow: hidden;
 }
 
-.ch-highlight-card-image::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    repeating-conic-gradient(
-      rgba(255, 255, 255, 0.03) 0% 25%,
-      transparent 0% 50%
-    ) 0 0 / 20px 20px;
-  pointer-events: none;
-}
+
 
 .ch-highlight-card-img {
   width: 100%;
