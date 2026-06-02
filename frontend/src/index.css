@@ -1288,6 +1288,109 @@ body {
 }
 
 /* ===========================================
+   SITE HIGHLIGHTS — 4-card feature row
+   Replaces the old "Clan Haven — The Home of
+   RuneScape Clans" hero/stat section.
+   =========================================== */
+.ch-site-highlights {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 1024px) {
+  .ch-site-highlights {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .ch-site-highlights {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ch-highlight-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6);
+}
+
+.ch-highlight-card-image {
+  position: relative;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.ch-highlight-card-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-conic-gradient(
+      rgba(255, 255, 255, 0.03) 0% 25%,
+      transparent 0% 50%
+    ) 0 0 / 20px 20px;
+  pointer-events: none;
+}
+
+.ch-highlight-card-icon {
+  font-size: 2.25rem;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.ch-highlight-card-body {
+  flex: 1;
+  background: rgba(22, 19, 14, 0.8);
+  padding: 0.875rem;
+  position: relative;
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ch-highlight-card-body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(175, 150, 110, 0.25) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.ch-highlight-card-title {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e8d5b0;
+  margin-bottom: 0.375rem;
+  letter-spacing: 0.03em;
+}
+
+.ch-highlight-card-desc {
+  font-size: 0.6875rem;
+  color: rgba(180, 165, 140, 0.7);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ===========================================
    FOOTER — Global site footer
    =========================================== */
 .ch-footer {

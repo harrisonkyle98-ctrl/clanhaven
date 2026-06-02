@@ -1,4 +1,4 @@
-import HeroSection from "@/components/HeroSection"
+import SiteHighlights from "@/components/SiteHighlights"
 import ClanRankings from "@/components/ClanRankings"
 import FeaturedClans from "@/components/FeaturedClans"
 import PlayerRankings from "@/components/PlayerRankings"
@@ -23,8 +23,8 @@ export default function Home() {
       <div className="ch-page-content p-4 lg:p-6 space-y-4">
       {/* Featured slider — floats between banner and content */}
       <HomeSlider />
-      {/* Atmospheric identity header */}
-      <HeroSection />
+      {/* Site feature highlights */}
+      <SiteHighlights />
 
       {/* Row 1: Clan Rankings + Community */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
