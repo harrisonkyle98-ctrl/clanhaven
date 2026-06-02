@@ -1316,6 +1316,7 @@ body {
   border-radius: 0;
   overflow: hidden;
   border: 1px solid rgba(58, 50, 38, 0.7);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .ch-highlight-card-image {
