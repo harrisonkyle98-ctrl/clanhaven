@@ -57,7 +57,7 @@ export default function SidebarAccountModule() {
             <div className="ch-sidebar-account-avatar ch-sidebar-account-avatar--guest">
               <span className="ch-sidebar-account-avatar-text">?</span>
             </div>
-            <span className="ch-sidebar-account-guest-label">Welcome, Scaper</span>
+            <span className="ch-sidebar-account-guest-label">Welcome,</span>
             <span className="ch-sidebar-account-guest-sub">
               Connect your Discord to Clan Haven
             </span>
