@@ -27,29 +27,24 @@ export default function SidebarAccountModule() {
 
           <div className="ch-sidebar-account-divider" />
 
-          <div className="ch-sidebar-account-stats">
-            <div className="ch-sidebar-account-stat">
-              <span className="ch-sidebar-account-stat-value">2,847</span>
-              <span className="ch-sidebar-account-stat-label">Total Level</span>
-            </div>
-            <div className="ch-sidebar-account-stat">
-              <span className="ch-sidebar-account-stat-value">142</span>
-              <span className="ch-sidebar-account-stat-label">Clan Rank</span>
-            </div>
-          </div>
-
           <div className="ch-sidebar-account-actions">
             <button className="ch-sidebar-account-action">
               <span>My Profile</span>
             </button>
             <button className="ch-sidebar-account-action">
-              <span>Clan Settings</span>
+              <span>My Clan</span>
+            </button>
+            <button className="ch-sidebar-account-action">
+              <span>Link Alt</span>
+            </button>
+            <button className="ch-sidebar-account-action">
+              <span>Badges</span>
             </button>
           </div>
 
           <button
             onClick={() => setMockLoggedIn(false)}
-            className="ch-sidebar-account-action ch-sidebar-account-action--muted"
+            className="ch-sidebar-account-action ch-sidebar-account-action--signout"
           >
             <span>Sign Out</span>
           </button>
