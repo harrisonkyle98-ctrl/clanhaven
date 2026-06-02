@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { ChevronDown } from "lucide-react"
+import SidebarAccountModule from "@/components/SidebarAccountModule"
 
 const mainNavItems = [
   { label: "Home", to: "/" },
@@ -123,6 +124,9 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             </button>
           </div>
         </div>
+
+        {/* Account module — pushed to bottom */}
+        <SidebarAccountModule />
       </div>
     </aside>
   )
