@@ -20,8 +20,8 @@ export default function SidebarAccountModule() {
               <span className="ch-sidebar-account-status" />
             </div>
             <div className="ch-sidebar-account-info">
-              <span className="ch-sidebar-account-name">KingdomHero</span>
-              <span className="ch-sidebar-account-role">Celestial Order</span>
+              <span className="ch-sidebar-account-name">lm Kyle</span>
+              <span className="ch-sidebar-account-role">Stormlight</span>
             </div>
           </div>
 
