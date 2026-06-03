@@ -3,7 +3,7 @@ import CollapsiblePanel from "@/components/CollapsiblePanel"
 
 export default function FeaturedClans() {
   return (
-    <CollapsiblePanel variant="purple" title="Featured Clans">
+    <CollapsiblePanel variant="blue" title="Featured Clans">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
         {featuredClans.map((clan) => (
           <div
