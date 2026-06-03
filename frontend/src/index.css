@@ -1060,7 +1060,7 @@ body {
 
 .ch-home-slider-inner {
   display: flex;
-  min-height: 230px;
+  min-height: 276px;
   transition: opacity 0.3s ease;
 }
 
@@ -1321,7 +1321,7 @@ body {
 
 .ch-highlight-card-image {
   position: relative;
-  height: 120px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
