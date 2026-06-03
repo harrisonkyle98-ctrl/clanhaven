@@ -4,8 +4,8 @@ import CollapsiblePanel from "@/components/CollapsiblePanel"
 export default function FeaturedClans() {
   return (
     <CollapsiblePanel variant="blue" title="Featured Clans">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
-        {featuredClans.map((clan) => (
+      <div className="flex flex-col gap-3 flex-1">
+        {featuredClans.slice(0, 4).map((clan) => (
           <div
             key={clan.name}
             className="ch-stat-cell p-4 cursor-pointer group flex flex-col h-full"
