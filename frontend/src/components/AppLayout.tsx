@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react"
 import { useLocation } from "react-router-dom"
 import Sidebar from "@/components/Sidebar"
 import Footer from "@/components/Footer"
-import PageTransition from "@/components/PageTransition"
+import RouteLoadingBar from "@/components/RouteLoadingBar"
 import RsnLinkingModal from "@/components/RsnLinkingModal"
 import { useAuth } from "@/hooks/useAuth"
 import { useHeartbeat } from "@/hooks/useHeartbeat"
@@ -24,6 +24,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <div className="flex h-screen bg-container relative overflow-hidden">
       <Sidebar open={sidebarOpen} onClose={() => { setSidebarOpen(false) }} />
       <main ref={mainRef} className="flex-1 min-w-0 overflow-y-auto relative z-1 transition-all duration-300 ease-in-out">
+        <RouteLoadingBar />
         <div className="flex flex-col min-h-full">
           {!sidebarOpen && (
             <button
@@ -35,9 +36,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </button>
           )}
           <div className="flex-1">
-            <PageTransition>
-              {children}
-            </PageTransition>
+            {children}
           </div>
           <Footer />
         </div>

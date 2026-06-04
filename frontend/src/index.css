@@ -2062,29 +2062,29 @@ body {
 }
 
 /* ===========================================
-   PAGE TRANSITION - Fade + subtle slide
+   ROUTE LOADING BAR - Top-of-page progress
    =========================================== */
-.ch-page-transition {
-  will-change: opacity, transform;
+.ch-loading-bar-track {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 100;
+  background: transparent;
+  pointer-events: none;
 }
 
-.ch-page-transition--in {
-  animation: ch-page-enter 0.2s ease-out both;
+.ch-loading-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #c9a227, #e8c547, #c9a227);
+  box-shadow: 0 0 8px rgba(201, 162, 39, 0.6), 0 0 2px rgba(201, 162, 39, 0.4);
+  border-radius: 0 1px 1px 0;
+  transition: width 0.15s ease-out;
 }
 
-.ch-page-transition--out {
+.ch-loading-bar--complete {
+  transition: width 0.15s ease-out, opacity 0.25s ease-out 0.1s;
   opacity: 0;
-  transform: translateY(4px);
-}
-
-@keyframes ch-page-enter {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
