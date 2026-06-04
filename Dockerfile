@@ -28,4 +28,4 @@ RUN python -m prisma generate
 COPY --from=frontend-build /app/frontend/dist ./static
 
 EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "python -m prisma db push --skip-generate || echo 'db push skipped'; uvicorn app.main:app --host 0.0.0.0 --port 8000"]

@@ -16,7 +16,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
     # Get clan memberships
     memberships = await db.clanmember.find_many(
         where={"userId": user.id},
-        include={"clan": True},
+        include={"clanRef": True},
     )
 
     return {
@@ -30,10 +30,10 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         "clans": [
             {
                 "clanId": m.clanId,
-                "clanName": m.clan.name if m.clan else None,
+                "clanName": m.clanRef.name if m.clanRef else None,
                 "rsn": m.rsn,
                 "clanRole": m.clanRole,
-                "gameType": m.clan.gameType if m.clan else None,
+                "gameType": m.clanRef.gameType if m.clanRef else None,
             }
             for m in memberships
         ],

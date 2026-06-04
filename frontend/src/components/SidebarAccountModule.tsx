@@ -1,27 +1,48 @@
-import { useState } from "react"
+import { useAuth } from "@/hooks/useAuth"
 
-/**
- * Visual-only sidebar account module.
- * Toggles between mock logged-out and logged-in states for design exploration.
- * No real auth/backend logic — purely presentational.
- */
+function getDiscordAvatarUrl(discordId: string, avatar: string | null): string {
+  if (!avatar) return "/images/default-avatar.png"
+  const ext = avatar.startsWith("a_") ? "gif" : "png"
+  return `https://cdn.discordapp.com/avatars/${discordId}/${avatar}.${ext}?size=128`
+}
+
 export default function SidebarAccountModule() {
-  const [mockLoggedIn, setMockLoggedIn] = useState(false)
+  const { user, loading, login, logout } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="ch-sidebar-account">
+        <div className="ch-sidebar-account-card">
+          <div className="ch-sidebar-account-card-highlight" />
+          <div className="ch-sidebar-account-guest">
+            <span className="ch-sidebar-account-guest-label">Loading...</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="ch-sidebar-account">
-      {mockLoggedIn ? (
+      {user ? (
         /* ── Logged-in state ── */
         <div className="ch-sidebar-account-card">
           <div className="ch-sidebar-account-card-highlight" />
           <div className="ch-sidebar-account-user">
             <div className="ch-sidebar-account-avatar">
-              <img src="/images/default-avatar.png" alt="" className="ch-sidebar-account-avatar-img" />
+              <img
+                src={getDiscordAvatarUrl(user.discordId, user.avatar)}
+                alt=""
+                className="ch-sidebar-account-avatar-img"
+                onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
+              />
               <span className="ch-sidebar-account-status" />
             </div>
             <div className="ch-sidebar-account-info">
-              <span className="ch-sidebar-account-name">lm Kyle</span>
-              <span className="ch-sidebar-account-role">Stormlight</span>
+              <span className="ch-sidebar-account-name">{user.username}</span>
+              {user.clans.length > 0 && (
+                <span className="ch-sidebar-account-role">{user.clans[0].clanName}</span>
+              )}
             </div>
           </div>
 
@@ -43,7 +64,7 @@ export default function SidebarAccountModule() {
           </div>
 
           <button
-            onClick={() => setMockLoggedIn(false)}
+            onClick={logout}
             className="ch-sidebar-account-action ch-sidebar-account-action--signout"
           >
             <span>Sign Out</span>
@@ -61,7 +82,7 @@ export default function SidebarAccountModule() {
           </div>
 
           <button
-            onClick={() => setMockLoggedIn(true)}
+            onClick={() => { void login() }}
             className="ch-sidebar-account-discord-btn"
           >
             <svg className="ch-sidebar-account-discord-icon" viewBox="0 0 24 24" fill="currentColor">
