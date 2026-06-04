@@ -1,9 +1,14 @@
 import { useState, type ReactNode } from "react"
 import Sidebar from "@/components/Sidebar"
 import Footer from "@/components/Footer"
+import RsnLinkingModal from "@/components/RsnLinkingModal"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const { user, loading } = useAuth()
+
+  const needsRsnLink = !loading && user && !user.rsn
 
   return (
     <div className="flex h-screen bg-container relative overflow-hidden">
@@ -25,6 +30,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <Footer />
         </div>
       </main>
+      {needsRsnLink && <RsnLinkingModal />}
     </div>
   )
 }

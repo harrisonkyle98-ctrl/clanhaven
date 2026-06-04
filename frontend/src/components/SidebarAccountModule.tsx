@@ -22,10 +22,32 @@ export default function SidebarAccountModule() {
     )
   }
 
+  if (user && !user.rsn) {
+    return (
+      <div className="ch-sidebar-account">
+        <div className="ch-sidebar-account-card">
+          <div className="ch-sidebar-account-card-highlight" />
+          <div className="ch-sidebar-account-guest">
+            <span className="ch-sidebar-account-guest-label">Almost there!</span>
+            <span className="ch-sidebar-account-guest-sub">
+              Link your RuneScape account to continue
+            </span>
+          </div>
+          <button
+            onClick={logout}
+            className="ch-sidebar-account-action ch-sidebar-account-action--signout"
+          >
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="ch-sidebar-account">
       {user ? (
-        /* ── Logged-in state ── */
+        /* ── Logged-in + RSN linked state ── */
         <div className="ch-sidebar-account-card">
           <div className="ch-sidebar-account-card-highlight" />
           <div className="ch-sidebar-account-user">
@@ -39,10 +61,8 @@ export default function SidebarAccountModule() {
               <span className="ch-sidebar-account-status" />
             </div>
             <div className="ch-sidebar-account-info">
-              <span className="ch-sidebar-account-name">{user.username}</span>
-              {user.clans.length > 0 && (
-                <span className="ch-sidebar-account-role">{user.clans[0].clanName}</span>
-              )}
+              <span className="ch-sidebar-account-name">{user.rsn}</span>
+              <span className="ch-sidebar-account-role">{user.gameType}</span>
             </div>
           </div>
 

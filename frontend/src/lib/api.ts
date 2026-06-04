@@ -11,7 +11,14 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
   const response = await fetch(`${API_URL}${path}`, { ...options, headers })
 
   if (!response.ok) {
-    throw new Error(`API error: ${response.status}`)
+    let detail = `API error: ${response.status}`
+    try {
+      const body = await response.json()
+      if (body.detail) detail = body.detail
+    } catch {
+      // ignore parse errors
+    }
+    throw new Error(detail)
   }
 
   return response.json()

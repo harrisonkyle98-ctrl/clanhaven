@@ -6,6 +6,9 @@ interface User {
   username: string
   avatar: string | null
   email: string | null
+  rsn: string | null
+  gameType: string | null
+  rsnLinkedAt: string | null
   roles: string[]
   clans: {
     clanId: string
@@ -23,6 +26,7 @@ export interface AuthContextType {
   loading: boolean
   login: () => Promise<void>
   logout: () => void
+  refreshUser: () => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)

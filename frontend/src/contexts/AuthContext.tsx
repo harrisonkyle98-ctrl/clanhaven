@@ -25,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data)
     } catch {
       localStorage.removeItem("access_token")
+      setUser(null)
     } finally {
       setLoading(false)
     }
@@ -45,8 +46,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }, [])
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const data = await apiFetch<User>("/api/users/me")
+      setUser(data)
+    } catch {
+      // ignore refresh errors
+    }
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

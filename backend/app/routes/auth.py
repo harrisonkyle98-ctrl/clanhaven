@@ -114,6 +114,9 @@ async def get_current_user_info(request: Request):
         "username": user.username,
         "avatar": user.avatar,
         "email": user.email,
+        "rsn": user.rsn,
+        "gameType": user.gameType,
+        "rsnLinkedAt": user.rsnLinkedAt.isoformat() if user.rsnLinkedAt else None,
         "roles": user.roles,
         "createdAt": user.createdAt.isoformat(),
     }
