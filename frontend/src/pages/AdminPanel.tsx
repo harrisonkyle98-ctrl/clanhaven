@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Link, Navigate } from "react-router-dom"
+import { Navigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { apiFetch } from "@/lib/api"
 import CollapsiblePanel from "@/components/CollapsiblePanel"
@@ -51,13 +51,6 @@ export default function AdminPanel() {
       </div>
 
       <div className="ch-page-content p-4 lg:p-6 space-y-4">
-        <Link
-          to="/"
-          className="ch-admin-back-link"
-        >
-          ← Back to Home
-        </Link>
-
         {/* Tab navigation */}
         <div className="ch-admin-tabs">
           {TABS.map((tab) => (
