@@ -1567,6 +1567,10 @@ body {
   border: 2px solid rgba(22, 19, 14, 0.95);
 }
 
+.ch-sidebar-account-status--offline {
+  background: #6b7280;
+}
+
 .ch-sidebar-account-info {
   display: flex;
   flex-direction: column;

@@ -78,6 +78,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         "rsnClanName": rsn_clan_name,
         "rsnLinkedAt": user.rsnLinkedAt.isoformat() if user.rsnLinkedAt else None,
         "privileges": user.privileges,
+        "lastOnline": user.lastOnline.isoformat() if user.lastOnline else None,
         "createdAt": user.createdAt.isoformat(),
         "clans": [
             {
@@ -90,6 +91,16 @@ async def get_me(current_user: dict = Depends(get_current_user)):
             for m in memberships
         ],
     }
+
+
+@router.post("/me/heartbeat")
+async def heartbeat(current_user: dict = Depends(get_current_user)):
+    """Update the user's last_online timestamp."""
+    await db.user.update(
+        where={"id": current_user["sub"]},
+        data={"lastOnline": datetime.now(timezone.utc)},
+    )
+    return {"ok": True}
 
 
 @router.post("/me/link-rsn")

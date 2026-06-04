@@ -10,7 +10,8 @@ interface User {
   gameType: string | null
   rsnClanName: string | null
   rsnLinkedAt: string | null
-  roles: string[]
+  privileges: number
+  lastOnline: string | null
   clans: {
     clanId: string
     clanName: string | null

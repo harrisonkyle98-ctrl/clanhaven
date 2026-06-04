@@ -61,6 +61,7 @@ async def list_users(_admin: dict = Depends(require_admin)):
             "rsnClanName": u.rsnClanName,
             "rsnLinkedAt": u.rsnLinkedAt.isoformat() if u.rsnLinkedAt else None,
             "privileges": u.privileges,
+            "lastOnline": u.lastOnline.isoformat() if u.lastOnline else None,
             "createdAt": u.createdAt.isoformat(),
             "updatedAt": u.updatedAt.isoformat(),
         }

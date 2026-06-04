@@ -21,6 +21,7 @@ model User {
   rsnClanName String?   @map("rsn_clan_name")
   rsnLinkedAt DateTime? @map("rsn_linked_at")
   privileges  Int       @default(0)
+  lastOnline  DateTime? @map("last_online")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

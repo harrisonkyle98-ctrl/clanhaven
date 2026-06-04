@@ -5,10 +5,12 @@ import Footer from "@/components/Footer"
 import PageTransition from "@/components/PageTransition"
 import RsnLinkingModal from "@/components/RsnLinkingModal"
 import { useAuth } from "@/hooks/useAuth"
+import { useHeartbeat } from "@/hooks/useHeartbeat"
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const { user, loading } = useAuth()
+  useHeartbeat(!!user)
   const mainRef = useRef<HTMLElement>(null)
   const location = useLocation()
 
