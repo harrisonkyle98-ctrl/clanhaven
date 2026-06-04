@@ -1,9 +1,7 @@
 import { useAuth } from "@/hooks/useAuth"
 
-function getDiscordAvatarUrl(discordId: string, avatar: string | null): string {
-  if (!avatar) return "/images/default-avatar.png"
-  const ext = avatar.startsWith("a_") ? "gif" : "png"
-  return `https://cdn.discordapp.com/avatars/${discordId}/${avatar}.${ext}?size=128`
+function getRsAvatarUrl(rsn: string): string {
+  return `https://secure.runescape.com/m=avatar-rs/${encodeURIComponent(rsn)}/chat.png`
 }
 
 export default function SidebarAccountModule() {
@@ -53,7 +51,7 @@ export default function SidebarAccountModule() {
           <div className="ch-sidebar-account-user">
             <div className="ch-sidebar-account-avatar">
               <img
-                src={getDiscordAvatarUrl(user.discordId, user.avatar)}
+                src={user.rsn ? getRsAvatarUrl(user.rsn) : "/images/default-avatar.png"}
                 alt=""
                 className="ch-sidebar-account-avatar-img"
                 onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
