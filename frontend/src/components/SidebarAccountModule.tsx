@@ -97,7 +97,7 @@ export default function SidebarAccountModule() {
           {user.privileges === 1 && (
             <button
               onClick={() => { navigate("/admin") }}
-              className="ch-sidebar-account-action ch-sidebar-account-action--admin"
+              className="ch-sidebar-account-action"
             >
               <span>Admin Panel</span>
             </button>

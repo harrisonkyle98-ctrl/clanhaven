@@ -1634,22 +1634,6 @@ body {
     inset 0 1px 0 rgba(155, 130, 95, 0.3);
 }
 
-.ch-sidebar-account-action--admin {
-  grid-column: 1 / -1;
-  color: #c9a0ff;
-  font-size: 0.625rem;
-  padding: 0.25rem;
-  border: 1px solid rgba(160, 120, 220, 0.3);
-  border-radius: 4px;
-  background: rgba(120, 80, 180, 0.1);
-}
-
-.ch-sidebar-account-action--admin:hover {
-  color: #e0c0ff;
-  background: rgba(120, 80, 180, 0.25);
-  border-color: rgba(160, 120, 220, 0.5);
-}
-
 .ch-sidebar-account-action--signout {
   grid-column: 1 / -1;
   color: rgba(160, 145, 120, 0.5);
