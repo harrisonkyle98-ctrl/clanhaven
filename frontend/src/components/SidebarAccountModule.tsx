@@ -63,12 +63,12 @@ export default function SidebarAccountModule() {
             <div className="ch-sidebar-account-info">
               <div className="ch-sidebar-account-name-row">
                 <span className="ch-sidebar-account-name">{user.rsn}</span>
-                {user.privileges === 1 && (
-                  <span className="badge-admin">Admin</span>
-                )}
               </div>
               <div className="ch-user-row-details" style={{ marginTop: "0.3rem" }}>
                 <div className="flex items-center gap-1.5 flex-wrap">
+                  {user.privileges === 1 && (
+                    <span className="badge-admin">Admin</span>
+                  )}
                   {user.rsnClanName && (
                     <span className="badge-clan">{user.rsnClanName}</span>
                   )}
