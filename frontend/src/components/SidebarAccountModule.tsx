@@ -96,6 +96,7 @@ export default function SidebarAccountModule() {
               <button
                 onClick={() => { navigate("/admin") }}
                 className="ch-sidebar-account-action"
+                style={{ gridColumn: "1 / -1" }}
               >
                 <span>Admin Panel</span>
               </button>
