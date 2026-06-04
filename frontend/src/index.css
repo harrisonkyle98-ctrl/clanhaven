@@ -1101,13 +1101,19 @@ body {
   color: #d4c4a0;
   margin: 0.6rem 0 0.3rem;
 }
-.ch-news-article-body ul,
+.ch-news-article-body ul {
+  padding-left: 1.25rem;
+  margin: 0.25rem 0 0.5rem;
+  list-style-type: disc;
+}
 .ch-news-article-body ol {
   padding-left: 1.25rem;
   margin: 0.25rem 0 0.5rem;
+  list-style-type: decimal;
 }
 .ch-news-article-body li {
   margin-bottom: 0.15rem;
+  display: list-item;
 }
 .ch-news-article-body blockquote {
   border-left: 3px solid rgba(101, 138, 180, 0.4);
@@ -1223,13 +1229,19 @@ body {
 .ch-rte-content .tiptap p {
   margin: 0 0 0.5rem;
 }
-.ch-rte-content .tiptap ul,
+.ch-rte-content .tiptap ul {
+  padding-left: 1.25rem;
+  margin: 0.25rem 0 0.5rem;
+  list-style-type: disc;
+}
 .ch-rte-content .tiptap ol {
   padding-left: 1.25rem;
   margin: 0.25rem 0 0.5rem;
+  list-style-type: decimal;
 }
 .ch-rte-content .tiptap li {
   margin-bottom: 0.15rem;
+  display: list-item;
 }
 .ch-rte-content .tiptap blockquote {
   border-left: 3px solid rgba(168, 85, 247, 0.4);

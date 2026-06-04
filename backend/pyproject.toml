@@ -16,6 +16,7 @@ pyjwt = "^2.9.0"
 python-dotenv = "^1.0.0"
 python-multipart = "^0.0.9"
 prisma = "^0.15.0"
+pillow = "^12.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

@@ -323,14 +323,14 @@ function AdminNewsTab() {
   )
 }
 
-function ImageUploadField({
-  label,
-  value,
-  onChange,
+function BannerUploadField({
+  bannerUrl,
+  onUpload,
+  onRemove,
 }: {
-  label: string
-  value: string | null
-  onChange: (url: string | null) => void
+  bannerUrl: string | null
+  onUpload: (banner: string, thumbnail: string) => void
+  onRemove: () => void
 }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -350,7 +350,7 @@ function ImageUploadField({
       })
       if (!resp.ok) throw new Error("Upload failed")
       const data = await resp.json()
-      onChange(data.url)
+      onUpload(data.bannerUrl, data.thumbnailUrl)
     } catch {
       alert("Image upload failed. Max 5 MB, JPEG/PNG/WebP/GIF only.")
     } finally {
@@ -361,21 +361,21 @@ function ImageUploadField({
 
   return (
     <div>
-      <label className="block text-xs font-semibold text-text-muted mb-1 uppercase tracking-wider">{label}</label>
+      <label className="block text-xs font-semibold text-text-muted mb-1 uppercase tracking-wider">Article Image</label>
       <div className="ch-news-upload-area">
-        {value && <img src={value} alt="" className="ch-news-upload-preview" />}
+        {bannerUrl && <img src={bannerUrl} alt="" className="ch-news-upload-preview" />}
         <button
           type="button"
           className={`ch-news-upload-btn${uploading ? " uploading" : ""}`}
           onClick={() => fileRef.current?.click()}
         >
-          {uploading ? "Uploading…" : value ? "Change Image" : "Upload Image"}
+          {uploading ? "Uploading…" : bannerUrl ? "Change Image" : "Upload Image"}
         </button>
-        {value && (
+        {bannerUrl && (
           <button
             type="button"
             className="ch-news-upload-btn"
-            onClick={() => onChange(null)}
+            onClick={onRemove}
           >
             Remove
           </button>
@@ -388,6 +388,9 @@ function ImageUploadField({
           style={{ display: "none" }}
         />
       </div>
+      {bannerUrl && (
+        <p className="text-[10px] text-text-muted mt-1">Thumbnail is auto-generated from a centered crop of this image.</p>
+      )}
     </div>
   )
 }
@@ -461,8 +464,11 @@ function NewsEditor({ post, onDone }: { post: NewsPost | null; onDone: () => voi
             placeholder="Short summary"
           />
         </div>
-        <ImageUploadField label="Banner Image" value={bannerUrl} onChange={setBannerUrl} />
-        <ImageUploadField label="Thumbnail Image" value={thumbnailUrl} onChange={setThumbnailUrl} />
+        <BannerUploadField
+          bannerUrl={bannerUrl}
+          onUpload={(banner, thumb) => { setBannerUrl(banner); setThumbnailUrl(thumb) }}
+          onRemove={() => { setBannerUrl(null); setThumbnailUrl(null) }}
+        />
         <div>
           <label className="block text-xs font-semibold text-text-muted mb-1 uppercase tracking-wider">Content</label>
           <RichTextEditor content={content} onChange={setContent} />

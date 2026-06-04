@@ -179,6 +179,43 @@ async def delete_news(post_id: str, _admin: dict = Depends(require_admin)):
 
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 MAX_SIZE = 5 * 1024 * 1024  # 5 MB
+THUMB_SIZE = 256
+
+
+async def _upload_to_supabase(path: str, content: bytes, content_type: str) -> str:
+    """Upload bytes to Supabase Storage and return the public URL."""
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{settings.SUPABASE_URL}/storage/v1/object/news-images/{path}",
+            headers={
+                "Authorization": f"Bearer {settings.SUPABASE_SERVICE_KEY}",
+                "apikey": settings.SUPABASE_SERVICE_KEY,
+                "Content-Type": content_type,
+            },
+            content=content,
+        )
+        if resp.status_code not in (200, 201):
+            raise HTTPException(status_code=502, detail=f"Storage upload failed: {resp.text}")
+    return f"{settings.SUPABASE_URL}/storage/v1/object/public/news-images/{path}"
+
+
+def _make_thumbnail(image_bytes: bytes) -> bytes:
+    """Create a square center-cropped thumbnail from image bytes."""
+    import io
+
+    from PIL import Image
+
+    img = Image.open(io.BytesIO(image_bytes))
+    img = img.convert("RGB")
+    w, h = img.size
+    side = min(w, h)
+    left = (w - side) // 2
+    top = (h - side) // 2
+    cropped = img.crop((left, top, left + side, top + side))
+    cropped = cropped.resize((THUMB_SIZE, THUMB_SIZE), Image.LANCZOS)
+    buf = io.BytesIO()
+    cropped.save(buf, format="JPEG", quality=85)
+    return buf.getvalue()
 
 
 @router.post("/upload-image")
@@ -186,7 +223,7 @@ async def upload_image(
     file: UploadFile = File(...),
     _admin: dict = Depends(require_admin),
 ):
-    """Upload an image to Supabase Storage. Returns the public URL."""
+    """Upload a banner image + auto-generated thumbnail to Supabase Storage."""
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=400, detail="Only JPEG, PNG, WebP and GIF images are allowed")
 
@@ -194,21 +231,13 @@ async def upload_image(
     if len(contents) > MAX_SIZE:
         raise HTTPException(status_code=400, detail="Image must be under 5 MB")
 
+    uid = uuid4().hex
     ext = file.filename.rsplit(".", 1)[-1] if file.filename and "." in file.filename else "jpg"
-    path = f"news/{uuid4().hex}.{ext}"
+    banner_path = f"news/{uid}.{ext}"
+    thumb_path = f"news/{uid}_thumb.jpg"
 
-    async with httpx.AsyncClient() as client:
-        resp = await client.post(
-            f"{settings.SUPABASE_URL}/storage/v1/object/news-images/{path}",
-            headers={
-                "Authorization": f"Bearer {settings.SUPABASE_SERVICE_KEY}",
-                "apikey": settings.SUPABASE_SERVICE_KEY,
-                "Content-Type": file.content_type or "application/octet-stream",
-            },
-            content=contents,
-        )
-        if resp.status_code not in (200, 201):
-            raise HTTPException(status_code=502, detail=f"Storage upload failed: {resp.text}")
+    banner_url = await _upload_to_supabase(banner_path, contents, file.content_type or "application/octet-stream")
+    thumb_bytes = _make_thumbnail(contents)
+    thumbnail_url = await _upload_to_supabase(thumb_path, thumb_bytes, "image/jpeg")
 
-    public_url = f"{settings.SUPABASE_URL}/storage/v1/object/public/news-images/{path}"
-    return {"url": public_url}
+    return {"bannerUrl": banner_url, "thumbnailUrl": thumbnail_url}
