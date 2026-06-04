@@ -31,7 +31,9 @@ async def fetch_and_index_clan(clan_name: str) -> dict:
         logger.warning("Clan Hiscores returned %s for clan '%s'", resp.status_code, clan_name)
         return {"error": f"Clan Hiscores returned status {resp.status_code}", "member_count": 0}
 
-    text = resp.text.strip()
+    # Clan Hiscores uses \xa0 (non-breaking space) in names; decode as latin-1
+    # to preserve it, since httpx's default UTF-8 decoding replaces it with \ufffd
+    text = resp.content.decode("latin-1").strip()
     lines = text.split("\n")
 
     if len(lines) < 2:
