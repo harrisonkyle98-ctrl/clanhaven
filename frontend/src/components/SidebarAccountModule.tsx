@@ -92,16 +92,15 @@ export default function SidebarAccountModule() {
             <button className="ch-sidebar-account-action">
               <span>Badges</span>
             </button>
+            {user.privileges === 1 && (
+              <button
+                onClick={() => { navigate("/admin") }}
+                className="ch-sidebar-account-action"
+              >
+                <span>Admin Panel</span>
+              </button>
+            )}
           </div>
-
-          {user.privileges === 1 && (
-            <button
-              onClick={() => { navigate("/admin") }}
-              className="ch-sidebar-account-action"
-            >
-              <span>Admin Panel</span>
-            </button>
-          )}
 
           <button
             onClick={logout}
