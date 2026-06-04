@@ -1603,8 +1603,8 @@ body {
 }
 
 .ch-sidebar-account-avatar {
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   border-radius: 2px;
   background: linear-gradient(135deg, rgba(140, 115, 75, 0.6), rgba(85, 70, 50, 0.8));
   display: flex;
