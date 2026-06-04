@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 
 import httpx
@@ -7,6 +8,8 @@ from pydantic import BaseModel
 from app.core.auth import get_current_user
 from app.core.database import db
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 HISCORES_URLS = {
@@ -14,10 +17,30 @@ HISCORES_URLS = {
     "OSRS": "https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws?player=",
 }
 
+RUNEMETRICS_PROFILE_URL = "https://apps.runescape.com/runemetrics/profile/profile?user={}&activities=0"
+
 
 class LinkRsnRequest(BaseModel):
     rsn: str
     gameType: str
+
+
+async def _fetch_rs3_clan(rsn: str) -> str | None:
+    """Attempt to fetch clan name from RuneMetrics for RS3 users. Returns None on any failure."""
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            resp = await client.get(RUNEMETRICS_PROFILE_URL.format(rsn))
+            if resp.status_code != 200:
+                return None
+            data = resp.json()
+            if data.get("error"):
+                return None
+            clan = data.get("clan")
+            if clan and isinstance(clan, str) and clan.strip():
+                return clan.strip()
+    except Exception:
+        logger.info("RuneMetrics clan lookup failed for %s", rsn)
+    return None
 
 
 @router.get("/me")
@@ -41,6 +64,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         "email": user.email,
         "rsn": user.rsn,
         "gameType": user.gameType,
+        "rsnClanName": user.rsnClanName,
         "rsnLinkedAt": user.rsnLinkedAt.isoformat() if user.rsnLinkedAt else None,
         "roles": user.roles,
         "createdAt": user.createdAt.isoformat(),
@@ -83,12 +107,18 @@ async def link_rsn(body: LinkRsnRequest, current_user: dict = Depends(get_curren
             detail=f"'{rsn}' was not found on the {game_type} Hiscores. Please check the spelling and game type.",
         )
 
+    # For RS3 users, attempt to fetch clan name from RuneMetrics
+    clan_name: str | None = None
+    if game_type == "RS3":
+        clan_name = await _fetch_rs3_clan(rsn)
+
     # Save linked RSN to user
     user = await db.user.update(
         where={"id": current_user["sub"]},
         data={
             "rsn": rsn,
             "gameType": game_type,
+            "rsnClanName": clan_name,
             "rsnLinkedAt": datetime.now(timezone.utc),
         },
     )
@@ -96,5 +126,6 @@ async def link_rsn(body: LinkRsnRequest, current_user: dict = Depends(get_curren
     return {
         "rsn": user.rsn,
         "gameType": user.gameType,
+        "rsnClanName": user.rsnClanName,
         "rsnLinkedAt": user.rsnLinkedAt.isoformat() if user.rsnLinkedAt else None,
     }

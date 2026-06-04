@@ -59,8 +59,17 @@ export default function SidebarAccountModule() {
               <span className="ch-sidebar-account-status" />
             </div>
             <div className="ch-sidebar-account-info">
-              <span className="ch-sidebar-account-name">{user.rsn}</span>
-              <span className="ch-sidebar-account-role">{user.gameType}</span>
+              <div className="ch-sidebar-account-name-row">
+                <span className="ch-sidebar-account-name">{user.rsn}</span>
+                {user.gameType && (
+                  <span className={user.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                    {user.gameType}
+                  </span>
+                )}
+              </div>
+              <span className="ch-sidebar-account-role">
+                {user.rsnClanName || "No clan linked"}
+              </span>
             </div>
           </div>
 

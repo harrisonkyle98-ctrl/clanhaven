@@ -16,10 +16,11 @@ model User {
   username  String
   avatar    String?
   email     String?
-  rsn       String?
-  gameType  GameType? @map("game_type")
+  rsn         String?
+  gameType    GameType? @map("game_type")
+  rsnClanName String?   @map("rsn_clan_name")
   rsnLinkedAt DateTime? @map("rsn_linked_at")
-  roles     String[] @default([])
+  roles       String[] @default([])
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
