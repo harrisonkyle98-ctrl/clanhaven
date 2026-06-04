@@ -67,9 +67,11 @@ export default function SidebarAccountModule() {
                   </span>
                 )}
               </div>
-              <span className="ch-sidebar-account-role">
-                {user.rsnClanName || "No clan linked"}
-              </span>
+              {user.rsnClanName && (
+                <span className="ch-sidebar-account-role">
+                  {user.rsnClanName}
+                </span>
+              )}
             </div>
           </div>
 
