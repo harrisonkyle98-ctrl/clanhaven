@@ -1598,7 +1598,7 @@ body {
 /* ── Logged-in: user row ── */
 .ch-sidebar-account-user {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.625rem;
 }
 
