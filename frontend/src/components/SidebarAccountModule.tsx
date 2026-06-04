@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 
 function getRsAvatarUrl(rsn: string): string {
@@ -6,6 +7,7 @@ function getRsAvatarUrl(rsn: string): string {
 
 export default function SidebarAccountModule() {
   const { user, loading, login, logout } = useAuth()
+  const navigate = useNavigate()
 
   if (loading) {
     return (
@@ -91,6 +93,15 @@ export default function SidebarAccountModule() {
               <span>Badges</span>
             </button>
           </div>
+
+          {user.privileges === 1 && (
+            <button
+              onClick={() => { navigate("/admin") }}
+              className="ch-sidebar-account-action ch-sidebar-account-action--admin"
+            >
+              <span>Admin Panel</span>
+            </button>
+          )}
 
           <button
             onClick={logout}

@@ -1634,6 +1634,22 @@ body {
     inset 0 1px 0 rgba(155, 130, 95, 0.3);
 }
 
+.ch-sidebar-account-action--admin {
+  grid-column: 1 / -1;
+  color: #c9a0ff;
+  font-size: 0.625rem;
+  padding: 0.25rem;
+  border: 1px solid rgba(160, 120, 220, 0.3);
+  border-radius: 4px;
+  background: rgba(120, 80, 180, 0.1);
+}
+
+.ch-sidebar-account-action--admin:hover {
+  color: #e0c0ff;
+  background: rgba(120, 80, 180, 0.25);
+  border-color: rgba(160, 120, 220, 0.5);
+}
+
 .ch-sidebar-account-action--signout {
   grid-column: 1 / -1;
   color: rgba(160, 145, 120, 0.5);
@@ -1886,6 +1902,162 @@ body {
   text-align: center;
   font-size: 0.7rem;
   color: rgba(160, 140, 100, 0.5);
+}
+
+/* ═══════════════════════════════════════════
+   Admin Panel
+   ═══════════════════════════════════════════ */
+
+.ch-admin-back-link {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: rgba(200, 180, 150, 0.6);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.ch-admin-back-link:hover {
+  color: rgba(200, 180, 150, 0.9);
+}
+
+/* Tab navigation */
+.ch-admin-tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid rgba(100, 85, 60, 0.4);
+  padding-bottom: 0;
+  overflow-x: auto;
+}
+
+.ch-admin-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.75rem;
+  font-family: "Cinzel", serif;
+  color: rgba(200, 180, 150, 0.5);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.ch-admin-tab:hover:not(:disabled) {
+  color: rgba(200, 180, 150, 0.8);
+}
+
+.ch-admin-tab--active {
+  color: #c9a0ff;
+  border-bottom-color: #c9a0ff;
+}
+
+.ch-admin-tab--disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Overview section */
+.ch-admin-overview {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.ch-admin-welcome {
+  font-family: "Cinzel", serif;
+  font-size: 1rem;
+  color: rgba(220, 200, 170, 0.9);
+  margin-bottom: 0.5rem;
+}
+
+.ch-admin-highlight {
+  color: #c9a0ff;
+}
+
+.ch-admin-description {
+  font-size: 0.8rem;
+  color: rgba(180, 160, 130, 0.6);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Status rows */
+.ch-admin-section {
+  padding: 0.25rem 0;
+}
+
+.ch-admin-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(100, 85, 60, 0.15);
+}
+
+.ch-admin-status-row:last-child {
+  border-bottom: none;
+}
+
+.ch-admin-status-label {
+  font-size: 0.75rem;
+  color: rgba(180, 160, 130, 0.5);
+}
+
+.ch-admin-status-value {
+  font-size: 0.75rem;
+  color: rgba(220, 200, 170, 0.8);
+}
+
+/* Placeholder text */
+.ch-admin-placeholder {
+  font-size: 0.8rem;
+  color: rgba(180, 160, 130, 0.5);
+  line-height: 1.5;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+/* Module cards grid */
+.ch-admin-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.ch-admin-module-card {
+  background: rgba(40, 35, 25, 0.4);
+  border: 1px solid rgba(100, 85, 60, 0.25);
+  border-radius: 6px;
+  padding: 0.75rem;
+  position: relative;
+}
+
+.ch-admin-module-title {
+  font-family: "Cinzel", serif;
+  font-size: 0.8rem;
+  color: rgba(220, 200, 170, 0.85);
+  margin-bottom: 0.3rem;
+}
+
+.ch-admin-module-desc {
+  font-size: 0.7rem;
+  color: rgba(180, 160, 130, 0.5);
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+
+.ch-admin-module-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-family: "Cinzel", serif;
+  color: rgba(160, 120, 220, 0.6);
+  border: 1px solid rgba(160, 120, 220, 0.2);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  background: rgba(120, 80, 180, 0.08);
 }
 
 
