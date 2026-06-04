@@ -71,16 +71,18 @@ async def discord_callback(request: Request, code: str | None = None):
     # Upsert user in database
     user = await db.user.upsert(
         where={"discordId": discord_id},
-        create={
-            "discordId": discord_id,
-            "username": username,
-            "avatar": avatar,
-            "email": email,
-        },
-        update={
-            "username": username,
-            "avatar": avatar,
-            "email": email,
+        data={
+            "create": {
+                "discordId": discord_id,
+                "username": username,
+                "avatar": avatar,
+                "email": email,
+            },
+            "update": {
+                "username": username,
+                "avatar": avatar,
+                "email": email,
+            },
         },
     )
 
