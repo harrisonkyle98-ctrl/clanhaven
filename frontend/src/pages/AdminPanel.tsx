@@ -243,8 +243,7 @@ function AdminUsersTab() {
                 </span>
               )}
             </div>
-            <div className="ch-sidebar-account-divider" style={{ margin: "0.4rem 0" }} />
-            <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
               {u.rsn && (
                 <span className="badge-discord">
                   <svg viewBox="0 0 24 24" fill="currentColor">
