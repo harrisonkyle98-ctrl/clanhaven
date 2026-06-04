@@ -66,17 +66,19 @@ export default function SidebarAccountModule() {
                 {user.privileges === 1 && (
                   <span className="badge-admin">Admin</span>
                 )}
-                {user.gameType && (
-                  <span className={user.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                    {user.gameType}
-                  </span>
-                )}
               </div>
-              {user.rsnClanName && (
-                <span className="ch-sidebar-account-role">
-                  {user.rsnClanName}
-                </span>
-              )}
+              <div className="ch-user-row-details" style={{ marginTop: "0.3rem" }}>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {user.rsnClanName && (
+                    <span className="badge-clan">{user.rsnClanName}</span>
+                  )}
+                  {user.gameType && (
+                    <span className={user.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                      {user.gameType}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 

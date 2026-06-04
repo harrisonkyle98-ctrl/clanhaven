@@ -237,14 +237,17 @@ function AdminUsersTab() {
               {u.privileges === 1 && (
                 <span className="badge-admin">Admin</span>
               )}
-              {u.gameType && (
-                <span className={u.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                  {u.gameType}
-                </span>
-              )}
             </div>
             <div className="ch-user-row-details">
               <div className="flex items-center gap-1.5 flex-wrap">
+                {u.rsnClanName && (
+                  <span className="badge-clan">{u.rsnClanName}</span>
+                )}
+                {u.gameType && (
+                  <span className={u.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                    {u.gameType}
+                  </span>
+                )}
                 {u.rsn && (
                   <span className="badge-discord">
                     <svg viewBox="0 0 24 24" fill="currentColor">
@@ -252,9 +255,6 @@ function AdminUsersTab() {
                     </svg>
                     {u.username}
                   </span>
-                )}
-                {u.rsnClanName && (
-                  <span className="badge-clan">{u.rsnClanName}</span>
                 )}
                 <span className="badge-info">Joined {formatDate(u.createdAt)}</span>
                 {u.rsnLinkedAt && (
