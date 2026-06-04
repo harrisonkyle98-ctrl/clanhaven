@@ -1,19 +1,20 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, Navigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
+import { apiFetch } from "@/lib/api"
 import CollapsiblePanel from "@/components/CollapsiblePanel"
-import { Shield, Home, Newspaper, Users, Swords, Settings, FileText } from "lucide-react"
+
 
 const TABS = [
-  { id: "home", label: "Home", icon: Home },
+  { id: "home", label: "Home" },
+  { id: "users", label: "Users" },
 ] as const
 
 const FUTURE_TABS = [
-  { label: "News", icon: Newspaper },
-  { label: "Users", icon: Users },
-  { label: "Clans", icon: Swords },
-  { label: "Site Settings", icon: Settings },
-  { label: "Content", icon: FileText },
+  { label: "News" },
+  { label: "Clans" },
+  { label: "Site Settings" },
+  { label: "Content" },
 ]
 
 type TabId = (typeof TABS)[number]["id"]
@@ -44,7 +45,6 @@ export default function AdminPanel() {
         />
         <div className="ch-page-banner-content">
           <h1 className="ch-page-banner-title">
-            <Shield className="inline-block w-6 h-6 mr-2 align-text-bottom" />
             Admin Panel
           </h1>
         </div>
@@ -60,37 +60,30 @@ export default function AdminPanel() {
 
         {/* Tab navigation */}
         <div className="ch-admin-tabs">
-          {TABS.map((tab) => {
-            const Icon = tab.icon
-            return (
-              <button
-                key={tab.id}
-                className={`ch-admin-tab${activeTab === tab.id ? " ch-admin-tab--active" : ""}`}
-                onClick={() => { setActiveTab(tab.id) }}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
-              </button>
-            )
-          })}
-          {FUTURE_TABS.map((tab) => {
-            const Icon = tab.icon
-            return (
-              <button
-                key={tab.label}
-                className="ch-admin-tab ch-admin-tab--disabled"
-                disabled
-                title="Coming soon"
-              >
-                <Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
-              </button>
-            )
-          })}
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              className={`ch-admin-tab${activeTab === tab.id ? " ch-admin-tab--active" : ""}`}
+              onClick={() => { setActiveTab(tab.id) }}
+            >
+              <span>{tab.label}</span>
+            </button>
+          ))}
+          {FUTURE_TABS.map((tab) => (
+            <button
+              key={tab.label}
+              className="ch-admin-tab ch-admin-tab--disabled"
+              disabled
+              title="Coming soon"
+            >
+              <span>{tab.label}</span>
+            </button>
+          ))}
         </div>
 
         {/* Tab content */}
         {activeTab === "home" && <AdminHomeTab username={user.rsn ?? user.username} />}
+        {activeTab === "users" && <AdminUsersTab />}
       </div>
     </div>
   )
@@ -164,5 +157,94 @@ function AdminHomeTab({ username }: { username: string }) {
         </div>
       </CollapsiblePanel>
     </div>
+  )
+}
+
+
+interface AdminUser {
+  id: string
+  discordId: string
+  username: string
+  avatar: string | null
+  rsn: string | null
+  gameType: string | null
+  rsnClanName: string | null
+  rsnLinkedAt: string | null
+  privileges: number
+  createdAt: string
+  updatedAt: string
+}
+
+function AdminUsersTab() {
+  const [users, setUsers] = useState<AdminUser[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    apiFetch<AdminUser[]>("/api/admin/users")
+      .then(setUsers)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const formatDate = (iso: string) => {
+    const d = new Date(iso)
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+  }
+
+  return (
+    <CollapsiblePanel variant="purple" title="Registered Users">
+      <div className="flex flex-col gap-2 flex-1">
+        {loading && (
+          <div className="ch-row px-4 py-3">
+            <span className="text-sm text-text-muted">Loading users…</span>
+          </div>
+        )}
+        {error && (
+          <div className="ch-row px-4 py-3">
+            <span className="text-sm text-red-400">{error}</span>
+          </div>
+        )}
+        {!loading && !error && users.length === 0 && (
+          <div className="ch-row px-4 py-3">
+            <span className="text-sm text-text-muted">No registered users.</span>
+          </div>
+        )}
+        {users.map((u) => (
+          <div key={u.id} className="ch-row px-4 py-3 cursor-pointer group">
+            <div className="flex items-center gap-2 mb-1">
+              {u.privileges === 1 && (
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-purple-400">Admin</span>
+              )}
+              {u.gameType && (
+                <span className={`text-[10px] font-semibold uppercase tracking-wider ${u.gameType === "RS3" ? "text-emerald-400" : "text-sky-400"}`}>
+                  {u.gameType}
+                </span>
+              )}
+              <span className="text-[10px] text-text-muted">
+                Joined {formatDate(u.createdAt)}
+              </span>
+            </div>
+            <div className="text-sm font-medium text-text-highlight group-hover:text-gold transition-colors">
+              {u.rsn ?? u.username}
+            </div>
+            <div className="text-[11px] text-text-muted mt-0.5 leading-relaxed flex flex-wrap gap-x-4">
+              {u.rsn && (
+                <span>Discord: {u.username}</span>
+              )}
+              {u.rsnClanName && (
+                <span>Clan: <span className="text-gold">{u.rsnClanName}</span></span>
+              )}
+              {u.rsnLinkedAt && (
+                <span>RSN linked {formatDate(u.rsnLinkedAt)}</span>
+              )}
+              {!u.rsn && (
+                <span>No RuneScape account linked</span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </CollapsiblePanel>
   )
 }
