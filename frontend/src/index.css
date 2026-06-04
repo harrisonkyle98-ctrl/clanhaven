@@ -2077,8 +2077,8 @@ body {
 
 .ch-loading-bar {
   height: 100%;
-  background: linear-gradient(90deg, #c9a227, #e8c547, #c9a227);
-  box-shadow: 0 0 8px rgba(201, 162, 39, 0.6), 0 0 2px rgba(201, 162, 39, 0.4);
+  background: linear-gradient(90deg, #415a73, #648cb4, #415a73);
+  box-shadow: 0 0 8px rgba(100, 140, 180, 0.6), 0 0 2px rgba(100, 140, 180, 0.4);
   border-radius: 0 1px 1px 0;
   transition: width 0.15s ease-out;
 }
