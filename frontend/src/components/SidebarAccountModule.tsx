@@ -63,6 +63,9 @@ export default function SidebarAccountModule() {
             <div className="ch-sidebar-account-info">
               <div className="ch-sidebar-account-name-row">
                 <span className="ch-sidebar-account-name">{user.rsn}</span>
+                {user.privileges === 1 && (
+                  <span className="badge-admin">Admin</span>
+                )}
                 {user.gameType && (
                   <span className={user.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
                     {user.gameType}
