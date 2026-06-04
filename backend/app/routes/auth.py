@@ -130,7 +130,6 @@ async def get_current_user_info(request: Request):
         "rsnClanName": rsn_clan_name,
         "rsnLinkedAt": user.rsnLinkedAt.isoformat() if user.rsnLinkedAt else None,
         "privileges": user.privileges,
-        "roles": user.roles,
         "createdAt": user.createdAt.isoformat(),
     }
 

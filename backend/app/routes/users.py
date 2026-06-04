@@ -78,7 +78,6 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         "rsnClanName": rsn_clan_name,
         "rsnLinkedAt": user.rsnLinkedAt.isoformat() if user.rsnLinkedAt else None,
         "privileges": user.privileges,
-        "roles": user.roles,
         "createdAt": user.createdAt.isoformat(),
         "clans": [
             {
