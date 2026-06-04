@@ -26,7 +26,7 @@ async def discord_login():
     return {"auth_url": f"https://discord.com/api/oauth2/authorize?{urlencode(params)}"}
 
 
-@router.get("/callback/discord")
+@router.get("/callback")
 async def discord_callback(request: Request, code: str | None = None):
     """Handle Discord OAuth callback."""
     if not code:
