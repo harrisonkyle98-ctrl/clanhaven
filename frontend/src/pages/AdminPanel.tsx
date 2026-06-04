@@ -7,11 +7,11 @@ import CollapsiblePanel from "@/components/CollapsiblePanel"
 
 const TABS = [
   { id: "home", label: "Home" },
+  { id: "news", label: "News" },
   { id: "users", label: "Users" },
 ] as const
 
 const FUTURE_TABS = [
-  { label: "News" },
   { label: "Clans" },
   { label: "Site Settings" },
   { label: "Content" },
@@ -76,6 +76,7 @@ export default function AdminPanel() {
 
         {/* Tab content */}
         {activeTab === "home" && <AdminHomeTab username={user.rsn ?? user.username} />}
+        {activeTab === "news" && <AdminNewsTab />}
         {activeTab === "users" && <AdminUsersTab />}
       </div>
     </div>
@@ -150,6 +151,269 @@ function AdminHomeTab({ username }: { username: string }) {
         </div>
       </CollapsiblePanel>
     </div>
+  )
+}
+
+
+// ─── News Tab ───
+
+interface NewsPost {
+  id: string
+  title: string
+  content: string
+  excerpt: string | null
+  published: boolean
+  authorId: string | null
+  publishedAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+function AdminNewsTab() {
+  const [posts, setPosts] = useState<NewsPost[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [editing, setEditing] = useState<NewsPost | null>(null)
+  const [creating, setCreating] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+
+  const loadPosts = () => {
+    setLoading(true)
+    apiFetch<NewsPost[]>("/api/admin/news")
+      .then(setPosts)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => { loadPosts() }, [])
+
+  const formatDate = (iso: string) => {
+    const d = new Date(iso)
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+  }
+
+  const handleDelete = async (id: string) => {
+    await apiFetch(`/api/admin/news/${id}`, { method: "DELETE" })
+    setConfirmDelete(null)
+    loadPosts()
+  }
+
+  const handleTogglePublish = async (post: NewsPost) => {
+    await apiFetch(`/api/admin/news/${post.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ published: !post.published }),
+    })
+    loadPosts()
+  }
+
+  if (editing) {
+    return <NewsEditor post={editing} onDone={() => { setEditing(null); loadPosts() }} />
+  }
+
+  if (creating) {
+    return <NewsEditor post={null} onDone={() => { setCreating(false); loadPosts() }} />
+  }
+
+  return (
+    <CollapsiblePanel variant="purple" title="News Management">
+      <div className="flex flex-col gap-2 flex-1">
+        <div className="px-4 py-2">
+          <button
+            className="ch-sidebar-account-action"
+            style={{ width: "auto", padding: "0.4rem 1rem" }}
+            onClick={() => setCreating(true)}
+          >
+            + New Post
+          </button>
+        </div>
+        {loading && (
+          <div className="ch-row px-4 py-3">
+            <span className="text-sm text-text-muted">Loading news…</span>
+          </div>
+        )}
+        {error && (
+          <div className="ch-row px-4 py-3">
+            <span className="text-sm text-red-400">{error}</span>
+          </div>
+        )}
+        {!loading && !error && posts.length === 0 && (
+          <div className="ch-row px-4 py-3">
+            <span className="text-sm text-text-muted">No news posts yet. Create your first post above.</span>
+          </div>
+        )}
+        {posts.map((p) => (
+          <div key={p.id} className="ch-row px-4 py-3 group">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-text-highlight group-hover:text-gold transition-colors">
+                {p.title}
+              </span>
+              {p.published ? (
+                <span className="badge-online">Published</span>
+              ) : (
+                <span className="badge-offline">Draft</span>
+              )}
+            </div>
+            <div className="ch-user-row-details">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="badge-info">Created {formatDate(p.createdAt)}</span>
+                {p.publishedAt && (
+                  <span className="badge-info">Published {formatDate(p.publishedAt)}</span>
+                )}
+                {p.excerpt && (
+                  <span className="badge-info" style={{ maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {p.excerpt}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <button
+                className="ch-sidebar-account-action"
+                style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                onClick={() => setEditing(p)}
+              >
+                Edit
+              </button>
+              <button
+                className="ch-sidebar-account-action"
+                style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                onClick={() => handleTogglePublish(p)}
+              >
+                {p.published ? "Unpublish" : "Publish"}
+              </button>
+              {confirmDelete === p.id ? (
+                <>
+                  <button
+                    className="ch-sidebar-account-action"
+                    style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem", color: "#f87171" }}
+                    onClick={() => handleDelete(p.id)}
+                  >
+                    Confirm Delete
+                  </button>
+                  <button
+                    className="ch-sidebar-account-action"
+                    style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                    onClick={() => setConfirmDelete(null)}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  className="ch-sidebar-account-action"
+                  style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                  onClick={() => setConfirmDelete(p.id)}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </CollapsiblePanel>
+  )
+}
+
+function NewsEditor({ post, onDone }: { post: NewsPost | null; onDone: () => void }) {
+  const [title, setTitle] = useState(post?.title ?? "")
+  const [content, setContent] = useState(post?.content ?? "")
+  const [excerpt, setExcerpt] = useState(post?.excerpt ?? "")
+  const [published, setPublished] = useState(post?.published ?? false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSave = async () => {
+    if (!title.trim() || !content.trim()) {
+      setError("Title and content are required")
+      return
+    }
+    setSaving(true)
+    setError(null)
+    try {
+      if (post) {
+        await apiFetch(`/api/admin/news/${post.id}`, {
+          method: "PUT",
+          body: JSON.stringify({ title, content, excerpt: excerpt || null, published }),
+        })
+      } else {
+        await apiFetch("/api/admin/news", {
+          method: "POST",
+          body: JSON.stringify({ title, content, excerpt: excerpt || null, published }),
+        })
+      }
+      onDone()
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to save")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <CollapsiblePanel variant="purple" title={post ? "Edit Post" : "New Post"}>
+      <div className="flex flex-col gap-3 p-4">
+        {error && <div className="text-sm text-red-400">{error}</div>}
+        <div>
+          <label className="block text-xs font-semibold text-text-muted mb-1 uppercase tracking-wider">Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="ch-news-input"
+            placeholder="Post title"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-text-muted mb-1 uppercase tracking-wider">Excerpt (optional)</label>
+          <input
+            type="text"
+            value={excerpt}
+            onChange={(e) => setExcerpt(e.target.value)}
+            className="ch-news-input"
+            placeholder="Short summary"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-text-muted mb-1 uppercase tracking-wider">Content</label>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="ch-news-input"
+            style={{ minHeight: "150px", resize: "vertical" }}
+            placeholder="Post content"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={published}
+              onChange={(e) => setPublished(e.target.checked)}
+              className="accent-purple-500"
+            />
+            <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">Publish immediately</span>
+          </label>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            className="ch-sidebar-account-action"
+            style={{ width: "auto", padding: "0.4rem 1.25rem" }}
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? "Saving…" : post ? "Update Post" : "Create Post"}
+          </button>
+          <button
+            className="ch-sidebar-account-action"
+            style={{ width: "auto", padding: "0.4rem 1.25rem" }}
+            onClick={onDone}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </CollapsiblePanel>
   )
 }
 

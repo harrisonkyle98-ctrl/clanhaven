@@ -28,6 +28,38 @@ async def lifespan(app: FastAPI):
             await db.user.update(where={"id": admin_user.id}, data={"privileges": 1})
     except Exception:
         pass
+    # Seed example news posts if none exist
+    try:
+        from datetime import datetime, timezone
+        count = await db.newspost.count()
+        if count == 0:
+            seeds = [
+                {
+                    "title": "Welcome to Clan Haven",
+                    "content": "Clan Haven is now live! This platform is built for RuneScape clans to manage members, track progress, and build community. Stay tuned for more features.",
+                    "excerpt": "Clan Haven is now live! Built for RuneScape clans to manage members and build community.",
+                    "published": True,
+                    "publishedAt": datetime.now(timezone.utc),
+                },
+                {
+                    "title": "RS3 Clan Indexing Active",
+                    "content": "RS3 clan indexing is now functional. When you link your RuneScape account, Clan Haven automatically detects your clan membership using official RS3 Clan Hiscores data.",
+                    "excerpt": "RS3 clan detection is live — link your account and your clan is automatically identified.",
+                    "published": True,
+                    "publishedAt": datetime.now(timezone.utc),
+                },
+                {
+                    "title": "Admin Panel Now Available",
+                    "content": "Site administrators can now access the Admin Panel to manage users, publish news, and monitor site activity. More admin tools are coming soon.",
+                    "excerpt": "The Admin Panel is live with user management and news publishing tools.",
+                    "published": True,
+                    "publishedAt": datetime.now(timezone.utc),
+                },
+            ]
+            for seed in seeds:
+                await db.newspost.create(data=seed)
+    except Exception:
+        pass
     yield
     await disconnect_db()
 
@@ -55,6 +87,9 @@ app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(clans.router, prefix="/api/clans", tags=["clans"])
 app.include_router(members.router, prefix="/api/members", tags=["members"])
 app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
+
+from app.routes import news
+app.include_router(news.router, prefix="/api/news", tags=["news"])
 
 # Serve built frontend in production
 static_dir = Path(__file__).parent.parent / "static"

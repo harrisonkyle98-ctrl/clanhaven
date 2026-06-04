@@ -1,4 +1,7 @@
-"""Admin routes for clan indexing and user management. Internal use only for now."""
+"""Admin routes for clan indexing, user management, and news. Internal use only for now."""
+
+from datetime import datetime, timezone
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -67,3 +70,93 @@ async def list_users(_admin: dict = Depends(require_admin)):
         }
         for u in users
     ]
+
+
+# ─── News CRUD ───
+
+
+def _serialize_post(p):
+    return {
+        "id": p.id,
+        "title": p.title,
+        "content": p.content,
+        "excerpt": p.excerpt,
+        "published": p.published,
+        "authorId": p.authorId,
+        "publishedAt": p.publishedAt.isoformat() if p.publishedAt else None,
+        "createdAt": p.createdAt.isoformat(),
+        "updatedAt": p.updatedAt.isoformat(),
+    }
+
+
+class NewsPostCreate(BaseModel):
+    title: str
+    content: str
+    excerpt: Optional[str] = None
+    published: bool = False
+
+
+class NewsPostUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    excerpt: Optional[str] = None
+    published: Optional[bool] = None
+
+
+@router.get("/news")
+async def list_news_admin(_admin: dict = Depends(require_admin)):
+    """List all news posts (admin view, includes unpublished)."""
+    posts = await db.newspost.find_many(order={"createdAt": "desc"})
+    return [_serialize_post(p) for p in posts]
+
+
+@router.post("/news")
+async def create_news(body: NewsPostCreate, admin: dict = Depends(require_admin)):
+    """Create a new news post."""
+    data: dict = {
+        "title": body.title.strip(),
+        "content": body.content.strip(),
+        "excerpt": body.excerpt.strip() if body.excerpt else None,
+        "published": body.published,
+        "authorId": admin["sub"],
+    }
+    if body.published:
+        data["publishedAt"] = datetime.now(timezone.utc)
+    post = await db.newspost.create(data=data)
+    return _serialize_post(post)
+
+
+@router.put("/news/{post_id}")
+async def update_news(post_id: str, body: NewsPostUpdate, _admin: dict = Depends(require_admin)):
+    """Update an existing news post."""
+    existing = await db.newspost.find_unique(where={"id": post_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    data: dict = {}
+    if body.title is not None:
+        data["title"] = body.title.strip()
+    if body.content is not None:
+        data["content"] = body.content.strip()
+    if body.excerpt is not None:
+        data["excerpt"] = body.excerpt.strip() if body.excerpt else None
+    if body.published is not None:
+        data["published"] = body.published
+        if body.published and not existing.publishedAt:
+            data["publishedAt"] = datetime.now(timezone.utc)
+
+    if not data:
+        return _serialize_post(existing)
+
+    post = await db.newspost.update(where={"id": post_id}, data=data)
+    return _serialize_post(post)
+
+
+@router.delete("/news/{post_id}")
+async def delete_news(post_id: str, _admin: dict = Depends(require_admin)):
+    """Delete a news post."""
+    existing = await db.newspost.find_unique(where={"id": post_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Post not found")
+    await db.newspost.delete(where={"id": post_id})
+    return {"ok": True}
