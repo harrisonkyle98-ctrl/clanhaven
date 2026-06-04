@@ -7,6 +7,7 @@ from fastapi.responses import RedirectResponse
 from app.core.auth import create_access_token
 from app.core.config import settings
 from app.core.database import db
+from app.services.clan_indexer import lookup_clan_for_rsn
 
 router = APIRouter()
 
@@ -108,6 +109,16 @@ async def get_current_user_info(request: Request):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # If user has RSN but no cached clan name, try indexed lookup and cache it
+    rsn_clan_name = user.rsnClanName
+    if user.rsn and not rsn_clan_name and user.gameType == "RS3":
+        rsn_clan_name = await lookup_clan_for_rsn(user.rsn)
+        if rsn_clan_name:
+            await db.user.update(
+                where={"id": user.id},
+                data={"rsnClanName": rsn_clan_name},
+            )
+
     return {
         "id": user.id,
         "discordId": user.discordId,
@@ -116,7 +127,7 @@ async def get_current_user_info(request: Request):
         "email": user.email,
         "rsn": user.rsn,
         "gameType": user.gameType,
-        "rsnClanName": user.rsnClanName,
+        "rsnClanName": rsn_clan_name,
         "rsnLinkedAt": user.rsnLinkedAt.isoformat() if user.rsnLinkedAt else None,
         "roles": user.roles,
         "createdAt": user.createdAt.isoformat(),

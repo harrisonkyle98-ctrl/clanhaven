@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from app.core.auth import get_current_user
 from app.core.database import db
+from app.services.clan_indexer import lookup_clan_for_rsn
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,16 @@ async def get_me(current_user: dict = Depends(get_current_user)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # If user has RSN but no cached clan name, try indexed lookup and cache it
+    rsn_clan_name = user.rsnClanName
+    if user.rsn and not rsn_clan_name and user.gameType == "RS3":
+        rsn_clan_name = await lookup_clan_for_rsn(user.rsn)
+        if rsn_clan_name:
+            await db.user.update(
+                where={"id": user.id},
+                data={"rsnClanName": rsn_clan_name},
+            )
+
     # Get clan memberships
     memberships = await db.clanmember.find_many(
         where={"userId": user.id},
@@ -64,7 +75,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         "email": user.email,
         "rsn": user.rsn,
         "gameType": user.gameType,
-        "rsnClanName": user.rsnClanName,
+        "rsnClanName": rsn_clan_name,
         "rsnLinkedAt": user.rsnLinkedAt.isoformat() if user.rsnLinkedAt else None,
         "roles": user.roles,
         "createdAt": user.createdAt.isoformat(),
@@ -107,10 +118,12 @@ async def link_rsn(body: LinkRsnRequest, current_user: dict = Depends(get_curren
             detail=f"'{rsn}' was not found on the {game_type} Hiscores. Please check the spelling and game type.",
         )
 
-    # For RS3 users, attempt to fetch clan name from RuneMetrics
+    # Look up clan from indexed data first, then fall back to RuneMetrics for RS3
     clan_name: str | None = None
     if game_type == "RS3":
-        clan_name = await _fetch_rs3_clan(rsn)
+        clan_name = await lookup_clan_for_rsn(rsn)
+        if not clan_name:
+            clan_name = await _fetch_rs3_clan(rsn)
 
     # Save linked RSN to user
     user = await db.user.update(

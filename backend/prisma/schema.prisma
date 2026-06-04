@@ -81,6 +81,42 @@ model ClanMember {
   @@map("clan_members")
 }
 
+// ─── Indexed Clans (from RS3 Clan Hiscores) ───
+
+model IndexedClan {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  nameLower   String   @unique @map("name_lower")
+  gameType    GameType @default(RS3) @map("game_type")
+  memberCount Int      @default(0) @map("member_count")
+  lastIndexedAt DateTime? @map("last_indexed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  members IndexedClanMember[]
+
+  @@map("indexed_clans")
+}
+
+model IndexedClanMember {
+  id        String   @id @default(cuid())
+  clanId    String   @map("clan_id")
+  rsn       String
+  rsnLower  String   @map("rsn_lower")
+  clanRank  String?  @map("clan_rank")
+  totalXp   BigInt   @default(0) @map("total_xp")
+  kills     Int      @default(0)
+  lastSeenAt DateTime @default(now()) @map("last_seen_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  clan IndexedClan @relation(fields: [clanId], references: [id], onDelete: Cascade)
+
+  @@unique([clanId, rsnLower])
+  @@index([rsnLower])
+  @@map("indexed_clan_members")
+}
+
 // ─── Enums ───
 
 enum GameType {
