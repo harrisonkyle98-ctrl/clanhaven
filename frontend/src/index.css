@@ -2057,4 +2057,30 @@ body {
   background: rgba(120, 80, 180, 0.08);
 }
 
+/* ===========================================
+   PAGE TRANSITION - Fade + subtle slide
+   =========================================== */
+.ch-page-transition {
+  will-change: opacity, transform;
+}
+
+.ch-page-transition--in {
+  animation: ch-page-enter 0.2s ease-out both;
+}
+
+.ch-page-transition--out {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+@keyframes ch-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
