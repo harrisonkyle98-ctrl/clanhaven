@@ -214,10 +214,10 @@ function AdminUsersTab() {
           <div key={u.id} className="ch-row px-4 py-3 cursor-pointer group">
             <div className="flex items-center gap-2 mb-1">
               {u.privileges === 1 && (
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-purple-400">Admin</span>
+                <span className="badge-admin">Admin</span>
               )}
               {u.gameType && (
-                <span className={`text-[10px] font-semibold uppercase tracking-wider ${u.gameType === "RS3" ? "text-emerald-400" : "text-sky-400"}`}>
+                <span className={u.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
                   {u.gameType}
                 </span>
               )}
