@@ -2,11 +2,14 @@
 
 from datetime import datetime, timezone
 from typing import Optional
+from uuid import uuid4
 
-from fastapi import APIRouter, Depends, HTTPException
+import httpx
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from app.core.auth import get_current_user
+from app.core.config import settings
 from app.core.database import db
 from app.services.clan_indexer import fetch_and_index_clan, lookup_clan_for_rsn
 
@@ -81,6 +84,8 @@ def _serialize_post(p):
         "title": p.title,
         "content": p.content,
         "excerpt": p.excerpt,
+        "bannerUrl": p.bannerUrl,
+        "thumbnailUrl": p.thumbnailUrl,
         "published": p.published,
         "authorId": p.authorId,
         "publishedAt": p.publishedAt.isoformat() if p.publishedAt else None,
@@ -93,6 +98,8 @@ class NewsPostCreate(BaseModel):
     title: str
     content: str
     excerpt: Optional[str] = None
+    bannerUrl: Optional[str] = None
+    thumbnailUrl: Optional[str] = None
     published: bool = False
 
 
@@ -100,6 +107,8 @@ class NewsPostUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
     excerpt: Optional[str] = None
+    bannerUrl: Optional[str] = None
+    thumbnailUrl: Optional[str] = None
     published: Optional[bool] = None
 
 
@@ -117,6 +126,8 @@ async def create_news(body: NewsPostCreate, admin: dict = Depends(require_admin)
         "title": body.title.strip(),
         "content": body.content.strip(),
         "excerpt": body.excerpt.strip() if body.excerpt else None,
+        "bannerUrl": body.bannerUrl,
+        "thumbnailUrl": body.thumbnailUrl,
         "published": body.published,
         "authorId": admin["sub"],
     }
@@ -140,6 +151,10 @@ async def update_news(post_id: str, body: NewsPostUpdate, _admin: dict = Depends
         data["content"] = body.content.strip()
     if body.excerpt is not None:
         data["excerpt"] = body.excerpt.strip() if body.excerpt else None
+    if body.bannerUrl is not None:
+        data["bannerUrl"] = body.bannerUrl or None
+    if body.thumbnailUrl is not None:
+        data["thumbnailUrl"] = body.thumbnailUrl or None
     if body.published is not None:
         data["published"] = body.published
         if body.published and not existing.publishedAt:
@@ -160,3 +175,40 @@ async def delete_news(post_id: str, _admin: dict = Depends(require_admin)):
         raise HTTPException(status_code=404, detail="Post not found")
     await db.newspost.delete(where={"id": post_id})
     return {"ok": True}
+
+
+ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+MAX_SIZE = 5 * 1024 * 1024  # 5 MB
+
+
+@router.post("/upload-image")
+async def upload_image(
+    file: UploadFile = File(...),
+    _admin: dict = Depends(require_admin),
+):
+    """Upload an image to Supabase Storage. Returns the public URL."""
+    if file.content_type not in ALLOWED_TYPES:
+        raise HTTPException(status_code=400, detail="Only JPEG, PNG, WebP and GIF images are allowed")
+
+    contents = await file.read()
+    if len(contents) > MAX_SIZE:
+        raise HTTPException(status_code=400, detail="Image must be under 5 MB")
+
+    ext = file.filename.rsplit(".", 1)[-1] if file.filename and "." in file.filename else "jpg"
+    path = f"news/{uuid4().hex}.{ext}"
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{settings.SUPABASE_URL}/storage/v1/object/news-images/{path}",
+            headers={
+                "Authorization": f"Bearer {settings.SUPABASE_SERVICE_KEY}",
+                "apikey": settings.SUPABASE_SERVICE_KEY,
+                "Content-Type": file.content_type or "application/octet-stream",
+            },
+            content=contents,
+        )
+        if resp.status_code not in (200, 201):
+            raise HTTPException(status_code=502, detail=f"Storage upload failed: {resp.text}")
+
+    public_url = f"{settings.SUPABASE_URL}/storage/v1/object/public/news-images/{path}"
+    return {"url": public_url}

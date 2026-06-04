@@ -7,6 +7,8 @@ interface PublicNewsPost {
   title: string
   content: string
   excerpt: string | null
+  bannerUrl: string | null
+  thumbnailUrl: string | null
   publishedAt: string | null
   createdAt: string
 }
@@ -45,6 +47,8 @@ export default function ClanHavenNews() {
     }, 150)
   }
 
+  const isHtmlContent = (text: string) => /<[a-z][\s\S]*>/i.test(text)
+
   return (
     <CollapsiblePanel variant="blue" title="Clan Haven News">
       <div
@@ -61,6 +65,11 @@ export default function ClanHavenNews() {
                 ← Back to News
               </button>
             </div>
+            {selectedPost.bannerUrl && (
+              <div className="ch-news-banner">
+                <img src={selectedPost.bannerUrl} alt="" className="ch-news-banner-img" />
+              </div>
+            )}
             <div className="px-4 pb-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-[10px] text-text-muted">
@@ -72,11 +81,18 @@ export default function ClanHavenNews() {
               <h3 className="ch-news-article-title">
                 {selectedPost.title}
               </h3>
-              <div className="ch-news-article-body">
-                {selectedPost.content.split("\n").map((paragraph, i) => (
-                  <p key={i}>{paragraph}</p>
-                ))}
-              </div>
+              {isHtmlContent(selectedPost.content) ? (
+                <div
+                  className="ch-news-article-body"
+                  dangerouslySetInnerHTML={{ __html: selectedPost.content }}
+                />
+              ) : (
+                <div className="ch-news-article-body">
+                  {selectedPost.content.split("\n").map((paragraph, i) => (
+                    <p key={i}>{paragraph}</p>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -97,16 +113,29 @@ export default function ClanHavenNews() {
                 className="ch-row px-4 py-3 cursor-pointer group"
                 onClick={() => openArticle(item)}
               >
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] text-text-muted">
-                    {item.publishedAt ? formatDate(item.publishedAt) : formatDate(item.createdAt)}
-                  </span>
-                </div>
-                <div className="text-sm font-medium text-text-highlight group-hover:text-gold transition-colors">
-                  {item.title}
-                </div>
-                <div className="text-[11px] text-text-muted mt-0.5 leading-relaxed">
-                  {item.excerpt || item.content}
+                <div className="flex items-start gap-3">
+                  {item.thumbnailUrl && (
+                    <img
+                      src={item.thumbnailUrl}
+                      alt=""
+                      className="ch-news-thumbnail"
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] text-text-muted">
+                        {item.publishedAt ? formatDate(item.publishedAt) : formatDate(item.createdAt)}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium text-text-highlight group-hover:text-gold transition-colors">
+                      {item.title}
+                    </div>
+                    <div className="text-[11px] text-text-muted mt-0.5 leading-relaxed">
+                      {item.excerpt || (isHtmlContent(item.content)
+                        ? item.content.replace(/<[^>]+>/g, "").slice(0, 150)
+                        : item.content.slice(0, 150))}
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}

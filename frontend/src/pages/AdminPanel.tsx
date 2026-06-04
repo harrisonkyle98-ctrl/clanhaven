@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Navigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { apiFetch } from "@/lib/api"
 import CollapsiblePanel from "@/components/CollapsiblePanel"
+import RichTextEditor from "@/components/RichTextEditor"
 
 
 const TABS = [
@@ -162,6 +163,8 @@ interface NewsPost {
   title: string
   content: string
   excerpt: string | null
+  bannerUrl: string | null
+  thumbnailUrl: string | null
   published: boolean
   authorId: string | null
   publishedAt: string | null
@@ -243,15 +246,20 @@ function AdminNewsTab() {
         )}
         {posts.map((p) => (
           <div key={p.id} className="ch-row px-4 py-3 group">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-text-highlight group-hover:text-gold transition-colors">
-                {p.title}
-              </span>
+            <div className="flex items-center gap-3">
+              {p.thumbnailUrl && (
+                <img src={p.thumbnailUrl} alt="" className="ch-news-upload-preview" style={{ flexShrink: 0 }} />
+              )}
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <span className="text-sm font-medium text-text-highlight group-hover:text-gold transition-colors">
+                  {p.title}
+                </span>
               {p.published ? (
                 <span className="badge-online">Published</span>
               ) : (
                 <span className="badge-offline">Draft</span>
               )}
+              </div>
             </div>
             <div className="ch-user-row-details">
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -315,10 +323,81 @@ function AdminNewsTab() {
   )
 }
 
+function ImageUploadField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: string | null
+  onChange: (url: string | null) => void
+}) {
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const form = new FormData()
+      form.append("file", file)
+      const token = localStorage.getItem("access_token")
+      const resp = await fetch("/api/admin/upload-image", {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: form,
+      })
+      if (!resp.ok) throw new Error("Upload failed")
+      const data = await resp.json()
+      onChange(data.url)
+    } catch {
+      alert("Image upload failed. Max 5 MB, JPEG/PNG/WebP/GIF only.")
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ""
+    }
+  }
+
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-text-muted mb-1 uppercase tracking-wider">{label}</label>
+      <div className="ch-news-upload-area">
+        {value && <img src={value} alt="" className="ch-news-upload-preview" />}
+        <button
+          type="button"
+          className={`ch-news-upload-btn${uploading ? " uploading" : ""}`}
+          onClick={() => fileRef.current?.click()}
+        >
+          {uploading ? "Uploading…" : value ? "Change Image" : "Upload Image"}
+        </button>
+        {value && (
+          <button
+            type="button"
+            className="ch-news-upload-btn"
+            onClick={() => onChange(null)}
+          >
+            Remove
+          </button>
+        )}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={handleUpload}
+          style={{ display: "none" }}
+        />
+      </div>
+    </div>
+  )
+}
+
 function NewsEditor({ post, onDone }: { post: NewsPost | null; onDone: () => void }) {
   const [title, setTitle] = useState(post?.title ?? "")
   const [content, setContent] = useState(post?.content ?? "")
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? "")
+  const [bannerUrl, setBannerUrl] = useState<string | null>(post?.bannerUrl ?? null)
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(post?.thumbnailUrl ?? null)
   const [published, setPublished] = useState(post?.published ?? false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -331,15 +410,23 @@ function NewsEditor({ post, onDone }: { post: NewsPost | null; onDone: () => voi
     setSaving(true)
     setError(null)
     try {
+      const payload = {
+        title,
+        content,
+        excerpt: excerpt || null,
+        bannerUrl,
+        thumbnailUrl,
+        published,
+      }
       if (post) {
         await apiFetch(`/api/admin/news/${post.id}`, {
           method: "PUT",
-          body: JSON.stringify({ title, content, excerpt: excerpt || null, published }),
+          body: JSON.stringify(payload),
         })
       } else {
         await apiFetch("/api/admin/news", {
           method: "POST",
-          body: JSON.stringify({ title, content, excerpt: excerpt || null, published }),
+          body: JSON.stringify(payload),
         })
       }
       onDone()
@@ -374,15 +461,11 @@ function NewsEditor({ post, onDone }: { post: NewsPost | null; onDone: () => voi
             placeholder="Short summary"
           />
         </div>
+        <ImageUploadField label="Banner Image" value={bannerUrl} onChange={setBannerUrl} />
+        <ImageUploadField label="Thumbnail Image" value={thumbnailUrl} onChange={setThumbnailUrl} />
         <div>
           <label className="block text-xs font-semibold text-text-muted mb-1 uppercase tracking-wider">Content</label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="ch-news-input"
-            style={{ minHeight: "150px", resize: "vertical" }}
-            placeholder="Post content"
-          />
+          <RichTextEditor content={content} onChange={setContent} />
         </div>
         <div className="flex items-center gap-2">
           <label className="flex items-center gap-2 cursor-pointer">

@@ -20,6 +20,8 @@ async def list_published_news():
             "title": p.title,
             "content": p.content,
             "excerpt": p.excerpt,
+            "bannerUrl": p.bannerUrl,
+            "thumbnailUrl": p.thumbnailUrl,
             "publishedAt": p.publishedAt.isoformat() if p.publishedAt else None,
             "createdAt": p.createdAt.isoformat(),
         }

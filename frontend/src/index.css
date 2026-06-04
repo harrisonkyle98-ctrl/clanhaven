@@ -1087,6 +1087,204 @@ body {
 .ch-news-article-body p:last-child {
   margin-bottom: 0;
 }
+.ch-news-article-body h2 {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e8d5b0;
+  margin: 0.75rem 0 0.4rem;
+}
+.ch-news-article-body h3 {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #d4c4a0;
+  margin: 0.6rem 0 0.3rem;
+}
+.ch-news-article-body ul,
+.ch-news-article-body ol {
+  padding-left: 1.25rem;
+  margin: 0.25rem 0 0.5rem;
+}
+.ch-news-article-body li {
+  margin-bottom: 0.15rem;
+}
+.ch-news-article-body blockquote {
+  border-left: 3px solid rgba(101, 138, 180, 0.4);
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  color: #b0a088;
+  font-style: italic;
+}
+.ch-news-article-body hr {
+  border: none;
+  border-top: 1px solid rgba(60, 50, 35, 0.5);
+  margin: 0.75rem 0;
+}
+.ch-news-article-body a {
+  color: #648cb4;
+  text-decoration: underline;
+}
+.ch-news-article-body a:hover {
+  color: #e8d5b0;
+}
+.ch-news-article-body strong {
+  color: #e8d5b0;
+}
+
+.ch-news-banner {
+  width: 100%;
+  overflow: hidden;
+}
+.ch-news-banner-img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  max-height: 280px;
+}
+
+.ch-news-thumbnail {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(60, 50, 35, 0.4);
+}
+
+/* ── Rich Text Editor ── */
+.ch-rte-wrapper {
+  border: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 50, 35, 0.5),
+    inset 0 1px 3px rgba(0, 0, 0, 0.25);
+  background: rgba(12, 10, 8, 0.6);
+  border-radius: 0;
+}
+.ch-rte-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid rgba(60, 50, 35, 0.4);
+  flex-wrap: wrap;
+}
+.ch-rte-btn {
+  background: none;
+  border: none;
+  color: #b0a088;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+  line-height: 1;
+}
+.ch-rte-btn:hover {
+  background: rgba(60, 50, 35, 0.5);
+  color: #e8d5b0;
+}
+.ch-rte-btn--active {
+  background: rgba(168, 85, 247, 0.25);
+  color: #c084fc;
+}
+.ch-rte-sep {
+  width: 1px;
+  height: 14px;
+  background: rgba(60, 50, 35, 0.5);
+  margin: 0 4px;
+}
+.ch-rte-content .tiptap {
+  padding: 0.5rem 0.625rem;
+  min-height: 150px;
+  color: #e8d5b0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  outline: none;
+}
+.ch-rte-content .tiptap:focus {
+  box-shadow: none;
+}
+.ch-rte-content .tiptap h2 {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e8d5b0;
+  margin: 0.75rem 0 0.4rem;
+}
+.ch-rte-content .tiptap h3 {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #d4c4a0;
+  margin: 0.6rem 0 0.3rem;
+}
+.ch-rte-content .tiptap p {
+  margin: 0 0 0.5rem;
+}
+.ch-rte-content .tiptap ul,
+.ch-rte-content .tiptap ol {
+  padding-left: 1.25rem;
+  margin: 0.25rem 0 0.5rem;
+}
+.ch-rte-content .tiptap li {
+  margin-bottom: 0.15rem;
+}
+.ch-rte-content .tiptap blockquote {
+  border-left: 3px solid rgba(168, 85, 247, 0.4);
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  color: #b0a088;
+  font-style: italic;
+}
+.ch-rte-content .tiptap hr {
+  border: none;
+  border-top: 1px solid rgba(60, 50, 35, 0.5);
+  margin: 0.75rem 0;
+}
+.ch-rte-content .tiptap a {
+  color: #c084fc;
+  text-decoration: underline;
+}
+.ch-rte-content .tiptap a:hover {
+  color: #e8d5b0;
+}
+
+/* ── News image upload ── */
+.ch-news-upload-area {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.ch-news-upload-preview {
+  width: 80px;
+  height: 50px;
+  object-fit: cover;
+  border: 1px solid rgba(60, 50, 35, 0.5);
+}
+.ch-news-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(12, 10, 8, 0.6);
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(60, 50, 35, 0.5);
+  color: #b0a088;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  transition: color 0.2s, box-shadow 0.2s;
+}
+.ch-news-upload-btn:hover {
+  color: #e8d5b0;
+  box-shadow: inset 0 0 0 1px rgba(168, 85, 247, 0.5);
+}
+.ch-news-upload-btn.uploading {
+  opacity: 0.5;
+  pointer-events: none;
+}
 
 /* ── News editor inputs ── */
 .ch-news-input {

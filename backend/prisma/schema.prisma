@@ -122,15 +122,17 @@ model IndexedClanMember {
 // ─── News Posts ───
 
 model NewsPost {
-  id          String    @id @default(cuid())
-  title       String
-  content     String
-  excerpt     String?
-  published   Boolean   @default(false)
-  authorId    String?   @map("author_id")
-  publishedAt DateTime? @map("published_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id            String    @id @default(cuid())
+  title         String
+  content       String
+  excerpt       String?
+  bannerUrl     String?   @map("banner_url")
+  thumbnailUrl  String?   @map("thumbnail_url")
+  published     Boolean   @default(false)
+  authorId      String?   @map("author_id")
+  publishedAt   DateTime? @map("published_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
   author User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
