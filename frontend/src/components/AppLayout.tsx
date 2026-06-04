@@ -9,17 +9,21 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <div className="flex h-screen bg-container relative overflow-hidden">
       <Sidebar open={sidebarOpen} onClose={() => { setSidebarOpen(false) }} />
       <main className="flex-1 min-w-0 overflow-y-auto relative z-1 transition-all duration-300 ease-in-out">
-        {!sidebarOpen && (
-          <button
-            onClick={() => { setSidebarOpen(true) }}
-            className="ch-sidebar-open-btn"
-            aria-label="Open sidebar"
-          >
-            <span>Menu</span>
-          </button>
-        )}
-        {children}
-        <Footer />
+        <div className="flex flex-col min-h-full">
+          {!sidebarOpen && (
+            <button
+              onClick={() => { setSidebarOpen(true) }}
+              className="ch-sidebar-open-btn"
+              aria-label="Open sidebar"
+            >
+              <span>Menu</span>
+            </button>
+          )}
+          <div className="flex-1">
+            {children}
+          </div>
+          <Footer />
+        </div>
       </main>
     </div>
   )
