@@ -273,11 +273,6 @@ function AdminNewsTab() {
                 {p.publishedAt && (
                   <span className="badge-info">Published {formatDate(p.publishedAt)}</span>
                 )}
-                {p.excerpt && (
-                  <span className="badge-info" style={{ maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {p.excerpt}
-                  </span>
-                )}
               </div>
             </div>
             <div className="flex items-center gap-2 mt-2">
