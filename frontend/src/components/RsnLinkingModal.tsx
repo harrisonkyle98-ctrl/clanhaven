@@ -101,7 +101,7 @@ export default function RsnLinkingModal({ onClose }: { onClose?: () => void }) {
             disabled={submitting || !rsn.trim()}
             className="ch-rsn-modal-submit"
           >
-            {submitting ? "Validating..." : "Link Account"}
+            {submitting ? <span>Validating<span className="ch-rsn-modal-dots" /></span> : "Link Account"}
           </button>
 
           <p className="ch-rsn-modal-note">
