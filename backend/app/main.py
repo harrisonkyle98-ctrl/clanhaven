@@ -9,18 +9,12 @@ from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 from app.core.database import connect_db, disconnect_db, db
 from app.routes import admin, auth, clans, health, members, users
-from app.services.clan_indexer import fetch_and_index_clan
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown lifecycle."""
     await connect_db()
-    # Seed Stormlight clan on startup
-    try:
-        await fetch_and_index_clan("Stormlight")
-    except Exception:
-        pass  # Don't block startup if indexing fails
     # Assign site admin privileges to lm Kyle
     try:
         admin_user = await db.user.find_first(where={"rsn": "lm Kyle"})

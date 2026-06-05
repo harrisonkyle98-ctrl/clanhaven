@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from app.core.auth import get_current_user
 from app.core.database import db
-from app.services.clan_indexer import lookup_clan_for_rsn
+from app.services.clan_indexer import fetch_and_index_clan, lookup_clan_for_rsn
 
 logger = logging.getLogger(__name__)
 
@@ -155,6 +155,12 @@ async def link_rsn(body: LinkRsnRequest, current_user: dict = Depends(get_curren
         clan_name = await lookup_clan_for_rsn(rsn)
         if not clan_name:
             clan_name = await _fetch_rs3_clan(rsn)
+        # Auto-index the clan if discovered
+        if clan_name:
+            try:
+                await fetch_and_index_clan(clan_name)
+            except Exception:
+                logger.warning("Auto-indexing clan '%s' failed for RSN '%s'", clan_name, rsn)
         account_type = await _detect_rs3_account_type(rsn)
 
     # Save linked RSN to user
