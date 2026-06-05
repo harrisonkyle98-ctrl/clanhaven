@@ -84,6 +84,7 @@ def _serialize_post(p):
         "title": p.title,
         "content": p.content,
         "excerpt": p.excerpt,
+        "category": p.category,
         "bannerUrl": p.bannerUrl,
         "thumbnailUrl": p.thumbnailUrl,
         "published": p.published,
@@ -94,10 +95,14 @@ def _serialize_post(p):
     }
 
 
+VALID_CATEGORIES = {"Update", "Maintenance", "Event", "Competition"}
+
+
 class NewsPostCreate(BaseModel):
     title: str
     content: str
     excerpt: Optional[str] = None
+    category: str = "Update"
     bannerUrl: Optional[str] = None
     thumbnailUrl: Optional[str] = None
     published: bool = False
@@ -107,6 +112,7 @@ class NewsPostUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
     excerpt: Optional[str] = None
+    category: Optional[str] = None
     bannerUrl: Optional[str] = None
     thumbnailUrl: Optional[str] = None
     published: Optional[bool] = None
@@ -122,10 +128,13 @@ async def list_news_admin(_admin: dict = Depends(require_admin)):
 @router.post("/news")
 async def create_news(body: NewsPostCreate, admin: dict = Depends(require_admin)):
     """Create a new news post."""
+    if body.category not in VALID_CATEGORIES:
+        raise HTTPException(status_code=400, detail=f"Invalid category. Must be one of: {', '.join(sorted(VALID_CATEGORIES))}")
     data: dict = {
         "title": body.title.strip(),
         "content": body.content.strip(),
         "excerpt": body.excerpt.strip() if body.excerpt else None,
+        "category": body.category,
         "bannerUrl": body.bannerUrl,
         "thumbnailUrl": body.thumbnailUrl,
         "published": body.published,
@@ -151,6 +160,10 @@ async def update_news(post_id: str, body: NewsPostUpdate, _admin: dict = Depends
         data["content"] = body.content.strip()
     if body.excerpt is not None:
         data["excerpt"] = body.excerpt.strip() if body.excerpt else None
+    if body.category is not None:
+        if body.category not in VALID_CATEGORIES:
+            raise HTTPException(status_code=400, detail=f"Invalid category. Must be one of: {', '.join(sorted(VALID_CATEGORIES))}")
+        data["category"] = body.category
     if body.bannerUrl is not None:
         data["bannerUrl"] = body.bannerUrl or None
     if body.thumbnailUrl is not None:

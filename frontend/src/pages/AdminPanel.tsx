@@ -158,11 +158,14 @@ function AdminHomeTab({ username }: { username: string }) {
 
 // ─── News Tab ───
 
+const NEWS_CATEGORIES = ["Update", "Maintenance", "Event", "Competition"] as const
+
 interface NewsPost {
   id: string
   title: string
   content: string
   excerpt: string | null
+  category: string
   bannerUrl: string | null
   thumbnailUrl: string | null
   published: boolean
@@ -254,11 +257,14 @@ function AdminNewsTab() {
                 <span className="text-sm font-medium text-text-highlight group-hover:text-gold transition-colors">
                   {p.title}
                 </span>
-              {p.published ? (
-                <span className="badge-online">Published</span>
-              ) : (
-                <span className="badge-offline">Draft</span>
-              )}
+                <span className={`badge-category badge-category--${(p.category || "Update").toLowerCase()}`}>
+                  {p.category || "Update"}
+                </span>
+                {p.published ? (
+                  <span className="badge-online">Published</span>
+                ) : (
+                  <span className="badge-offline">Draft</span>
+                )}
               </div>
             </div>
             <div className="ch-user-row-details">
@@ -399,6 +405,7 @@ function NewsEditor({ post, onDone }: { post: NewsPost | null; onDone: () => voi
   const [title, setTitle] = useState(post?.title ?? "")
   const [content, setContent] = useState(post?.content ?? "")
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? "")
+  const [category, setCategory] = useState(post?.category ?? "Update")
   const [bannerUrl, setBannerUrl] = useState<string | null>(post?.bannerUrl ?? null)
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(post?.thumbnailUrl ?? null)
   const [published, setPublished] = useState(post?.published ?? false)
@@ -417,6 +424,7 @@ function NewsEditor({ post, onDone }: { post: NewsPost | null; onDone: () => voi
         title,
         content,
         excerpt: excerpt || null,
+        category,
         bannerUrl,
         thumbnailUrl,
         published,
@@ -463,6 +471,18 @@ function NewsEditor({ post, onDone }: { post: NewsPost | null; onDone: () => voi
             className="ch-news-input"
             placeholder="Short summary"
           />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-text-muted mb-1 uppercase tracking-wider">Category</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="ch-news-input"
+          >
+            {NEWS_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
         </div>
         <BannerUploadField
           bannerUrl={bannerUrl}

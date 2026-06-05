@@ -126,6 +126,7 @@ model NewsPost {
   title         String
   content       String
   excerpt       String?
+  category      String    @default("Update")
   bannerUrl     String?   @map("banner_url")
   thumbnailUrl  String?   @map("thumbnail_url")
   published     Boolean   @default(false)

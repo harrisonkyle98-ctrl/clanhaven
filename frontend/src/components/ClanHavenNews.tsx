@@ -7,6 +7,7 @@ interface PublicNewsPost {
   title: string
   content: string
   excerpt: string | null
+  category: string
   bannerUrl: string | null
   thumbnailUrl: string | null
   publishedAt: string | null
@@ -72,6 +73,9 @@ export default function ClanHavenNews() {
             )}
             <div className="px-4 pb-4">
               <div className="flex items-center gap-2 mb-2">
+                <span className={`badge-category badge-category--${(selectedPost.category || "Update").toLowerCase()}`}>
+                  {selectedPost.category || "Update"}
+                </span>
                 <span className="text-[10px] text-text-muted">
                   {selectedPost.publishedAt
                     ? formatDate(selectedPost.publishedAt)
@@ -123,6 +127,9 @@ export default function ClanHavenNews() {
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
+                      <span className={`badge-category badge-category--${(item.category || "Update").toLowerCase()}`}>
+                        {item.category || "Update"}
+                      </span>
                       <span className="text-[10px] text-text-muted">
                         {item.publishedAt ? formatDate(item.publishedAt) : formatDate(item.createdAt)}
                       </span>
