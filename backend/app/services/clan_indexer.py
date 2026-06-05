@@ -48,9 +48,9 @@ async def fetch_and_index_clan(clan_name: str) -> dict:
         rsn_raw = parts[0].replace("\xa0", " ").strip()
         rank = parts[1].strip()
         try:
-            total_xp = int(parts[2].strip())
+            clan_xp = int(parts[2].strip())
         except ValueError:
-            total_xp = 0
+            clan_xp = 0
         try:
             kills = int(parts[3].strip())
         except ValueError:
@@ -60,7 +60,7 @@ async def fetch_and_index_clan(clan_name: str) -> dict:
             "rsn": rsn_raw,
             "rsnLower": _normalize_rsn(rsn_raw),
             "clanRank": rank,
-            "totalXp": total_xp,
+            "clanXp": clan_xp,
             "kills": kills,
         })
 
@@ -105,14 +105,14 @@ async def fetch_and_index_clan(clan_name: str) -> dict:
                     "rsn": m["rsn"],
                     "rsnLower": m["rsnLower"],
                     "clanRank": m["clanRank"],
-                    "totalXp": m["totalXp"],
+                    "clanXp": m["clanXp"],
                     "kills": m["kills"],
                     "lastSeenAt": now,
                 },
                 "update": {
                     "rsn": m["rsn"],
                     "clanRank": m["clanRank"],
-                    "totalXp": m["totalXp"],
+                    "clanXp": m["clanXp"],
                     "kills": m["kills"],
                     "lastSeenAt": now,
                 },

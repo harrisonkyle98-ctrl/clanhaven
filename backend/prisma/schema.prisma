@@ -107,7 +107,7 @@ model IndexedClanMember {
   rsn       String
   rsnLower  String   @map("rsn_lower")
   clanRank  String?  @map("clan_rank")
-  totalXp   BigInt   @default(0) @map("total_xp")
+  clanXp    BigInt   @default(0) @map("clan_xp")
   kills     Int      @default(0)
   lastSeenAt DateTime @default(now()) @map("last_seen_at")
   createdAt DateTime @default(now()) @map("created_at")
