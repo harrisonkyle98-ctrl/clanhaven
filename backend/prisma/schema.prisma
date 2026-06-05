@@ -18,6 +18,7 @@ model User {
   email     String?
   rsn         String?
   gameType    GameType? @map("game_type")
+  accountType String?   @map("account_type")
   rsnClanName String?   @map("rsn_clan_name")
   rsnLinkedAt DateTime? @map("rsn_linked_at")
   privileges  Int       @default(0)

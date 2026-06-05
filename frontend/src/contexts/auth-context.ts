@@ -8,6 +8,7 @@ interface User {
   email: string | null
   rsn: string | null
   gameType: string | null
+  accountType: string | null
   rsnClanName: string | null
   rsnLinkedAt: string | null
   privileges: number

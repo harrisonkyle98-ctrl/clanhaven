@@ -1138,6 +1138,32 @@ body {
   color: #e8d5b0;
 }
 
+/* ── RS3 account type tags ── */
+.badge-ironman {
+  background: rgba(160, 160, 170, 0.12);
+  color: #a0a0aa;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(160, 160, 170, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.badge-hardcore {
+  background: rgba(180, 50, 50, 0.12);
+  color: #c45050;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(180, 50, 50, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
 /* ── News category tags (reuses sidebar badge styling) ── */
 .badge-category--news {
   background: rgba(201, 162, 39, 0.12);

@@ -64,6 +64,7 @@ async def list_users(_admin: dict = Depends(require_admin)):
             "avatar": u.avatar,
             "rsn": u.rsn,
             "gameType": u.gameType,
+            "accountType": u.accountType,
             "rsnClanName": u.rsnClanName,
             "rsnLinkedAt": u.rsnLinkedAt.isoformat() if u.rsnLinkedAt else None,
             "privileges": u.privileges,

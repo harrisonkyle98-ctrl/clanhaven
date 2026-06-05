@@ -72,6 +72,12 @@ export default function SidebarAccountModule() {
                   {user.rsnClanName && (
                     <span className="badge-clan">{user.rsnClanName}</span>
                   )}
+                  {user.accountType === "ironman" && (
+                    <span className="badge-ironman">Ironman</span>
+                  )}
+                  {user.accountType === "hardcore_ironman" && (
+                    <span className="badge-hardcore">Hardcore</span>
+                  )}
                   {user.gameType && (
                     <span className={user.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
                       {user.gameType}

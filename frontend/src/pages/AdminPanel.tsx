@@ -599,6 +599,7 @@ interface AdminUser {
   avatar: string | null
   rsn: string | null
   gameType: string | null
+  accountType: string | null
   rsnClanName: string | null
   rsnLinkedAt: string | null
   privileges: number
@@ -688,6 +689,12 @@ function AdminUsersTab() {
                 )}
                 {u.rsnClanName && (
                   <span className="badge-clan">{u.rsnClanName}</span>
+                )}
+                {u.accountType === "ironman" && (
+                  <span className="badge-ironman">Ironman</span>
+                )}
+                {u.accountType === "hardcore_ironman" && (
+                  <span className="badge-hardcore">Hardcore</span>
                 )}
                 {u.gameType && (
                   <span className={u.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
