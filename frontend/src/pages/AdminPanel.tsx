@@ -181,6 +181,8 @@ function AdminNewsTab() {
   const [error, setError] = useState<string | null>(null)
   const [editing, setEditing] = useState<NewsPost | null>(null)
   const [creating, setCreating] = useState(false)
+  const [viewing, setViewing] = useState<NewsPost | null>(null)
+  const [transitioning, setTransitioning] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
   const loadPosts = () => {
@@ -212,6 +214,24 @@ function AdminNewsTab() {
     loadPosts()
   }
 
+  const isHtmlContent = (text: string) => /<[a-z][\s\S]*>/i.test(text)
+
+  const openArticle = (post: NewsPost) => {
+    setTransitioning(true)
+    setTimeout(() => {
+      setViewing(post)
+      setTransitioning(false)
+    }, 150)
+  }
+
+  const closeArticle = () => {
+    setTransitioning(true)
+    setTimeout(() => {
+      setViewing(null)
+      setTransitioning(false)
+    }, 150)
+  }
+
   if (editing) {
     return <NewsEditor post={editing} onDone={() => { setEditing(null); loadPosts() }} />
   }
@@ -222,7 +242,55 @@ function AdminNewsTab() {
 
   return (
     <CollapsiblePanel variant="purple" title="News Management">
-      <div className="flex flex-col gap-2 flex-1">
+      <div
+        className="flex flex-col gap-2 flex-1"
+        style={{ opacity: transitioning ? 0 : 1, transition: "opacity 150ms ease" }}
+      >
+        {viewing ? (
+          <>
+            <div className="px-4 pt-3 pb-1">
+              <button className="ch-news-back" onClick={closeArticle}>
+                ← Back to News
+              </button>
+            </div>
+            {viewing.bannerUrl && (
+              <div className="ch-news-banner">
+                <img src={viewing.bannerUrl} alt="" className="ch-news-banner-img" />
+              </div>
+            )}
+            <div className="px-4 pb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`badge-category badge-category--${(viewing.category || "Update").toLowerCase()}`}>
+                  {viewing.category || "Update"}
+                </span>
+                {viewing.published ? (
+                  <span className="badge-online">Published</span>
+                ) : (
+                  <span className="badge-offline">Draft</span>
+                )}
+                <span className="text-[10px] text-text-muted">
+                  {viewing.publishedAt
+                    ? formatDate(viewing.publishedAt)
+                    : formatDate(viewing.createdAt)}
+                </span>
+              </div>
+              <h3 className="ch-news-article-title">{viewing.title}</h3>
+              {isHtmlContent(viewing.content) ? (
+                <div
+                  className="ch-news-article-body"
+                  dangerouslySetInnerHTML={{ __html: viewing.content }}
+                />
+              ) : (
+                <div className="ch-news-article-body">
+                  {viewing.content.split("\n").map((paragraph, i) => (
+                    <p key={i}>{paragraph}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
         <div className="px-4 py-2">
           <button
             className="ch-sidebar-account-action"
@@ -248,7 +316,7 @@ function AdminNewsTab() {
           </div>
         )}
         {posts.map((p) => (
-          <div key={p.id} className="ch-row px-4 py-3 group">
+          <div key={p.id} className="ch-row px-4 py-3 group cursor-pointer" onClick={() => openArticle(p)}>
             <div className="flex items-center gap-3">
               {p.thumbnailUrl && (
                 <img src={p.thumbnailUrl} alt="" className="ch-news-upload-preview" style={{ flexShrink: 0 }} />
@@ -275,7 +343,7 @@ function AdminNewsTab() {
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-2 mt-2" onClick={(e) => e.stopPropagation()}>
               <button
                 className="ch-sidebar-account-action"
                 style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
@@ -319,6 +387,8 @@ function AdminNewsTab() {
             </div>
           </div>
         ))}
+          </>
+        )}
       </div>
     </CollapsiblePanel>
   )
