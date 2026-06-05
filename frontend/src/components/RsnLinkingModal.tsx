@@ -6,6 +6,8 @@ export default function RsnLinkingModal() {
   const { refreshUser } = useAuth()
   const [rsn, setRsn] = useState("")
   const [gameType, setGameType] = useState<"RS3" | "OSRS">("RS3")
+  const [clanName, setClanName] = useState("")
+  const [noClan, setNoClan] = useState(false)
   const [error, setError] = useState("")
   const [submitting, setSubmitting] = useState(false)
 
@@ -19,9 +21,15 @@ export default function RsnLinkingModal() {
     }
     setSubmitting(true)
     try {
+      const payload: Record<string, string | null> = { rsn: trimmed, gameType }
+      if (noClan) {
+        payload.clanName = null
+      } else if (clanName.trim()) {
+        payload.clanName = clanName.trim()
+      }
       await apiFetch("/api/users/me/link-rsn", {
         method: "POST",
-        body: JSON.stringify({ rsn: trimmed, gameType }),
+        body: JSON.stringify(payload),
       })
       await refreshUser()
     } catch (err) {
@@ -80,6 +88,27 @@ export default function RsnLinkingModal() {
             </div>
           </div>
 
+          <div className="ch-rsn-modal-field">
+            <label className="ch-rsn-modal-label">Clan Name</label>
+            <input
+              type="text"
+              value={clanName}
+              onChange={(e) => { setClanName(e.target.value); setNoClan(false) }}
+              placeholder={noClan ? "" : "Enter your clan name"}
+              className="ch-rsn-modal-input"
+              disabled={submitting || noClan}
+            />
+            <label className="ch-rsn-modal-checkbox-label">
+              <input
+                type="checkbox"
+                checked={noClan}
+                onChange={(e) => { setNoClan(e.target.checked); if (e.target.checked) setClanName("") }}
+                disabled={submitting}
+              />
+              Not in a clan
+            </label>
+          </div>
+
           {error && <div className="ch-rsn-modal-error">{error}</div>}
 
           <button
@@ -91,7 +120,7 @@ export default function RsnLinkingModal() {
           </button>
 
           <p className="ch-rsn-modal-note">
-            Your name will be verified against the Jagex Hiscores.
+            Your name will be verified against the RuneScape Hiscores.
           </p>
         </form>
       </div>
