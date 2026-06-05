@@ -158,7 +158,7 @@ function AdminHomeTab({ username }: { username: string }) {
 
 // ─── News Tab ───
 
-const NEWS_CATEGORIES = ["Update", "Maintenance", "Event", "Competition"] as const
+const NEWS_CATEGORIES = ["News", "Update", "Maintenance", "Event", "Competition"] as const
 
 interface NewsPost {
   id: string

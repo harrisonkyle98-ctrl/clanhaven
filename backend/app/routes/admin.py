@@ -95,7 +95,7 @@ def _serialize_post(p):
     }
 
 
-VALID_CATEGORIES = {"Update", "Maintenance", "Event", "Competition"}
+VALID_CATEGORIES = {"News", "Update", "Maintenance", "Event", "Competition"}
 
 
 class NewsPostCreate(BaseModel):
