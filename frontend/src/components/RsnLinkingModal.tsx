@@ -2,12 +2,11 @@ import { useState } from "react"
 import { apiFetch } from "@/lib/api"
 import { useAuth } from "@/hooks/useAuth"
 
-export default function RsnLinkingModal() {
+export default function RsnLinkingModal({ onClose }: { onClose?: () => void }) {
   const { refreshUser } = useAuth()
   const [rsn, setRsn] = useState("")
   const [gameType, setGameType] = useState<"RS3" | "OSRS">("RS3")
-  const [clanName, setClanName] = useState("")
-  const [noClan, setNoClan] = useState(false)
+
   const [error, setError] = useState("")
   const [submitting, setSubmitting] = useState(false)
 
@@ -21,12 +20,7 @@ export default function RsnLinkingModal() {
     }
     setSubmitting(true)
     try {
-      const payload: Record<string, string | null> = { rsn: trimmed, gameType }
-      if (noClan) {
-        payload.clanName = null
-      } else if (clanName.trim()) {
-        payload.clanName = clanName.trim()
-      }
+      const payload: Record<string, string> = { rsn: trimmed, gameType }
       await apiFetch("/api/users/me/link-rsn", {
         method: "POST",
         body: JSON.stringify(payload),
@@ -42,6 +36,16 @@ export default function RsnLinkingModal() {
   return (
     <div className="ch-rsn-modal-overlay">
       <div className="ch-rsn-modal">
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="ch-rsn-modal-close"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        )}
         <div className="ch-rsn-modal-highlight" />
         <div className="ch-rsn-modal-header">
           <h2 className="ch-rsn-modal-title">Link Your RuneScape Account</h2>
@@ -88,26 +92,7 @@ export default function RsnLinkingModal() {
             </div>
           </div>
 
-          <div className="ch-rsn-modal-field">
-            <label className="ch-rsn-modal-label">Clan Name</label>
-            <input
-              type="text"
-              value={clanName}
-              onChange={(e) => { setClanName(e.target.value); setNoClan(false) }}
-              placeholder={noClan ? "" : "Enter your clan name"}
-              className="ch-rsn-modal-input"
-              disabled={submitting || noClan}
-            />
-            <label className="ch-rsn-modal-checkbox-label">
-              <input
-                type="checkbox"
-                checked={noClan}
-                onChange={(e) => { setNoClan(e.target.checked); if (e.target.checked) setClanName("") }}
-                disabled={submitting}
-              />
-              Not in a clan
-            </label>
-          </div>
+          {/* Clan name field hidden — playerDetails.ws auto-discovers clans */}
 
           {error && <div className="ch-rsn-modal-error">{error}</div>}
 

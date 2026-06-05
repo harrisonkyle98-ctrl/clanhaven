@@ -19,6 +19,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   }, [location.pathname])
 
   const needsRsnLink = !loading && user && !user.rsn
+  const [rsnModalDismissed, setRsnModalDismissed] = useState(false)
 
   return (
     <div className="flex h-screen bg-container relative overflow-hidden">
@@ -41,7 +42,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <Footer />
         </div>
       </main>
-      {needsRsnLink && <RsnLinkingModal />}
+      {needsRsnLink && !rsnModalDismissed && <RsnLinkingModal onClose={() => { setRsnModalDismissed(true) }} />}
     </div>
   )
 }
