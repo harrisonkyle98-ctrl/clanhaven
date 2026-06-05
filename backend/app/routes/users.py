@@ -47,18 +47,23 @@ async def _detect_rs3_account_type(rsn: str) -> str:
 async def _fetch_rs3_clan(rsn: str) -> str | None:
     """Attempt to fetch clan name from RuneMetrics for RS3 users. Returns None on any failure."""
     try:
+        url = RUNEMETRICS_PROFILE_URL.format(rsn)
+        logger.info("[clan-discovery] RuneMetrics request for RSN '%s': %s", rsn, url)
         async with httpx.AsyncClient(timeout=8.0) as client:
-            resp = await client.get(RUNEMETRICS_PROFILE_URL.format(rsn))
+            resp = await client.get(url)
+            logger.info("[clan-discovery] RuneMetrics status=%s for RSN '%s'", resp.status_code, rsn)
             if resp.status_code != 200:
                 return None
             data = resp.json()
             if data.get("error"):
+                logger.info("[clan-discovery] RuneMetrics error for RSN '%s': %s", rsn, data.get("error"))
                 return None
             clan = data.get("clan")
+            logger.info("[clan-discovery] RuneMetrics clan field for RSN '%s': %r (present=%s)", rsn, clan, "clan" in data)
             if clan and isinstance(clan, str) and clan.strip():
                 return clan.strip()
-    except Exception:
-        logger.info("RuneMetrics clan lookup failed for %s", rsn)
+    except Exception as exc:
+        logger.warning("[clan-discovery] RuneMetrics exception for RSN '%s': %s", rsn, exc)
     return None
 
 
@@ -152,15 +157,23 @@ async def link_rsn(body: LinkRsnRequest, current_user: dict = Depends(get_curren
     clan_name: str | None = None
     account_type: str | None = None
     if game_type == "RS3":
+        logger.info("[clan-discovery] Starting clan discovery for RSN '%s'", rsn)
         clan_name = await lookup_clan_for_rsn(rsn)
+        logger.info("[clan-discovery] Indexed lookup result for RSN '%s': %r", rsn, clan_name)
         if not clan_name:
+            logger.info("[clan-discovery] Falling back to RuneMetrics for RSN '%s'", rsn)
             clan_name = await _fetch_rs3_clan(rsn)
+            logger.info("[clan-discovery] RuneMetrics fallback result for RSN '%s': %r", rsn, clan_name)
         # Auto-index the clan if discovered
         if clan_name:
+            logger.info("[clan-discovery] Triggering fetch_and_index_clan('%s') for RSN '%s'", clan_name, rsn)
             try:
-                await fetch_and_index_clan(clan_name)
-            except Exception:
-                logger.warning("Auto-indexing clan '%s' failed for RSN '%s'", clan_name, rsn)
+                result = await fetch_and_index_clan(clan_name)
+                logger.info("[clan-discovery] Indexing result for clan '%s': %s", clan_name, result)
+            except Exception as exc:
+                logger.warning("[clan-discovery] Indexing failed for clan '%s' RSN '%s': %s", clan_name, rsn, exc)
+        else:
+            logger.warning("[clan-discovery] No clan discovered for RSN '%s' — both indexed lookup and RuneMetrics returned None", rsn)
         account_type = await _detect_rs3_account_type(rsn)
 
     # Save linked RSN to user
