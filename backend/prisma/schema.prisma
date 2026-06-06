@@ -142,6 +142,21 @@ model NewsPost {
   @@map("news_posts")
 }
 
+// ─── Slider Images ───
+
+model SliderImage {
+  id           String   @id @default(cuid())
+  imageUrl     String   @map("image_url")
+  title        String   @default("")
+  active       Boolean  @default(true)
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([active, displayOrder])
+  @@map("slider_images")
+}
+
 // ─── Enums ───
 
 enum GameType {

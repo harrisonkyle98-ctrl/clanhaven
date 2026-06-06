@@ -1,10 +1,28 @@
-"""Public news endpoints."""
+"""Public news and slider endpoints."""
 
 from fastapi import APIRouter
 
 from app.core.database import db
 
 router = APIRouter()
+
+
+@router.get("/slider-images")
+async def list_active_slider_images():
+    """List active slider images for the homepage. Public endpoint."""
+    images = await db.sliderimage.find_many(
+        where={"active": True},
+        order=[{"displayOrder": "asc"}, {"createdAt": "desc"}],
+    )
+    return [
+        {
+            "id": s.id,
+            "imageUrl": s.imageUrl,
+            "title": s.title,
+            "displayOrder": s.displayOrder,
+        }
+        for s in images
+    ]
 
 
 @router.get("")

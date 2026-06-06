@@ -175,6 +175,156 @@ interface NewsPost {
   updatedAt: string
 }
 
+interface SliderImage {
+  id: string
+  imageUrl: string
+  title: string
+  active: boolean
+  displayOrder: number
+  createdAt: string
+  updatedAt: string
+}
+
+function SliderImageManager() {
+  const [images, setImages] = useState<SliderImage[]>([])
+  const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  const load = () => {
+    setLoading(true)
+    apiFetch<SliderImage[]>("/api/admin/slider-images")
+      .then(setImages)
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => { load() }, [])
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const form = new FormData()
+      form.append("file", file)
+      const token = localStorage.getItem("access_token")
+      const resp = await fetch("/api/admin/slider-images/upload", {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: form,
+      })
+      if (!resp.ok) throw new Error("Upload failed")
+      load()
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ""
+    }
+  }
+
+  const toggleActive = async (img: SliderImage) => {
+    await apiFetch(`/api/admin/slider-images/${img.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ active: !img.active }),
+    })
+    load()
+  }
+
+  const handleDelete = async (id: string) => {
+    await apiFetch(`/api/admin/slider-images/${id}`, { method: "DELETE" })
+    load()
+  }
+
+  const formatDate = (iso: string) => {
+    const d = new Date(iso)
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+  }
+
+  return (
+    <CollapsiblePanel variant="purple" title="Slider Image Management">
+      <div className="flex flex-col gap-3 p-4">
+        <div className="flex items-center gap-3">
+          <button
+            className="ch-sidebar-account-action"
+            style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? "Uploading…" : "Upload Slider Image"}
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            onChange={(e) => { void handleUpload(e) }}
+            style={{ display: "none" }}
+          />
+          <span className="text-[10px] text-text-muted">Max 5 MB. JPEG, PNG, WebP, or GIF.</span>
+        </div>
+
+        {loading ? (
+          <p className="text-xs text-text-muted">Loading slider images…</p>
+        ) : images.length === 0 ? (
+          <p className="text-xs text-text-muted">No slider images uploaded yet.</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {images.map((img) => (
+              <div
+                key={img.id}
+                className="flex items-center gap-3"
+                style={{
+                  background: "rgba(0, 0, 0, 0.2)",
+                  border: "1px solid rgba(120, 100, 60, 0.15)",
+                  padding: "0.5rem",
+                }}
+              >
+                <img
+                  src={img.imageUrl}
+                  alt={img.title}
+                  style={{ width: "80px", height: "45px", objectFit: "cover", flexShrink: 0 }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-text-primary truncate">{img.title || "Untitled"}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span
+                      className="ch-admin-tag"
+                      style={{
+                        background: img.active ? "rgba(100, 180, 100, 0.12)" : "rgba(180, 100, 100, 0.12)",
+                        color: img.active ? "rgba(140, 220, 140, 0.9)" : "rgba(220, 140, 140, 0.9)",
+                        border: `1px solid ${img.active ? "rgba(100, 180, 100, 0.25)" : "rgba(180, 100, 100, 0.25)"}`,
+                        fontSize: "0.5625rem",
+                        padding: "0.0625rem 0.375rem",
+                      }}
+                    >
+                      {img.active ? "Active" : "Inactive"}
+                    </span>
+                    <span className="text-[10px] text-text-muted">{formatDate(img.createdAt)}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5" style={{ flexShrink: 0 }}>
+                  <button
+                    className="ch-sidebar-account-action"
+                    style={{ width: "auto", padding: "0.125rem 0.5rem", fontSize: "0.625rem" }}
+                    onClick={() => { void toggleActive(img) }}
+                  >
+                    {img.active ? "Deactivate" : "Activate"}
+                  </button>
+                  <button
+                    className="ch-sidebar-account-action"
+                    style={{ width: "auto", padding: "0.125rem 0.5rem", fontSize: "0.625rem" }}
+                    onClick={() => { void handleDelete(img.id) }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </CollapsiblePanel>
+  )
+}
+
 function AdminNewsTab() {
   const [posts, setPosts] = useState<NewsPost[]>([])
   const [loading, setLoading] = useState(true)
@@ -241,6 +391,8 @@ function AdminNewsTab() {
   }
 
   return (
+    <div className="space-y-4">
+    <SliderImageManager />
     <CollapsiblePanel variant="purple" title="News Management">
       <div
         className="flex flex-col gap-2 flex-1"
@@ -391,6 +543,7 @@ function AdminNewsTab() {
         )}
       </div>
     </CollapsiblePanel>
+    </div>
   )
 }
 

@@ -1,4 +1,12 @@
 import { useState, useEffect, useCallback } from "react"
+import { apiFetch } from "@/lib/api"
+
+interface SliderImageData {
+  id: string
+  imageUrl: string
+  title: string
+  displayOrder: number
+}
 
 interface Slide {
   title: string
@@ -8,7 +16,7 @@ interface Slide {
   imageGradient: string
 }
 
-const slides: Slide[] = [
+const fallbackSlides: Slide[] = [
   {
     title: "Discover RuneScape Clans",
     description:
@@ -50,6 +58,18 @@ const slides: Slide[] = [
 export default function HomeSlider() {
   const [current, setCurrent] = useState(0)
   const [transitioning, setTransitioning] = useState(false)
+  const [dbImages, setDbImages] = useState<SliderImageData[]>([])
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    apiFetch<SliderImageData[]>("/api/news/slider-images")
+      .then(setDbImages)
+      .catch(() => {})
+      .finally(() => setLoaded(true))
+  }, [])
+
+  const useFallback = !loaded || dbImages.length === 0
+  const totalSlides = useFallback ? fallbackSlides.length : dbImages.length
 
   const goTo = useCallback(
     (index: number) => {
@@ -64,72 +84,116 @@ export default function HomeSlider() {
   )
 
   const next = useCallback(() => {
-    goTo((current + 1) % slides.length)
-  }, [current, goTo])
+    goTo((current + 1) % totalSlides)
+  }, [current, goTo, totalSlides])
 
   const prev = useCallback(() => {
-    goTo((current - 1 + slides.length) % slides.length)
-  }, [current, goTo])
+    goTo((current - 1 + totalSlides) % totalSlides)
+  }, [current, goTo, totalSlides])
 
   useEffect(() => {
+    if (totalSlides <= 1) return
     const timer = setInterval(next, 6000)
     return () => clearInterval(timer)
-  }, [next])
+  }, [next, totalSlides])
 
-  const slide = slides[current]
+  if (useFallback) {
+    const slide = fallbackSlides[current]
+    return (
+      <div className="ch-home-slider">
+        <div
+          className="ch-home-slider-inner"
+          style={{ opacity: transitioning ? 0 : 1 }}
+        >
+          <div className="ch-home-slider-image">
+            <div
+              className="ch-home-slider-image-bg"
+              style={{ background: slide.imageGradient }}
+            />
+          </div>
+          <div className="ch-home-slider-text">
+            <h3 className="ch-home-slider-title">{slide.title}</h3>
+            <p className="ch-home-slider-desc">{slide.description}</p>
+            <div className="ch-home-slider-footer">
+              <span className="ch-home-slider-meta">{slide.meta}</span>
+              <button className="ch-home-slider-cta">{slide.cta}</button>
+            </div>
+          </div>
+        </div>
+        <button
+          className="ch-home-slider-arrow ch-home-slider-arrow--prev"
+          onClick={prev}
+          aria-label="Previous slide"
+        >
+          <span className="text-sm">‹</span>
+        </button>
+        <button
+          className="ch-home-slider-arrow ch-home-slider-arrow--next"
+          onClick={next}
+          aria-label="Next slide"
+        >
+          <span className="text-sm">›</span>
+        </button>
+        <div className="ch-home-slider-dots">
+          {fallbackSlides.map((_, i) => (
+            <button
+              key={i}
+              className={`ch-home-slider-dot ${i === current ? "ch-home-slider-dot--active" : ""}`}
+              onClick={() => goTo(i)}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    )
+  }
 
+  const img = dbImages[current]
   return (
     <div className="ch-home-slider">
       <div
-        className="ch-home-slider-inner"
+        className="ch-home-slider-inner ch-home-slider-inner--db"
         style={{ opacity: transitioning ? 0 : 1 }}
       >
-        {/* Left: image area */}
-        <div className="ch-home-slider-image">
-          <div
-            className="ch-home-slider-image-bg"
-            style={{ background: slide.imageGradient }}
-          />
-        </div>
-
-        {/* Right: text area */}
-        <div className="ch-home-slider-text">
-          <h3 className="ch-home-slider-title">{slide.title}</h3>
-          <p className="ch-home-slider-desc">{slide.description}</p>
-          <div className="ch-home-slider-footer">
-            <span className="ch-home-slider-meta">{slide.meta}</span>
-            <button className="ch-home-slider-cta">{slide.cta}</button>
+        <img
+          src={img.imageUrl}
+          alt={img.title}
+          className="ch-home-slider-db-img"
+        />
+        {img.title && (
+          <div className="ch-home-slider-db-overlay">
+            <h3 className="ch-home-slider-title">{img.title}</h3>
           </div>
-        </div>
+        )}
       </div>
-
-      {/* Controls */}
-      <button
-        className="ch-home-slider-arrow ch-home-slider-arrow--prev"
-        onClick={prev}
-        aria-label="Previous slide"
-      >
-        <span className="text-sm">‹</span>
-      </button>
-      <button
-        className="ch-home-slider-arrow ch-home-slider-arrow--next"
-        onClick={next}
-        aria-label="Next slide"
-      >
-        <span className="text-sm">›</span>
-      </button>
-
-      {/* Dots */}
-      <div className="ch-home-slider-dots">
-        {slides.map((_, i) => (
+      {totalSlides > 1 && (
+        <>
           <button
-            key={i}
-            className={`ch-home-slider-dot ${i === current ? "ch-home-slider-dot--active" : ""}`}
-            onClick={() => goTo(i)}
-            aria-label={`Go to slide ${i + 1}`}
-          />
-        ))}
-      </div>
+            className="ch-home-slider-arrow ch-home-slider-arrow--prev"
+            onClick={prev}
+            aria-label="Previous slide"
+          >
+            <span className="text-sm">‹</span>
+          </button>
+          <button
+            className="ch-home-slider-arrow ch-home-slider-arrow--next"
+            onClick={next}
+            aria-label="Next slide"
+          >
+            <span className="text-sm">›</span>
+          </button>
+          <div className="ch-home-slider-dots">
+            {dbImages.map((_, i) => (
+              <button
+                key={i}
+                className={`ch-home-slider-dot ${i === current ? "ch-home-slider-dot--active" : ""}`}
+                onClick={() => goTo(i)}
+                aria-label={`Go to slide ${i + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }

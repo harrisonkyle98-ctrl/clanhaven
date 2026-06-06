@@ -255,3 +255,96 @@ async def upload_image(
     thumbnail_url = await _upload_to_supabase(thumb_path, thumb_bytes, "image/jpeg")
 
     return {"bannerUrl": banner_url, "thumbnailUrl": thumbnail_url}
+
+
+# ─── Slider Image Management ───
+
+
+def _serialize_slider(s) -> dict:
+    return {
+        "id": s.id,
+        "imageUrl": s.imageUrl,
+        "title": s.title,
+        "active": s.active,
+        "displayOrder": s.displayOrder,
+        "createdAt": s.createdAt.isoformat(),
+        "updatedAt": s.updatedAt.isoformat(),
+    }
+
+
+@router.get("/slider-images")
+async def list_slider_images(_admin: dict = Depends(require_admin)):
+    """List all slider images (admin view). Ordered by displayOrder then createdAt."""
+    images = await db.sliderimage.find_many(order=[{"displayOrder": "asc"}, {"createdAt": "desc"}])
+    return [_serialize_slider(s) for s in images]
+
+
+class SliderImageUpdate(BaseModel):
+    title: Optional[str] = None
+    active: Optional[bool] = None
+    displayOrder: Optional[int] = None
+
+
+@router.post("/slider-images/upload")
+async def upload_slider_image(
+    file: UploadFile = File(...),
+    _admin: dict = Depends(require_admin),
+):
+    """Upload a new slider image to Supabase Storage and create a DB record."""
+    if file.content_type not in ALLOWED_TYPES:
+        raise HTTPException(status_code=400, detail="Only JPEG, PNG, WebP and GIF images are allowed")
+
+    contents = await file.read()
+    if len(contents) > MAX_SIZE:
+        raise HTTPException(status_code=400, detail="Image must be under 5 MB")
+
+    uid = uuid4().hex
+    ext = file.filename.rsplit(".", 1)[-1] if file.filename and "." in file.filename else "jpg"
+    path = f"slider/{uid}.{ext}"
+
+    image_url = await _upload_to_supabase(path, contents, file.content_type or "application/octet-stream")
+
+    # Get next display order
+    existing = await db.sliderimage.find_many(order={"displayOrder": "desc"}, take=1)
+    next_order = (existing[0].displayOrder + 1) if existing else 0
+
+    record = await db.sliderimage.create(data={
+        "imageUrl": image_url,
+        "title": file.filename or "",
+        "active": True,
+        "displayOrder": next_order,
+    })
+
+    return _serialize_slider(record)
+
+
+@router.put("/slider-images/{image_id}")
+async def update_slider_image(image_id: str, body: SliderImageUpdate, _admin: dict = Depends(require_admin)):
+    """Update a slider image's title, active status, or display order."""
+    existing = await db.sliderimage.find_unique(where={"id": image_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Slider image not found")
+
+    data: dict = {}
+    if body.title is not None:
+        data["title"] = body.title.strip()
+    if body.active is not None:
+        data["active"] = body.active
+    if body.displayOrder is not None:
+        data["displayOrder"] = body.displayOrder
+
+    if not data:
+        return _serialize_slider(existing)
+
+    record = await db.sliderimage.update(where={"id": image_id}, data=data)
+    return _serialize_slider(record)
+
+
+@router.delete("/slider-images/{image_id}")
+async def delete_slider_image(image_id: str, _admin: dict = Depends(require_admin)):
+    """Delete a slider image record."""
+    existing = await db.sliderimage.find_unique(where={"id": image_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Slider image not found")
+    await db.sliderimage.delete(where={"id": image_id})
+    return {"ok": True}
