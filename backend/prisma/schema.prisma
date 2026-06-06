@@ -152,6 +152,7 @@ model SliderImage {
   description   String   @default("")
   meta          String   @default("")
   cta           String   @default("")
+  ctaLink       String   @default("") @map("cta_link")
   imageGradient String   @default("") @map("image_gradient")
   active        Boolean  @default(false)
   createdAt     DateTime @default(now()) @map("created_at")

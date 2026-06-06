@@ -23,6 +23,7 @@ async def list_active_slider_images():
             "description": s.description,
             "meta": s.meta,
             "cta": s.cta,
+            "ctaLink": s.ctaLink,
             "imageGradient": s.imageGradient,
         }
         for s in images

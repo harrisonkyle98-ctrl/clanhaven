@@ -6,6 +6,7 @@ interface Slide {
   description: string
   meta: string
   cta: string
+  ctaLink: string
   imageUrl: string
   imageGradient: string
 }
@@ -17,6 +18,7 @@ const fallbackSlides: Slide[] = [
       "Browse hundreds of active clans across RS3 and OSRS. Find your perfect community and join the adventure.",
     meta: "847 clans tracked",
     cta: "Browse Clans",
+    ctaLink: "/clans",
     imageUrl: "",
     imageGradient:
       "linear-gradient(135deg, rgba(30, 58, 95, 0.9) 0%, rgba(15, 30, 50, 0.95) 100%)",
@@ -27,6 +29,7 @@ const fallbackSlides: Slide[] = [
       "Monitor XP gains, skill milestones, and clan growth in real time. Stay connected to your community's achievements.",
     meta: "89.2B XP gained this week",
     cta: "View Rankings",
+    ctaLink: "/rankings",
     imageUrl: "",
     imageGradient:
       "linear-gradient(135deg, rgba(50, 75, 35, 0.9) 0%, rgba(20, 35, 15, 0.95) 100%)",
@@ -37,6 +40,7 @@ const fallbackSlides: Slide[] = [
       "Create and join skill competitions. Challenge rival clans and push your members to new heights.",
     meta: "234 active competitions",
     cta: "Explore Competitions",
+    ctaLink: "/competitions",
     imageUrl: "",
     imageGradient:
       "linear-gradient(135deg, rgba(95, 55, 25, 0.9) 0%, rgba(45, 25, 10, 0.95) 100%)",
@@ -47,6 +51,7 @@ const fallbackSlides: Slide[] = [
       "Set up a dedicated hub for your clan. Share news, track members, and manage events all in one place.",
     meta: "142,380 players tracked",
     cta: "Get Started",
+    ctaLink: "",
     imageUrl: "",
     imageGradient:
       "linear-gradient(135deg, rgba(70, 30, 80, 0.9) 0%, rgba(30, 12, 40, 0.95) 100%)",
@@ -61,6 +66,7 @@ interface ApiSlide {
   description: string
   meta: string
   cta: string
+  ctaLink: string
   imageGradient: string
 }
 
@@ -79,6 +85,7 @@ export default function HomeSlider() {
               description: s.description,
               meta: s.meta,
               cta: s.cta,
+              ctaLink: s.ctaLink,
               imageUrl: s.imageUrl,
               imageGradient: s.imageGradient,
             }))
@@ -144,7 +151,11 @@ export default function HomeSlider() {
           <p className="ch-home-slider-desc">{slide.description}</p>
           <div className="ch-home-slider-footer">
             <span className="ch-home-slider-meta">{slide.meta}</span>
-            <button className="ch-home-slider-cta">{slide.cta}</button>
+            {slide.ctaLink ? (
+              <a href={slide.ctaLink} className="ch-home-slider-cta" style={{ textDecoration: "none" }}>{slide.cta}</a>
+            ) : (
+              <button className="ch-home-slider-cta">{slide.cta}</button>
+            )}
           </div>
         </div>
       </div>

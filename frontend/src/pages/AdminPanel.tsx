@@ -183,6 +183,7 @@ interface SliderSlot {
   description: string
   meta: string
   cta: string
+  ctaLink: string
   imageGradient: string
   active: boolean
   createdAt: string
@@ -235,6 +236,7 @@ function SliderImageManager() {
       description: slot.description,
       meta: slot.meta,
       cta: slot.cta,
+      ctaLink: slot.ctaLink,
       imageGradient: slot.imageGradient,
     })
   }
@@ -413,6 +415,16 @@ function SliderImageManager() {
                   style={slotFieldStyle}
                 />
               </div>
+            </div>
+            <div>
+              <div style={slotLabelStyle}>CTA button link (URL)</div>
+              <input
+                type="text"
+                value={editFields.ctaLink ?? ""}
+                onChange={(e) => setEditFields({ ...editFields, ctaLink: e.target.value })}
+                placeholder='e.g. "/clans" or "https://example.com"'
+                style={slotFieldStyle}
+              />
             </div>
             <div>
               <div style={slotLabelStyle}>Image gradient (CSS, used when no image is uploaded)</div>

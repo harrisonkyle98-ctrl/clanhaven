@@ -269,6 +269,7 @@ def _serialize_slider(s) -> dict:
         "description": s.description,
         "meta": s.meta,
         "cta": s.cta,
+        "ctaLink": s.ctaLink,
         "imageGradient": s.imageGradient,
         "active": s.active,
         "createdAt": s.createdAt.isoformat(),
@@ -288,6 +289,7 @@ class SliderSlotUpdate(BaseModel):
     description: Optional[str] = None
     meta: Optional[str] = None
     cta: Optional[str] = None
+    ctaLink: Optional[str] = None
     imageGradient: Optional[str] = None
     active: Optional[bool] = None
 
