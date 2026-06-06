@@ -435,32 +435,19 @@ function SliderImageManager() {
           /* ── Slot Grid View ── */
           <div className="flex flex-col gap-2">
             {slots.map((slot) => (
-              <div
-                key={slot.id}
-                onClick={() => openEditor(slot)}
-                style={{
-                  background: "rgba(0, 0, 0, 0.2)",
-                  border: "1px solid rgba(120, 100, 60, 0.15)",
-                  padding: "0.625rem 0.75rem",
-                  cursor: "pointer",
-                  transition: "border-color 0.15s",
-                }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(120, 100, 60, 0.4)" }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(120, 100, 60, 0.15)" }}
-              >
+              <div key={slot.id} className="ch-row px-4 py-3 group cursor-pointer" onClick={() => openEditor(slot)}>
                 <div className="flex items-center gap-3">
-                  {/* Thumbnail */}
                   {slot.imageUrl ? (
                     <img
                       src={slot.imageUrl}
                       alt={`Slide ${slot.slotNumber}`}
-                      style={{ width: "80px", height: "45px", objectFit: "cover", flexShrink: 0 }}
+                      className="ch-news-upload-preview"
+                      style={{ flexShrink: 0 }}
                     />
                   ) : (
                     <div
+                      className="ch-news-upload-preview"
                       style={{
-                        width: "80px",
-                        height: "45px",
                         flexShrink: 0,
                         background: slot.imageGradient || "linear-gradient(135deg, #1a1a2e, #16213e)",
                         display: "flex",
@@ -471,36 +458,43 @@ function SliderImageManager() {
                       <span style={{ fontSize: "0.5rem", color: "rgba(200,180,140,0.4)" }}>No image</span>
                     </div>
                   )}
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-text-primary" style={{ fontWeight: 600 }}>Slide {slot.slotNumber}</p>
-                    <p className="text-[10px] text-text-muted truncate" style={{ marginTop: "0.125rem" }}>
-                      {slot.title || "No title set"}
-                    </p>
-                  </div>
-                  {/* Status + action */}
-                  <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
-                    <span
-                      className="ch-admin-tag"
-                      style={{
-                        background: slot.active ? "rgba(100, 180, 100, 0.12)" : "rgba(180, 100, 100, 0.12)",
-                        color: slot.active ? "rgba(140, 220, 140, 0.9)" : "rgba(220, 140, 140, 0.9)",
-                        border: `1px solid ${slot.active ? "rgba(100, 180, 100, 0.25)" : "rgba(180, 100, 100, 0.25)"}`,
-                        fontSize: "0.5625rem",
-                        padding: "0.0625rem 0.375rem",
-                      }}
-                    >
-                      {slot.active ? "Active" : "Inactive"}
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <span className="text-sm font-medium text-text-highlight group-hover:text-gold transition-colors">
+                      Slide {slot.slotNumber}{slot.title ? ` — ${slot.title}` : ""}
                     </span>
-                    <button
-                      className="ch-sidebar-account-action"
-                      style={{ width: "auto", padding: "0.125rem 0.5rem", fontSize: "0.625rem" }}
-                      onClick={(e) => { e.stopPropagation(); void toggleActive(slot.slotNumber, slot.active) }}
-                    >
-                      {slot.active ? "Deactivate" : "Activate"}
-                    </button>
-                    <span className="text-[10px] text-text-muted">Edit →</span>
+                    {slot.active ? (
+                      <span className="badge-online">Active</span>
+                    ) : (
+                      <span className="badge-offline">Inactive</span>
+                    )}
                   </div>
+                </div>
+                <div className="ch-user-row-details">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="badge-info">Slot {slot.slotNumber}</span>
+                    {slot.imageUrl ? (
+                      <span className="badge-info">Image uploaded</span>
+                    ) : (
+                      <span className="badge-info">No image</span>
+                    )}
+                    {slot.title && <span className="badge-info">{slot.title}</span>}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-2" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    className="ch-sidebar-account-action"
+                    style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                    onClick={() => openEditor(slot)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="ch-sidebar-account-action"
+                    style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                    onClick={() => { void toggleActive(slot.slotNumber, slot.active) }}
+                  >
+                    {slot.active ? "Deactivate" : "Activate"}
+                  </button>
                 </div>
               </div>
             ))}
