@@ -1549,14 +1549,13 @@ body {
 
 .ch-home-slider-inner--db {
   position: relative;
-  min-height: 276px;
+  height: 300px;
+  background: rgba(10, 8, 6, 1);
 }
 .ch-home-slider-db-img {
   width: 100%;
-  height: 100%;
-  min-height: 276px;
-  max-height: 320px;
-  object-fit: cover;
+  height: 300px;
+  object-fit: contain;
   display: block;
 }
 .ch-home-slider-db-overlay {

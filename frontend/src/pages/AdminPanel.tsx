@@ -258,7 +258,7 @@ function SliderImageManager() {
             onChange={(e) => { void handleUpload(e) }}
             style={{ display: "none" }}
           />
-          <span className="text-[10px] text-text-muted">Max 5 MB. JPEG, PNG, WebP, or GIF.</span>
+          <span className="text-[10px] text-text-muted">Recommended size: 1200 × 300 px &nbsp;|&nbsp; Max 5 MB &nbsp;|&nbsp; JPEG, PNG, WebP, or GIF</span>
         </div>
 
         {loading ? (
