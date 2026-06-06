@@ -22,6 +22,14 @@ async def lifespan(app: FastAPI):
             await db.user.update(where={"id": admin_user.id}, data={"privileges": 1})
     except Exception:
         pass
+    # Seed 4 slider slots if they don't exist
+    try:
+        for slot in range(1, 5):
+            existing = await db.sliderimage.find_first(where={"slotNumber": slot})
+            if not existing:
+                await db.sliderimage.create(data={"slotNumber": slot, "active": False})
+    except Exception:
+        pass
     # Seed example news posts if none exist
     try:
         from datetime import datetime, timezone

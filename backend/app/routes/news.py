@@ -9,21 +9,21 @@ router = APIRouter()
 
 @router.get("/slider-images")
 async def list_active_slider_images():
-    """List active slider images for the homepage. Public endpoint."""
+    """List active slider slots for the homepage. Public endpoint."""
     images = await db.sliderimage.find_many(
         where={"active": True},
-        order=[{"displayOrder": "asc"}, {"createdAt": "desc"}],
+        order={"slotNumber": "asc"},
     )
     return [
         {
             "id": s.id,
+            "slotNumber": s.slotNumber,
             "imageUrl": s.imageUrl,
             "title": s.title,
             "description": s.description,
             "meta": s.meta,
             "cta": s.cta,
             "imageGradient": s.imageGradient,
-            "displayOrder": s.displayOrder,
         }
         for s in images
     ]

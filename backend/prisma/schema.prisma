@@ -146,18 +146,18 @@ model NewsPost {
 
 model SliderImage {
   id            String   @id @default(cuid())
+  slotNumber    Int      @unique @map("slot_number")
   imageUrl      String   @default("") @map("image_url")
   title         String   @default("")
   description   String   @default("")
   meta          String   @default("")
   cta           String   @default("")
   imageGradient String   @default("") @map("image_gradient")
-  active        Boolean  @default(true)
-  displayOrder  Int      @default(0) @map("display_order")
+  active        Boolean  @default(false)
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  @@index([active, displayOrder])
+  @@index([active, slotNumber])
   @@map("slider_images")
 }
 

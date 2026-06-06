@@ -263,6 +263,7 @@ async def upload_image(
 def _serialize_slider(s) -> dict:
     return {
         "id": s.id,
+        "slotNumber": s.slotNumber,
         "imageUrl": s.imageUrl,
         "title": s.title,
         "description": s.description,
@@ -270,35 +271,37 @@ def _serialize_slider(s) -> dict:
         "cta": s.cta,
         "imageGradient": s.imageGradient,
         "active": s.active,
-        "displayOrder": s.displayOrder,
         "createdAt": s.createdAt.isoformat(),
         "updatedAt": s.updatedAt.isoformat(),
     }
 
 
 @router.get("/slider-images")
-async def list_slider_images(_admin: dict = Depends(require_admin)):
-    """List all slider images (admin view). Ordered by displayOrder then createdAt."""
-    images = await db.sliderimage.find_many(order=[{"displayOrder": "asc"}, {"createdAt": "desc"}])
-    return [_serialize_slider(s) for s in images]
+async def list_slider_slots(_admin: dict = Depends(require_admin)):
+    """List all 4 slider slots (admin view). Ordered by slot number."""
+    slots = await db.sliderimage.find_many(order={"slotNumber": "asc"})
+    return [_serialize_slider(s) for s in slots]
 
 
-class SliderImageUpdate(BaseModel):
+class SliderSlotUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     meta: Optional[str] = None
     cta: Optional[str] = None
     imageGradient: Optional[str] = None
     active: Optional[bool] = None
-    displayOrder: Optional[int] = None
 
 
-@router.post("/slider-images/upload")
-async def upload_slider_image(
+@router.post("/slider-images/{slot_number}/upload")
+async def upload_slider_slot_image(
+    slot_number: int,
     file: UploadFile = File(...),
     _admin: dict = Depends(require_admin),
 ):
-    """Upload a new slider image to Supabase Storage and create a DB record."""
+    """Upload/replace image for a specific slider slot (1-4)."""
+    if slot_number < 1 or slot_number > 4:
+        raise HTTPException(status_code=400, detail="Slot number must be between 1 and 4")
+
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=400, detail="Only JPEG, PNG, WebP and GIF images are allowed")
 
@@ -312,30 +315,27 @@ async def upload_slider_image(
 
     image_url = await _upload_to_supabase(path, contents, file.content_type or "application/octet-stream")
 
-    # Get next display order
-    existing = await db.sliderimage.find_many(order={"displayOrder": "desc"}, take=1)
-    next_order = (existing[0].displayOrder + 1) if existing else 0
+    slot = await db.sliderimage.find_first(where={"slotNumber": slot_number})
+    if not slot:
+        raise HTTPException(status_code=404, detail="Slider slot not found")
 
-    record = await db.sliderimage.create(data={
-        "imageUrl": image_url,
-        "title": "",
-        "description": "",
-        "meta": "",
-        "cta": "",
-        "imageGradient": "",
-        "active": False,
-        "displayOrder": next_order,
-    })
+    record = await db.sliderimage.update(
+        where={"id": slot.id},
+        data={"imageUrl": image_url},
+    )
 
     return _serialize_slider(record)
 
 
-@router.put("/slider-images/{image_id}")
-async def update_slider_image(image_id: str, body: SliderImageUpdate, _admin: dict = Depends(require_admin)):
-    """Update a slider image's title, active status, or display order."""
-    existing = await db.sliderimage.find_unique(where={"id": image_id})
-    if not existing:
-        raise HTTPException(status_code=404, detail="Slider image not found")
+@router.put("/slider-images/{slot_number}")
+async def update_slider_slot(slot_number: int, body: SliderSlotUpdate, _admin: dict = Depends(require_admin)):
+    """Update a slider slot's content fields or active status."""
+    if slot_number < 1 or slot_number > 4:
+        raise HTTPException(status_code=400, detail="Slot number must be between 1 and 4")
+
+    slot = await db.sliderimage.find_first(where={"slotNumber": slot_number})
+    if not slot:
+        raise HTTPException(status_code=404, detail="Slider slot not found")
 
     data: dict = {}
     if body.title is not None:
@@ -350,21 +350,26 @@ async def update_slider_image(image_id: str, body: SliderImageUpdate, _admin: di
         data["imageGradient"] = body.imageGradient.strip()
     if body.active is not None:
         data["active"] = body.active
-    if body.displayOrder is not None:
-        data["displayOrder"] = body.displayOrder
 
     if not data:
-        return _serialize_slider(existing)
+        return _serialize_slider(slot)
 
-    record = await db.sliderimage.update(where={"id": image_id}, data=data)
+    record = await db.sliderimage.update(where={"id": slot.id}, data=data)
     return _serialize_slider(record)
 
 
-@router.delete("/slider-images/{image_id}")
-async def delete_slider_image(image_id: str, _admin: dict = Depends(require_admin)):
-    """Delete a slider image record."""
-    existing = await db.sliderimage.find_unique(where={"id": image_id})
-    if not existing:
-        raise HTTPException(status_code=404, detail="Slider image not found")
-    await db.sliderimage.delete(where={"id": image_id})
-    return {"ok": True}
+@router.delete("/slider-images/{slot_number}/image")
+async def remove_slider_slot_image(slot_number: int, _admin: dict = Depends(require_admin)):
+    """Remove the image from a slider slot (keeps the slot, clears the image URL)."""
+    if slot_number < 1 or slot_number > 4:
+        raise HTTPException(status_code=400, detail="Slot number must be between 1 and 4")
+
+    slot = await db.sliderimage.find_first(where={"slotNumber": slot_number})
+    if not slot:
+        raise HTTPException(status_code=404, detail="Slider slot not found")
+
+    record = await db.sliderimage.update(
+        where={"id": slot.id},
+        data={"imageUrl": ""},
+    )
+    return _serialize_slider(record)

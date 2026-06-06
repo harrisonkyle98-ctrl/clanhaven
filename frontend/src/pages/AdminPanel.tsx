@@ -175,8 +175,9 @@ interface NewsPost {
   updatedAt: string
 }
 
-interface SliderImage {
+interface SliderSlot {
   id: string
+  slotNumber: number
   imageUrl: string
   title: string
   description: string
@@ -184,12 +185,11 @@ interface SliderImage {
   cta: string
   imageGradient: string
   active: boolean
-  displayOrder: number
   createdAt: string
   updatedAt: string
 }
 
-const fieldStyle: React.CSSProperties = {
+const slotFieldStyle: React.CSSProperties = {
   background: "rgba(0, 0, 0, 0.3)",
   border: "1px solid rgba(120, 100, 60, 0.2)",
   color: "rgba(200, 180, 140, 0.9)",
@@ -199,31 +199,70 @@ const fieldStyle: React.CSSProperties = {
   outline: "none",
 }
 
-const labelStyle: React.CSSProperties = {
+const slotLabelStyle: React.CSSProperties = {
   fontSize: "0.625rem",
   color: "rgba(200, 180, 140, 0.6)",
   marginBottom: "0.125rem",
 }
 
 function SliderImageManager() {
-  const [images, setImages] = useState<SliderImage[]>([])
+  const [slots, setSlots] = useState<SliderSlot[]>([])
   const [loading, setLoading] = useState(true)
-  const [uploading, setUploading] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editFields, setEditFields] = useState<Partial<SliderImage>>({})
+  const [editingSlot, setEditingSlot] = useState<number | null>(null)
+  const [editFields, setEditFields] = useState<Partial<SliderSlot>>({})
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const load = () => {
     setLoading(true)
-    apiFetch<SliderImage[]>("/api/admin/slider-images")
-      .then(setImages)
+    apiFetch<SliderSlot[]>("/api/admin/slider-images")
+      .then(setSlots)
       .finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [])
 
+  const openEditor = (slot: SliderSlot) => {
+    setEditingSlot(slot.slotNumber)
+    setEditFields({
+      title: slot.title,
+      description: slot.description,
+      meta: slot.meta,
+      cta: slot.cta,
+      imageGradient: slot.imageGradient,
+    })
+  }
+
+  const closeEditor = () => {
+    setEditingSlot(null)
+    setEditFields({})
+  }
+
+  const saveSlot = async () => {
+    if (editingSlot === null) return
+    setSaving(true)
+    try {
+      await apiFetch(`/api/admin/slider-images/${editingSlot}`, {
+        method: "PUT",
+        body: JSON.stringify(editFields),
+      })
+      load()
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const toggleActive = async (slotNumber: number, currentActive: boolean) => {
+    await apiFetch(`/api/admin/slider-images/${slotNumber}`, {
+      method: "PUT",
+      body: JSON.stringify({ active: !currentActive }),
+    })
+    load()
+  }
+
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (editingSlot === null) return
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
@@ -231,7 +270,7 @@ function SliderImageManager() {
       const form = new FormData()
       form.append("file", file)
       const token = localStorage.getItem("access_token")
-      const resp = await fetch("/api/admin/slider-images/upload", {
+      const resp = await fetch(`/api/admin/slider-images/${editingSlot}/upload`, {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: form,
@@ -244,102 +283,177 @@ function SliderImageManager() {
     }
   }
 
-  const toggleActive = async (img: SliderImage) => {
-    await apiFetch(`/api/admin/slider-images/${img.id}`, {
-      method: "PUT",
-      body: JSON.stringify({ active: !img.active }),
-    })
+  const removeImage = async (slotNumber: number) => {
+    await apiFetch(`/api/admin/slider-images/${slotNumber}/image`, { method: "DELETE" })
     load()
   }
 
-  const handleDelete = async (id: string) => {
-    await apiFetch(`/api/admin/slider-images/${id}`, { method: "DELETE" })
-    load()
-  }
-
-  const startEdit = (img: SliderImage) => {
-    setEditingId(img.id)
-    setEditFields({
-      title: img.title,
-      description: img.description,
-      meta: img.meta,
-      cta: img.cta,
-      imageGradient: img.imageGradient,
-      displayOrder: img.displayOrder,
-    })
-  }
-
-  const cancelEdit = () => {
-    setEditingId(null)
-    setEditFields({})
-  }
-
-  const saveEdit = async () => {
-    if (!editingId) return
-    setSaving(true)
-    try {
-      await apiFetch(`/api/admin/slider-images/${editingId}`, {
-        method: "PUT",
-        body: JSON.stringify(editFields),
-      })
-      setEditingId(null)
-      setEditFields({})
-      load()
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const formatDate = (iso: string) => {
-    const d = new Date(iso)
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-  }
+  const currentSlot = slots.find((s) => s.slotNumber === editingSlot)
 
   return (
     <CollapsiblePanel variant="purple" title="Slider Management">
       <div className="flex flex-col gap-3 p-4">
-        <div className="flex items-center gap-3">
-          <button
-            className="ch-sidebar-account-action"
-            style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
-          >
-            {uploading ? "Uploading…" : "Upload Slider Image"}
-          </button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            onChange={(e) => { void handleUpload(e) }}
-            style={{ display: "none" }}
-          />
-          <span className="text-[10px] text-text-muted">Recommended image size: 1750 × 300 px &nbsp;|&nbsp; Max 5 MB &nbsp;|&nbsp; JPEG, PNG, WebP, or GIF</span>
-        </div>
-        <p className="text-[10px] text-text-muted" style={{ marginTop: "-0.5rem" }}>
-          Each slide has a 60/40 layout: left panel shows the uploaded image (or gradient if no image), right panel shows the title, description, meta, and CTA text.
+        <p className="text-[10px] text-text-muted">
+          Manage the 4 homepage slider slots. Each slide has a 60/40 layout: left panel shows the image (or gradient), right panel shows text content. Inactive slides are skipped on the homepage.
         </p>
 
         {loading ? (
-          <p className="text-xs text-text-muted">Loading slides…</p>
-        ) : images.length === 0 ? (
-          <p className="text-xs text-text-muted">No slides created yet. Upload an image to create your first slide.</p>
+          <p className="text-xs text-text-muted">Loading slider slots…</p>
+        ) : editingSlot !== null && currentSlot ? (
+          /* ── Slot Editor View ── */
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <button
+                className="ch-sidebar-account-action"
+                style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                onClick={closeEditor}
+              >
+                Back
+              </button>
+              <span className="text-xs text-text-primary" style={{ fontWeight: 600 }}>Editing Slide {editingSlot}</span>
+            </div>
+
+            {/* Image preview */}
+            <div style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(120,100,60,0.15)", padding: "0.75rem" }}>
+              <div style={slotLabelStyle}>Slide image</div>
+              {currentSlot.imageUrl ? (
+                <div className="flex items-end gap-3">
+                  <img
+                    src={currentSlot.imageUrl}
+                    alt={`Slide ${editingSlot}`}
+                    style={{ maxWidth: "300px", height: "52px", objectFit: "cover" }}
+                  />
+                  <div className="flex gap-1.5">
+                    <button
+                      className="ch-sidebar-account-action"
+                      style={{ width: "auto", padding: "0.125rem 0.5rem", fontSize: "0.625rem" }}
+                      onClick={() => fileRef.current?.click()}
+                      disabled={uploading}
+                    >
+                      {uploading ? "Uploading…" : "Replace Image"}
+                    </button>
+                    <button
+                      className="ch-sidebar-account-action"
+                      style={{ width: "auto", padding: "0.125rem 0.5rem", fontSize: "0.625rem" }}
+                      onClick={() => { void removeImage(editingSlot) }}
+                    >
+                      Remove Image
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <div style={{ width: "120px", height: "52px", background: currentSlot.imageGradient || "linear-gradient(135deg, #1a1a2e, #16213e)" }} />
+                  <div>
+                    <button
+                      className="ch-sidebar-account-action"
+                      style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                      onClick={() => fileRef.current?.click()}
+                      disabled={uploading}
+                    >
+                      {uploading ? "Uploading…" : "Upload Image"}
+                    </button>
+                    <p className="text-[10px] text-text-muted" style={{ marginTop: "0.25rem" }}>No image — gradient will be used. Recommended: 1750 × 300 px</p>
+                  </div>
+                </div>
+              )}
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={(e) => { void handleUpload(e) }}
+                style={{ display: "none" }}
+              />
+            </div>
+
+            {/* Editable fields */}
+            <div>
+              <div style={slotLabelStyle}>Title</div>
+              <input
+                type="text"
+                value={editFields.title ?? ""}
+                onChange={(e) => setEditFields({ ...editFields, title: e.target.value })}
+                placeholder="Slide title"
+                style={slotFieldStyle}
+              />
+            </div>
+            <div>
+              <div style={slotLabelStyle}>Description</div>
+              <textarea
+                value={editFields.description ?? ""}
+                onChange={(e) => setEditFields({ ...editFields, description: e.target.value })}
+                placeholder="Slide description text"
+                rows={2}
+                style={{ ...slotFieldStyle, resize: "vertical" }}
+              />
+            </div>
+            <div className="flex gap-3">
+              <div style={{ flex: 1 }}>
+                <div style={slotLabelStyle}>Meta text</div>
+                <input
+                  type="text"
+                  value={editFields.meta ?? ""}
+                  onChange={(e) => setEditFields({ ...editFields, meta: e.target.value })}
+                  placeholder='e.g. "Latest Update"'
+                  style={slotFieldStyle}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={slotLabelStyle}>CTA button text</div>
+                <input
+                  type="text"
+                  value={editFields.cta ?? ""}
+                  onChange={(e) => setEditFields({ ...editFields, cta: e.target.value })}
+                  placeholder='e.g. "Learn More"'
+                  style={slotFieldStyle}
+                />
+              </div>
+            </div>
+            <div>
+              <div style={slotLabelStyle}>Image gradient (CSS, used when no image is uploaded)</div>
+              <input
+                type="text"
+                value={editFields.imageGradient ?? ""}
+                onChange={(e) => setEditFields({ ...editFields, imageGradient: e.target.value })}
+                placeholder="e.g. linear-gradient(135deg, #1a1a2e, #16213e)"
+                style={slotFieldStyle}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2" style={{ marginTop: "0.25rem" }}>
+              <button
+                className="ch-sidebar-account-action"
+                style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                onClick={() => { void saveSlot() }}
+                disabled={saving}
+              >
+                {saving ? "Saving…" : "Save Changes"}
+              </button>
+            </div>
+          </div>
         ) : (
+          /* ── Slot Grid View ── */
           <div className="flex flex-col gap-2">
-            {images.map((img) => (
+            {slots.map((slot) => (
               <div
-                key={img.id}
+                key={slot.id}
+                onClick={() => openEditor(slot)}
                 style={{
                   background: "rgba(0, 0, 0, 0.2)",
                   border: "1px solid rgba(120, 100, 60, 0.15)",
-                  padding: "0.75rem",
+                  padding: "0.625rem 0.75rem",
+                  cursor: "pointer",
+                  transition: "border-color 0.15s",
                 }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(120, 100, 60, 0.4)" }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(120, 100, 60, 0.15)" }}
               >
                 <div className="flex items-center gap-3">
-                  {img.imageUrl ? (
+                  {/* Thumbnail */}
+                  {slot.imageUrl ? (
                     <img
-                      src={img.imageUrl}
-                      alt={img.title}
+                      src={slot.imageUrl}
+                      alt={`Slide ${slot.slotNumber}`}
                       style={{ width: "80px", height: "45px", objectFit: "cover", flexShrink: 0 }}
                     />
                   ) : (
@@ -348,131 +462,46 @@ function SliderImageManager() {
                         width: "80px",
                         height: "45px",
                         flexShrink: 0,
-                        background: img.imageGradient || "linear-gradient(135deg, #1a1a2e, #16213e)",
+                        background: slot.imageGradient || "linear-gradient(135deg, #1a1a2e, #16213e)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-text-primary truncate">{img.title || "Untitled"}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span
-                        className="ch-admin-tag"
-                        style={{
-                          background: img.active ? "rgba(100, 180, 100, 0.12)" : "rgba(180, 100, 100, 0.12)",
-                          color: img.active ? "rgba(140, 220, 140, 0.9)" : "rgba(220, 140, 140, 0.9)",
-                          border: `1px solid ${img.active ? "rgba(100, 180, 100, 0.25)" : "rgba(180, 100, 100, 0.25)"}`,
-                          fontSize: "0.5625rem",
-                          padding: "0.0625rem 0.375rem",
-                        }}
-                      >
-                        {img.active ? "Active" : "Inactive"}
-                      </span>
-                      <span className="text-[10px] text-text-muted">Order: {img.displayOrder}</span>
-                      <span className="text-[10px] text-text-muted">{formatDate(img.createdAt)}</span>
+                    >
+                      <span style={{ fontSize: "0.5rem", color: "rgba(200,180,140,0.4)" }}>No image</span>
                     </div>
+                  )}
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-text-primary" style={{ fontWeight: 600 }}>Slide {slot.slotNumber}</p>
+                    <p className="text-[10px] text-text-muted truncate" style={{ marginTop: "0.125rem" }}>
+                      {slot.title || "No title set"}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-1.5" style={{ flexShrink: 0 }}>
+                  {/* Status + action */}
+                  <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
+                    <span
+                      className="ch-admin-tag"
+                      style={{
+                        background: slot.active ? "rgba(100, 180, 100, 0.12)" : "rgba(180, 100, 100, 0.12)",
+                        color: slot.active ? "rgba(140, 220, 140, 0.9)" : "rgba(220, 140, 140, 0.9)",
+                        border: `1px solid ${slot.active ? "rgba(100, 180, 100, 0.25)" : "rgba(180, 100, 100, 0.25)"}`,
+                        fontSize: "0.5625rem",
+                        padding: "0.0625rem 0.375rem",
+                      }}
+                    >
+                      {slot.active ? "Active" : "Inactive"}
+                    </span>
                     <button
                       className="ch-sidebar-account-action"
                       style={{ width: "auto", padding: "0.125rem 0.5rem", fontSize: "0.625rem" }}
-                      onClick={() => { editingId === img.id ? cancelEdit() : startEdit(img) }}
+                      onClick={(e) => { e.stopPropagation(); void toggleActive(slot.slotNumber, slot.active) }}
                     >
-                      {editingId === img.id ? "Cancel" : "Edit"}
+                      {slot.active ? "Deactivate" : "Activate"}
                     </button>
-                    <button
-                      className="ch-sidebar-account-action"
-                      style={{ width: "auto", padding: "0.125rem 0.5rem", fontSize: "0.625rem" }}
-                      onClick={() => { void toggleActive(img) }}
-                    >
-                      {img.active ? "Deactivate" : "Activate"}
-                    </button>
-                    <button
-                      className="ch-sidebar-account-action"
-                      style={{ width: "auto", padding: "0.125rem 0.5rem", fontSize: "0.625rem" }}
-                      onClick={() => { void handleDelete(img.id) }}
-                    >
-                      Delete
-                    </button>
+                    <span className="text-[10px] text-text-muted">Edit →</span>
                   </div>
                 </div>
-
-                {editingId === img.id && (
-                  <div className="flex flex-col gap-2" style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(120, 100, 60, 0.15)" }}>
-                    <div>
-                      <div style={labelStyle}>Title</div>
-                      <input
-                        type="text"
-                        value={editFields.title ?? ""}
-                        onChange={(e) => setEditFields({ ...editFields, title: e.target.value })}
-                        placeholder="Slide title"
-                        style={fieldStyle}
-                      />
-                    </div>
-                    <div>
-                      <div style={labelStyle}>Description</div>
-                      <textarea
-                        value={editFields.description ?? ""}
-                        onChange={(e) => setEditFields({ ...editFields, description: e.target.value })}
-                        placeholder="Slide description text"
-                        rows={2}
-                        style={{ ...fieldStyle, resize: "vertical" }}
-                      />
-                    </div>
-                    <div className="flex gap-3">
-                      <div style={{ flex: 1 }}>
-                        <div style={labelStyle}>Meta text</div>
-                        <input
-                          type="text"
-                          value={editFields.meta ?? ""}
-                          onChange={(e) => setEditFields({ ...editFields, meta: e.target.value })}
-                          placeholder='e.g. "Latest Update"'
-                          style={fieldStyle}
-                        />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={labelStyle}>CTA button text</div>
-                        <input
-                          type="text"
-                          value={editFields.cta ?? ""}
-                          onChange={(e) => setEditFields({ ...editFields, cta: e.target.value })}
-                          placeholder='e.g. "Learn More"'
-                          style={fieldStyle}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex gap-3">
-                      <div style={{ flex: 2 }}>
-                        <div style={labelStyle}>Image gradient (CSS, used when no image uploaded)</div>
-                        <input
-                          type="text"
-                          value={editFields.imageGradient ?? ""}
-                          onChange={(e) => setEditFields({ ...editFields, imageGradient: e.target.value })}
-                          placeholder="e.g. linear-gradient(135deg, #1a1a2e, #16213e)"
-                          style={fieldStyle}
-                        />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={labelStyle}>Display order</div>
-                        <input
-                          type="number"
-                          value={editFields.displayOrder ?? 0}
-                          onChange={(e) => setEditFields({ ...editFields, displayOrder: parseInt(e.target.value) || 0 })}
-                          style={fieldStyle}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-2" style={{ marginTop: "0.25rem" }}>
-                      <button
-                        className="ch-sidebar-account-action"
-                        style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
-                        onClick={() => { void saveEdit() }}
-                        disabled={saving}
-                      >
-                        {saving ? "Saving…" : "Save Changes"}
-                      </button>
-                    </div>
-                  </div>
-                )}
               </div>
             ))}
           </div>

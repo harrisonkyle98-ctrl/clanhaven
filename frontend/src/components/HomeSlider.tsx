@@ -55,13 +55,13 @@ const fallbackSlides: Slide[] = [
 
 interface ApiSlide {
   id: string
+  slotNumber: number
   imageUrl: string
   title: string
   description: string
   meta: string
   cta: string
   imageGradient: string
-  displayOrder: number
 }
 
 export default function HomeSlider() {
