@@ -223,6 +223,11 @@ function SliderImageManager() {
 
   useEffect(() => { load() }, [])
 
+  const formatSlotDate = (iso: string) => {
+    const d = new Date(iso)
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+  }
+
   const openEditor = (slot: SliderSlot) => {
     setEditingSlot(slot.slotNumber)
     setEditFields({
@@ -471,13 +476,12 @@ function SliderImageManager() {
                 </div>
                 <div className="ch-user-row-details">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="badge-info">Slot {slot.slotNumber}</span>
                     {slot.imageUrl ? (
                       <span className="badge-info">Image uploaded</span>
                     ) : (
                       <span className="badge-info">No image</span>
                     )}
-                    {slot.title && <span className="badge-info">{slot.title}</span>}
+                    <span className="badge-info">Edited {formatSlotDate(slot.updatedAt)}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mt-2" onClick={(e) => e.stopPropagation()}>
