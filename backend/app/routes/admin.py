@@ -257,7 +257,7 @@ async def upload_image(
     return {"bannerUrl": banner_url, "thumbnailUrl": thumbnail_url}
 
 
-# ─── Slider Image Management ───
+# ─── Slider Management ───
 
 
 def _serialize_slider(s) -> dict:
@@ -265,6 +265,10 @@ def _serialize_slider(s) -> dict:
         "id": s.id,
         "imageUrl": s.imageUrl,
         "title": s.title,
+        "description": s.description,
+        "meta": s.meta,
+        "cta": s.cta,
+        "imageGradient": s.imageGradient,
         "active": s.active,
         "displayOrder": s.displayOrder,
         "createdAt": s.createdAt.isoformat(),
@@ -281,6 +285,10 @@ async def list_slider_images(_admin: dict = Depends(require_admin)):
 
 class SliderImageUpdate(BaseModel):
     title: Optional[str] = None
+    description: Optional[str] = None
+    meta: Optional[str] = None
+    cta: Optional[str] = None
+    imageGradient: Optional[str] = None
     active: Optional[bool] = None
     displayOrder: Optional[int] = None
 
@@ -310,8 +318,12 @@ async def upload_slider_image(
 
     record = await db.sliderimage.create(data={
         "imageUrl": image_url,
-        "title": file.filename or "",
-        "active": True,
+        "title": "",
+        "description": "",
+        "meta": "",
+        "cta": "",
+        "imageGradient": "",
+        "active": False,
         "displayOrder": next_order,
     })
 
@@ -328,6 +340,14 @@ async def update_slider_image(image_id: str, body: SliderImageUpdate, _admin: di
     data: dict = {}
     if body.title is not None:
         data["title"] = body.title.strip()
+    if body.description is not None:
+        data["description"] = body.description.strip()
+    if body.meta is not None:
+        data["meta"] = body.meta.strip()
+    if body.cta is not None:
+        data["cta"] = body.cta.strip()
+    if body.imageGradient is not None:
+        data["imageGradient"] = body.imageGradient.strip()
     if body.active is not None:
         data["active"] = body.active
     if body.displayOrder is not None:

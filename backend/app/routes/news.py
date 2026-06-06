@@ -19,6 +19,10 @@ async def list_active_slider_images():
             "id": s.id,
             "imageUrl": s.imageUrl,
             "title": s.title,
+            "description": s.description,
+            "meta": s.meta,
+            "cta": s.cta,
+            "imageGradient": s.imageGradient,
             "displayOrder": s.displayOrder,
         }
         for s in images
