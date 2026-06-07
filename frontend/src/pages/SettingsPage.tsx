@@ -220,40 +220,21 @@ function AccountTab({ user }: { user: UserData }) {
                       <span className="badge-active" style={{ marginLeft: "0.4rem" }}>Active</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-1.5" style={{ marginTop: "0.25rem" }}>
-                    {user.gameType && (
-                      <span className={user.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                        {user.gameType}
-                      </span>
-                    )}
+                  <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {user.rsnClanName && (
+                        <span className="badge-clan">{user.rsnClanName}</span>
+                      )}
+                      {user.gameType && (
+                        <span className={user.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                          {user.gameType}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="ch-admin-status-row">
-                <span className="ch-admin-status-label">Display Name</span>
-                <span className="ch-admin-status-value">{user.rsn}</span>
-              </div>
-              <div className="ch-admin-status-row">
-                <span className="ch-admin-status-label">Game</span>
-                <span className="ch-admin-status-value">{user.gameType ?? "Unknown"}</span>
-              </div>
-              <div className="ch-admin-status-row">
-                <span className="ch-admin-status-label">Account Type</span>
-                <span className="ch-admin-status-value" style={{ textTransform: "capitalize" }}>
-                  {user.accountType?.replace(/_/g, " ") ?? "Normal"}
-                </span>
-              </div>
-              <div className="ch-admin-status-row">
-                <span className="ch-admin-status-label">Clan</span>
-                <span className="ch-admin-status-value">{user.rsnClanName ?? "None"}</span>
-              </div>
-              <div className="ch-admin-status-row">
-                <span className="ch-admin-status-label">Linked On</span>
-                <span className="ch-admin-status-value">
-                  {user.rsnLinkedAt ? new Date(user.rsnLinkedAt).toLocaleDateString() : "Unknown"}
-                </span>
-              </div>
-              <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
                 {user.activeRsn && (
                   <button
                     onClick={() => { void handleSwitchIdentity(null) }}
@@ -270,11 +251,8 @@ function AccountTab({ user }: { user: UserData }) {
                   className="ch-mod-action-btn ch-mod-action-btn--danger"
                   style={{ fontSize: "0.6875rem", padding: "0.3rem 0.75rem" }}
                 >
-                  {unlinkLoading ? "Unlinking…" : "Unlink RSN"}
+                  {unlinkLoading ? "Unlinking…" : "Unlink Main"}
                 </button>
-                <span style={{ color: "rgba(180,160,130,0.4)", fontSize: "0.625rem" }}>
-                  You will need to re-link your RuneScape account after unlinking.
-                </span>
               </div>
             </>
           ) : (
