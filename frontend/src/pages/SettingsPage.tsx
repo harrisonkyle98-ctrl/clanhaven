@@ -195,8 +195,16 @@ function AccountTab({ user }: { user: UserData }) {
                   onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
                 />
                 <div>
-                  <div style={{ color: "#e8d5b0", fontWeight: 600, fontSize: "0.875rem" }}>
+                  <div style={{ color: "#e8d5b0", fontWeight: 600, fontSize: "0.875rem", display: "flex", alignItems: "center" }}>
                     {user.rsn}
+                    {(user.accountType === "ironman" || user.accountType === "hardcore_ironman") && (
+                      <img
+                        src={user.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                        alt={user.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                        title={user.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                        style={{ width: "14px", height: "14px", objectFit: "contain", marginLeft: "4px" }}
+                      />
+                    )}
                     {!user.activeRsn && (
                       <span style={{ color: "#7db8e0", fontSize: "0.625rem", marginLeft: "0.5rem", fontWeight: 400 }}>
                         ACTIVE
@@ -208,12 +216,6 @@ function AccountTab({ user }: { user: UserData }) {
                       <span className={user.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
                         {user.gameType}
                       </span>
-                    )}
-                    {user.accountType === "ironman" && (
-                      <span className="badge-ironman">Ironman</span>
-                    )}
-                    {user.accountType === "hardcore_ironman" && (
-                      <span className="badge-hardcore">Hardcore</span>
                     )}
                   </div>
                 </div>
@@ -312,8 +314,16 @@ function AccountTab({ user }: { user: UserData }) {
                         onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
                       />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600 }}>
+                        <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                           {alt.rsn}
+                          {(alt.accountType === "ironman" || alt.accountType === "hardcore_ironman") && (
+                            <img
+                              src={alt.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                              alt={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                              title={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                              style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
+                            />
+                          )}
                           {isActive && (
                             <span style={{ color: "#7db8e0", fontSize: "0.625rem", marginLeft: "0.5rem", fontWeight: 400 }}>
                               ACTIVE
@@ -324,8 +334,6 @@ function AccountTab({ user }: { user: UserData }) {
                           <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
                             {alt.gameType}
                           </span>
-                          {alt.accountType === "ironman" && <span className="badge-ironman">Ironman</span>}
-                          {alt.accountType === "hardcore_ironman" && <span className="badge-hardcore">Hardcore</span>}
                           <span className="badge-online">Approved</span>
                         </div>
                       </div>

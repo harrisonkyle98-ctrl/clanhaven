@@ -309,15 +309,21 @@ function ModAltAccountsTab() {
                     onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
                   />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ color: "#e8d5b0", fontSize: "0.8125rem" }}>
-                      Requesting: <span style={{ fontWeight: 600 }}>{req.rsn}</span>
+                    <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", display: "flex", alignItems: "center" }}>
+                      Requesting:&nbsp;<span style={{ fontWeight: 600 }}>{req.rsn}</span>
+                      {(req.accountType === "ironman" || req.accountType === "hardcore_ironman") && (
+                        <img
+                          src={req.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                          alt={req.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                          title={req.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                          style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
+                        />
+                      )}
                     </div>
                     <div className="flex items-center gap-1.5" style={{ marginTop: "0.2rem" }}>
                       <span className={req.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
                         {req.gameType}
                       </span>
-                      {req.accountType === "ironman" && <span className="badge-ironman">Ironman</span>}
-                      {req.accountType === "hardcore_ironman" && <span className="badge-hardcore">Hardcore</span>}
                       {req.status === "pending" && <span className="badge-info">Pending</span>}
                       {req.status === "approved" && <span className="badge-online">Approved</span>}
                       {req.status === "denied" && <span className="badge-offline">Denied</span>}

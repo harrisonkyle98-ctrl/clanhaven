@@ -1426,8 +1426,16 @@ function AdminUsersTab() {
         {users.map((u) => (
           <div key={u.id} className="ch-row px-4 py-3 group">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-text-highlight group-hover:text-gold transition-colors">
+              <span className="text-sm font-medium text-text-highlight group-hover:text-gold transition-colors" style={{ display: "inline-flex", alignItems: "center" }}>
                 {u.rsn ?? u.username}
+                {(u.accountType === "ironman" || u.accountType === "hardcore_ironman") && (
+                  <img
+                    src={u.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                    alt={u.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                    title={u.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                    style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
+                  />
+                )}
               </span>
               {u.lastOnline ? (
                 <span className={isOnline(u.lastOnline) ? "badge-online" : "badge-offline"}>
@@ -1501,12 +1509,7 @@ function AdminUsersTab() {
                 {u.rsnClanName && (
                   <span className="badge-clan">{u.rsnClanName}</span>
                 )}
-                {u.accountType === "ironman" && (
-                  <span className="badge-ironman">Ironman</span>
-                )}
-                {u.accountType === "hardcore_ironman" && (
-                  <span className="badge-hardcore">Hardcore</span>
-                )}
+
                 {u.gameType && (
                   <span className={u.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
                     {u.gameType}

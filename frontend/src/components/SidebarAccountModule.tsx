@@ -63,6 +63,14 @@ export default function SidebarAccountModule() {
             <div className="ch-sidebar-account-info" style={{ flex: 1, minWidth: 0 }}>
               <div className="ch-sidebar-account-name-row">
                 <span className="ch-sidebar-account-name">{user.displayRsn ?? user.rsn}</span>
+                {((user.activeAccountType ?? user.accountType) === "ironman" || (user.activeAccountType ?? user.accountType) === "hardcore_ironman") && (
+                  <img
+                    src={(user.activeAccountType ?? user.accountType) === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                    alt={(user.activeAccountType ?? user.accountType) === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                    title={(user.activeAccountType ?? user.accountType) === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                    style={{ width: "14px", height: "14px", objectFit: "contain", marginLeft: "4px", verticalAlign: "middle", display: "inline-block" }}
+                  />
+                )}
               </div>
               <div className="ch-user-row-details" style={{ marginTop: "0.3rem" }}>
                 <div className="flex items-center gap-1.5 flex-wrap">
@@ -75,12 +83,7 @@ export default function SidebarAccountModule() {
                   {(user.activeClanName ?? user.rsnClanName) && (
                     <span className="badge-clan">{user.activeClanName ?? user.rsnClanName}</span>
                   )}
-                  {(user.activeAccountType ?? user.accountType) === "ironman" && (
-                    <span className="badge-ironman">Ironman</span>
-                  )}
-                  {(user.activeAccountType ?? user.accountType) === "hardcore_ironman" && (
-                    <span className="badge-hardcore">Hardcore</span>
-                  )}
+
                   {(user.activeGameType ?? user.gameType) && (
                     <span className={(user.activeGameType ?? user.gameType) === "RS3" ? "badge-rs3" : "badge-osrs"}>
                       {user.activeGameType ?? user.gameType}
