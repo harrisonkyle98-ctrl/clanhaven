@@ -338,8 +338,9 @@ function AccountTab({ user }: { user: UserData }) {
                               style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
                             />
                           )}
+                          <span className="badge-online" style={{ marginLeft: "0.4rem" }}>Approved</span>
                           {isActive && (
-                            <span style={{ color: "#7db8e0", fontSize: "0.625rem", marginLeft: "0.5rem", fontWeight: 400 }}>
+                            <span style={{ color: "#7db8e0", fontSize: "0.625rem", marginLeft: "0.4rem", fontWeight: 400 }}>
                               ACTIVE
                             </span>
                           )}
@@ -352,7 +353,6 @@ function AccountTab({ user }: { user: UserData }) {
                             <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
                               {alt.gameType}
                             </span>
-                            <span className="badge-online">Approved</span>
                           </div>
                         </div>
                       </div>
@@ -422,6 +422,7 @@ function AccountTab({ user }: { user: UserData }) {
                             style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
                           />
                         )}
+                        <span className="badge-info" style={{ marginLeft: "0.4rem" }}>Pending</span>
                       </div>
                       <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -431,7 +432,6 @@ function AccountTab({ user }: { user: UserData }) {
                           <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
                             {alt.gameType}
                           </span>
-                          <span className="badge-info">Pending</span>
                         </div>
                       </div>
                     </div>
@@ -468,6 +468,7 @@ function AccountTab({ user }: { user: UserData }) {
                             style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
                           />
                         )}
+                        <span className="badge-offline" style={{ marginLeft: "0.4rem" }}>Denied</span>
                       </div>
                       <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -477,7 +478,6 @@ function AccountTab({ user }: { user: UserData }) {
                           <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
                             {alt.gameType}
                           </span>
-                          <span className="badge-offline">Denied</span>
                         </div>
                       </div>
                       {alt.reviewNote && (
