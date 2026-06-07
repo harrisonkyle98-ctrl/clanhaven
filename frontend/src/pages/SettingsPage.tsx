@@ -258,7 +258,10 @@ function AccountTab({ user }: { user: UserData }) {
       {/* Alt Accounts */}
       <CollapsiblePanel variant="blue" title="Alternate Accounts">
         <div className="ch-admin-section">
-          {altRequests.map((alt) => {
+          {[...altRequests].sort((a, b) => {
+            const order: Record<string, number> = { approved: 0, pending: 1, denied: 2 }
+            return (order[a.status] ?? 3) - (order[b.status] ?? 3)
+          }).map((alt) => {
             const isApproved = alt.status === "approved"
             const isPending = alt.status === "pending"
             const isDenied = alt.status === "denied"
