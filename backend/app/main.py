@@ -77,6 +77,19 @@ async def lifespan(app: FastAPI):
                 await db.newspost.create(data=seed)
     except Exception:
         pass
+    # Re-normalize rsnLower on alt account requests (spaces + underscores stripped)
+    try:
+        from app.routes.users import _normalize_rsn
+        all_alts = await db.altaccountrequest.find_many()
+        for alt in all_alts:
+            correct_lower = _normalize_rsn(alt.rsn)
+            if alt.rsnLower != correct_lower:
+                await db.altaccountrequest.update(
+                    where={"id": alt.id},
+                    data={"rsnLower": correct_lower},
+                )
+    except Exception:
+        pass
     yield
     await disconnect_db()
 

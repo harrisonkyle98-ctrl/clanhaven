@@ -113,7 +113,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         alt_req = await db.altaccountrequest.find_first(
             where={
                 "userId": user.id,
-                "rsnLower": user.activeRsn.strip().lower(),
+                "rsnLower": _normalize_rsn(user.activeRsn),
                 "status": "approved",
             },
         )
@@ -185,6 +185,28 @@ async def link_rsn(body: LinkRsnRequest, current_user: dict = Depends(get_curren
 
     if game_type not in HISCORES_URLS:
         raise HTTPException(status_code=400, detail="gameType must be RS3 or OSRS")
+
+    # Ownership checks: prevent linking an RSN already owned by another user
+    rsn_lower = _normalize_rsn(rsn)
+
+    # Check if RSN is already another user's main account
+    all_users_with_rsn = await db.user.find_many(
+        where={"rsn": {"not": None}},
+    )
+    for u in all_users_with_rsn:
+        if u.rsn and _normalize_rsn(u.rsn) == rsn_lower and u.id != current_user["sub"]:
+            raise HTTPException(status_code=400, detail="This RSN is already linked to another user's account")
+
+    # Check if RSN is an approved alt for another user
+    existing_alt = await db.altaccountrequest.find_first(
+        where={
+            "rsnLower": rsn_lower,
+            "status": "approved",
+            "userId": {"not": current_user["sub"]},
+        },
+    )
+    if existing_alt:
+        raise HTTPException(status_code=400, detail="This RSN is already linked as another user's alt account")
 
     # Validate RSN exists via RuneScape Hiscores
     hiscores_url = HISCORES_URLS[game_type] + rsn
@@ -290,8 +312,12 @@ async def unlink_own_rsn(current_user: dict = Depends(get_current_user)):
 
 
 def _normalize_rsn(rsn: str) -> str:
-    """Normalize RSN for canonical comparison (lowercase, strip spaces)."""
-    return rsn.strip().lower().replace(" ", " ")
+    """Normalize RSN for canonical comparison.
+
+    RuneScape treats spaces and underscores as interchangeable,
+    so we strip all whitespace and underscores, then lowercase.
+    """
+    return rsn.strip().lower().replace(" ", "").replace("_", "")
 
 
 class AltRequestBody(BaseModel):
@@ -355,6 +381,17 @@ async def request_alt_account(body: AltRequestBody, current_user: dict = Depends
     )
     if existing_alt:
         raise HTTPException(status_code=400, detail="This RSN is already linked as another user's alt account")
+
+    # Check if another user already has a pending request for this RSN
+    other_pending = await db.altaccountrequest.find_first(
+        where={
+            "rsnLower": rsn_lower,
+            "status": "pending",
+            "userId": {"not": current_user["sub"]},
+        },
+    )
+    if other_pending:
+        raise HTTPException(status_code=400, detail="Another user already has a pending request for this RSN")
 
     # Check if user already has a pending request for this RSN
     existing_pending = await db.altaccountrequest.find_first(
