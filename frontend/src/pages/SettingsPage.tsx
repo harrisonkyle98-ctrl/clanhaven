@@ -181,9 +181,7 @@ function AccountTab({ user }: { user: UserData }) {
     }
   }
 
-  const approvedAlts = altRequests.filter((r) => r.status === "approved")
-  const pendingAlts = altRequests.filter((r) => r.status === "pending")
-  const deniedAlts = altRequests.filter((r) => r.status === "denied")
+
 
   return (
     <div className="space-y-4">
@@ -260,184 +258,90 @@ function AccountTab({ user }: { user: UserData }) {
       {/* Alt Accounts */}
       <CollapsiblePanel variant="blue" title="Alternate Accounts">
         <div className="ch-admin-section">
-          <p style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.6875rem", marginBottom: "1rem", lineHeight: 1.6 }}>
-            You can request to link additional RuneScape accounts as alternate accounts.
-            Alt account requests require moderator approval. Once approved, you can switch
-            your active site identity between your main account and any approved alt.
-            An RSN can only be linked to one Discord account — either as a main or alt account.
-          </p>
-
-          {/* Approved Alts */}
-          {approvedAlts.length > 0 && (
-            <div style={{ marginBottom: "1rem" }}>
-              <div style={{ color: "#e8d5b0", fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-                Approved Alt Accounts
-              </div>
-              {approvedAlts.map((alt) => {
-                const isActive = user.activeRsn?.toLowerCase() === alt.rsn.toLowerCase()
-                return (
-                  <div
-                    key={alt.id}
-                    className="ch-row px-4 py-3"
-                    style={{ marginBottom: "0.25rem" }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
-                          {alt.rsn}
-                          {(alt.accountType === "ironman" || alt.accountType === "hardcore_ironman") && (
-                            <img
-                              src={alt.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
-                              alt={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                              title={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                              style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
-                            />
-                          )}
-                          <span className="badge-online" style={{ marginLeft: "0.4rem" }}>Approved</span>
-                          {isActive && (
-                            <span className="badge-active" style={{ marginLeft: "0.4rem" }}>Active</span>
-                          )}
-                        </div>
-                        <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            {alt.clanName && (
-                              <span className="badge-clan">{alt.clanName}</span>
-                            )}
-                            <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                              {alt.gameType}
-                            </span>
-                          </div>
-                        </div>
+          {altRequests.map((alt) => {
+            const isApproved = alt.status === "approved"
+            const isPending = alt.status === "pending"
+            const isDenied = alt.status === "denied"
+            const isActive = isApproved && user.activeRsn?.toLowerCase() === alt.rsn.toLowerCase()
+            return (
+              <div
+                key={alt.id}
+                className="ch-row px-4 py-3"
+                style={{ marginBottom: "0.25rem", ...(isDenied ? { opacity: 0.6 } : {}) }}
+              >
+                <div className="flex items-center gap-3">
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
+                      {alt.rsn}
+                      {(alt.accountType === "ironman" || alt.accountType === "hardcore_ironman") && (
+                        <img
+                          src={alt.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                          alt={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                          title={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                          style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
+                        />
+                      )}
+                      {isApproved && <span className="badge-online" style={{ marginLeft: "0.4rem" }}>Approved</span>}
+                      {isPending && <span className="badge-info" style={{ marginLeft: "0.4rem" }}>Pending</span>}
+                      {isDenied && <span className="badge-offline" style={{ marginLeft: "0.4rem" }}>Denied</span>}
+                      {isActive && <span className="badge-active" style={{ marginLeft: "0.4rem" }}>Active</span>}
+                    </div>
+                    <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {alt.clanName && (
+                          <span className="badge-clan">{alt.clanName}</span>
+                        )}
+                        <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                          {alt.gameType}
+                        </span>
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", alignItems: "flex-end" }}>
-                        {!isActive && (
-                          <button
-                            onClick={() => { void handleSwitchIdentity(alt.rsn) }}
-                            disabled={switchLoading}
-                            className="ch-mod-action-btn"
-                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
-                          >
-                            {switchLoading ? "…" : "Switch"}
-                          </button>
-                        )}
-                        {isActive && (
-                          <button
-                            onClick={() => { void handleSwitchIdentity(null) }}
-                            disabled={switchLoading}
-                            className="ch-mod-action-btn"
-                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
-                          >
-                            {switchLoading ? "…" : "Use Main"}
-                          </button>
-                        )}
+                    </div>
+                    {isDenied && alt.reviewNote && (
+                      <div style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", marginTop: "0.3rem" }}>
+                        Reason: {alt.reviewNote}
+                      </div>
+                    )}
+                  </div>
+                  {isApproved && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", alignItems: "flex-end" }}>
+                      {!isActive && (
                         <button
-                          onClick={() => { void handleUnlinkAlt(alt.id, alt.rsn) }}
-                          className="ch-mod-action-btn ch-mod-action-btn--danger"
+                          onClick={() => { void handleSwitchIdentity(alt.rsn) }}
+                          disabled={switchLoading}
+                          className="ch-mod-action-btn"
                           style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
                         >
-                          Unlink
+                          {switchLoading ? "…" : "Switch"}
                         </button>
-                      </div>
+                      )}
+                      {isActive && (
+                        <button
+                          onClick={() => { void handleSwitchIdentity(null) }}
+                          disabled={switchLoading}
+                          className="ch-mod-action-btn"
+                          style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                        >
+                          {switchLoading ? "…" : "Use Main"}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => { void handleUnlinkAlt(alt.id, alt.rsn) }}
+                        className="ch-mod-action-btn ch-mod-action-btn--danger"
+                        style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                      >
+                        Unlink
+                      </button>
                     </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-
-          {/* Pending Requests */}
-          {pendingAlts.length > 0 && (
-            <div style={{ marginBottom: "1rem" }}>
-              <div style={{ color: "#e8d5b0", fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-                Pending Requests
-              </div>
-              {pendingAlts.map((alt) => (
-                <div
-                  key={alt.id}
-                  className="ch-row px-4 py-3"
-                  style={{ marginBottom: "0.25rem" }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
-                        {alt.rsn}
-                        {(alt.accountType === "ironman" || alt.accountType === "hardcore_ironman") && (
-                          <img
-                            src={alt.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
-                            alt={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                            title={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                            style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
-                          />
-                        )}
-                        <span className="badge-info" style={{ marginLeft: "0.4rem" }}>Pending</span>
-                      </div>
-                      <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {alt.clanName && (
-                            <span className="badge-clan">{alt.clanName}</span>
-                          )}
-                          <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                            {alt.gameType}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                  )}
+                  {isPending && (
                     <span style={{ color: "rgba(180,160,130,0.4)", fontSize: "0.625rem" }}>
                       {new Date(alt.createdAt).toLocaleDateString()}
                     </span>
-                  </div>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
-
-          {/* Denied Requests */}
-          {deniedAlts.length > 0 && (
-            <div style={{ marginBottom: "1rem" }}>
-              <div style={{ color: "#e8d5b0", fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-                Denied Requests
               </div>
-              {deniedAlts.map((alt) => (
-                <div
-                  key={alt.id}
-                  className="ch-row px-4 py-3"
-                  style={{ marginBottom: "0.25rem", opacity: 0.6 }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
-                        {alt.rsn}
-                        {(alt.accountType === "ironman" || alt.accountType === "hardcore_ironman") && (
-                          <img
-                            src={alt.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
-                            alt={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                            title={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                            style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
-                          />
-                        )}
-                        <span className="badge-offline" style={{ marginLeft: "0.4rem" }}>Denied</span>
-                      </div>
-                      <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {alt.clanName && (
-                            <span className="badge-clan">{alt.clanName}</span>
-                          )}
-                          <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                            {alt.gameType}
-                          </span>
-                        </div>
-                      </div>
-                      {alt.reviewNote && (
-                        <div style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", marginTop: "0.3rem" }}>
-                          Reason: {alt.reviewNote}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+            )
+          })}
 
           {altLoading && (
             <p style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.6875rem" }}>Loading alt accounts…</p>
