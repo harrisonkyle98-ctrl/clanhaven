@@ -465,3 +465,27 @@ async def switch_active_identity(body: SwitchIdentityBody, current_user: dict = 
         data={"activeRsn": approved_alt.rsn},
     )
     return {"success": True, "activeRsn": approved_alt.rsn}
+
+
+@router.delete("/me/alt-accounts/{request_id}")
+async def unlink_alt_account(request_id: str, current_user: dict = Depends(get_current_user)):
+    """Unlink an approved alt account from the current user."""
+    req = await db.altaccountrequest.find_unique(where={"id": request_id})
+    if not req:
+        raise HTTPException(status_code=404, detail="Alt account request not found")
+    if req.userId != current_user["sub"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    if req.status != "approved":
+        raise HTTPException(status_code=400, detail="Only approved alt accounts can be unlinked")
+
+    # If this alt is currently active, switch back to main
+    user = await db.user.find_unique(where={"id": current_user["sub"]})
+    if user and user.activeRsn and _normalize_rsn(user.activeRsn) == _normalize_rsn(req.rsn):
+        await db.user.update(
+            where={"id": current_user["sub"]},
+            data={"activeRsn": None},
+        )
+
+    # Delete the alt request record so the RSN can be re-linked
+    await db.altaccountrequest.delete(where={"id": request_id})
+    return {"success": True}

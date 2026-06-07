@@ -114,6 +114,30 @@ async def approve_alt_request(request_id: str, body: ReviewAltRequest, _mod: dic
     return {"success": True, "status": updated.status}
 
 
+@router.post("/alt-requests/{request_id}/unlink")
+async def unlink_alt_request(request_id: str, body: ReviewAltRequest, _mod: dict = Depends(require_mod)):
+    """Moderator: unlink an approved alt account from a user."""
+    req = await db.altaccountrequest.find_unique(where={"id": request_id})
+    if not req:
+        raise HTTPException(status_code=404, detail="Request not found")
+    if req.status != "approved":
+        raise HTTPException(status_code=400, detail="Only approved alt accounts can be unlinked")
+
+    # If this alt is the user's active identity, switch back to main
+    from app.routes.users import _normalize_rsn
+    owner = await db.user.find_unique(where={"id": req.userId})
+    if owner and owner.activeRsn and _normalize_rsn(owner.activeRsn) == _normalize_rsn(req.rsn):
+        await db.user.update(
+            where={"id": req.userId},
+            data={"activeRsn": None},
+        )
+
+    # Delete the alt request record so the RSN is freed
+    await db.altaccountrequest.delete(where={"id": request_id})
+    logger.info("[mod] Alt RSN '%s' unlinked from user %s by mod %s. Note: %s", req.rsn, req.userId, _mod["sub"], body.note)
+    return {"success": True}
+
+
 @router.post("/alt-requests/{request_id}/deny")
 async def deny_alt_request(request_id: str, body: ReviewAltRequest, _mod: dict = Depends(require_mod)):
     """Deny an alt account request."""

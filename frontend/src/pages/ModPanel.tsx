@@ -225,6 +225,22 @@ function ModAltAccountsTab() {
     }
   }
 
+  const handleUnlink = async (id: string, rsn: string) => {
+    if (!confirm(`Unlink approved alt account "${rsn}" from this user?`)) return
+    setActionLoading(id)
+    try {
+      await apiFetch(`/api/mod/alt-requests/${id}/unlink`, {
+        method: "POST",
+        body: JSON.stringify({ note: noteInputs[id] || null }),
+      })
+      await fetchRequests()
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Unlink failed")
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
   const filtered = filter === "all" ? requests : requests.filter((r) => r.status === filter)
   const pendingCount = requests.filter((r) => r.status === "pending").length
 
@@ -340,6 +356,28 @@ function ModAltAccountsTab() {
                 {!isPending && req.reviewedAt && (
                   <div style={{ color: "rgba(180,160,130,0.4)", fontSize: "0.625rem", marginTop: "0.2rem" }}>
                     Reviewed: {new Date(req.reviewedAt).toLocaleString()}
+                  </div>
+                )}
+
+                {/* Unlink action for approved requests */}
+                {req.status === "approved" && (
+                  <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap", marginTop: "0.5rem" }}>
+                    <input
+                      type="text"
+                      value={noteInputs[req.id] ?? ""}
+                      onChange={(e) => { setNoteInputs((prev) => ({ ...prev, [req.id]: e.target.value })) }}
+                      placeholder="Note (optional)"
+                      className="ch-admin-input"
+                      style={{ width: "200px", fontSize: "0.6875rem" }}
+                    />
+                    <button
+                      onClick={() => { void handleUnlink(req.id, req.rsn) }}
+                      disabled={actionLoading === req.id}
+                      className="ch-mod-action-btn ch-mod-action-btn--danger"
+                      style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                    >
+                      {actionLoading === req.id ? "…" : "Unlink"}
+                    </button>
                   </div>
                 )}
 

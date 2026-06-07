@@ -172,6 +172,17 @@ function AccountTab({ user }: { user: UserData }) {
     }
   }
 
+  const handleUnlinkAlt = async (altId: string, altRsn: string) => {
+    if (!confirm(`Unlink alt account "${altRsn}"? This will remove it from your linked accounts.`)) return
+    try {
+      await apiFetch(`/api/users/me/alt-accounts/${altId}`, { method: "DELETE" })
+      await refreshUser()
+      await fetchAlts()
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Unlink failed")
+    }
+  }
+
   const approvedAlts = altRequests.filter((r) => r.status === "approved")
   const pendingAlts = altRequests.filter((r) => r.status === "pending")
   const deniedAlts = altRequests.filter((r) => r.status === "denied")
@@ -343,26 +354,35 @@ function AccountTab({ user }: { user: UserData }) {
                           </div>
                         </div>
                       </div>
-                      {!isActive && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", alignItems: "flex-end" }}>
+                        {!isActive && (
+                          <button
+                            onClick={() => { void handleSwitchIdentity(alt.rsn) }}
+                            disabled={switchLoading}
+                            className="ch-mod-action-btn"
+                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                          >
+                            {switchLoading ? "…" : "Switch"}
+                          </button>
+                        )}
+                        {isActive && (
+                          <button
+                            onClick={() => { void handleSwitchIdentity(null) }}
+                            disabled={switchLoading}
+                            className="ch-mod-action-btn"
+                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                          >
+                            {switchLoading ? "…" : "Use Main"}
+                          </button>
+                        )}
                         <button
-                          onClick={() => { void handleSwitchIdentity(alt.rsn) }}
-                          disabled={switchLoading}
-                          className="ch-mod-action-btn"
+                          onClick={() => { void handleUnlinkAlt(alt.id, alt.rsn) }}
+                          className="ch-mod-action-btn ch-mod-action-btn--danger"
                           style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
                         >
-                          {switchLoading ? "…" : "Switch"}
+                          Unlink
                         </button>
-                      )}
-                      {isActive && (
-                        <button
-                          onClick={() => { void handleSwitchIdentity(null) }}
-                          disabled={switchLoading}
-                          className="ch-mod-action-btn"
-                          style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
-                        >
-                          {switchLoading ? "…" : "Use Main"}
-                        </button>
-                      )}
+                      </div>
                     </div>
                   </div>
                 )
