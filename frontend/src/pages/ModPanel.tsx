@@ -324,7 +324,7 @@ function ModAltAccountsTab() {
                         />
                       )}
                       {isApproved && <span className="badge-online" style={{ marginLeft: "0.4rem" }}>Approved</span>}
-                      {isPending && <span className="badge-info" style={{ marginLeft: "0.4rem" }}>Pending</span>}
+                      {isPending && <span className="badge-pending" style={{ marginLeft: "0.4rem" }}>Pending</span>}
                       {isPending && <span className="badge-pending-date" style={{ marginLeft: "0.4rem" }}>Requested on {new Date(req.createdAt).toLocaleDateString()}</span>}
                       {isDenied && <span className="badge-offline" style={{ marginLeft: "0.4rem" }}>Denied</span>}
                     </div>
