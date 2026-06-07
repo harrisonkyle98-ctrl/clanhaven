@@ -522,6 +522,26 @@ async def remove_highlight_image(slot_number: int, _admin: dict = Depends(requir
 # ═══════════════════════════════════════════════════════════
 
 
+@router.post("/users/{user_id}/unlink-rsn")
+async def unlink_user_rsn(user_id: str, _admin: dict = Depends(require_admin)):
+    """Unlink RSN from a user account, forcing them to re-link."""
+    user = await db.user.find_unique(where={"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    await db.user.update(
+        where={"id": user_id},
+        data={
+            "rsn": None,
+            "gameType": None,
+            "accountType": None,
+            "rsnClanName": None,
+            "rsnLinkedAt": None,
+        },
+    )
+    return {"success": True}
+
+
 @router.get("/users/{user_id}/logins")
 async def get_user_login_history(user_id: str, _admin: dict = Depends(require_admin)):
     """Get login history for a user (admin only)."""

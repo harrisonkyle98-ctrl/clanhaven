@@ -1373,6 +1373,16 @@ function AdminUsersTab() {
     }
   }
 
+  const handleUnlink = async (userId: string, rsn: string | null) => {
+    if (!confirm(`Unlink RSN "${rsn ?? "unknown"}" from this account? They will need to re-link.`)) return
+    try {
+      await apiFetch(`/api/admin/users/${userId}/unlink-rsn`, { method: "POST" })
+      loadUsers()
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Unlink failed")
+    }
+  }
+
   const formatDate = (iso: string) => {
     const d = new Date(iso)
     return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
@@ -1437,6 +1447,14 @@ function AdminUsersTab() {
                 >
                   View Logins
                 </button>
+                {u.rsn && (
+                  <button
+                    onClick={() => { handleUnlink(u.id, u.rsn) }}
+                    className="ch-mod-action-btn ch-mod-action-btn--danger"
+                  >
+                    Unlink
+                  </button>
+                )}
                 {u.privileges < 2 && (
                   <>
                     {!u.isBanned ? (
