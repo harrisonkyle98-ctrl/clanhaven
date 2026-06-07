@@ -109,6 +109,7 @@ function AccountTab({ user }: { user: UserData }) {
   const [submitLoading, setSubmitLoading] = useState(false)
   const [submitError, setSubmitError] = useState("")
   const [switchLoading, setSwitchLoading] = useState(false)
+  const [showAltModal, setShowAltModal] = useState(false)
 
   const fetchAlts = useCallback(async () => {
     try {
@@ -149,6 +150,7 @@ function AccountTab({ user }: { user: UserData }) {
         body: JSON.stringify({ rsn, gameType: newAltGame }),
       })
       setNewAltRsn("")
+      setShowAltModal(false)
       await fetchAlts()
     } catch (e: unknown) {
       setSubmitError(e instanceof Error ? e.message : "Request failed")
@@ -494,55 +496,92 @@ function AccountTab({ user }: { user: UserData }) {
             <p style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.6875rem" }}>Loading alt accounts…</p>
           )}
 
-          {/* Request New Alt */}
+          {/* Request Alt Button */}
           {user.rsn && (
             <div style={{ borderTop: "1px solid rgba(100,140,180,0.15)", paddingTop: "1rem", marginTop: "0.5rem" }}>
-              <div style={{ color: "#e8d5b0", fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-                Request Alt Account
-              </div>
-              <div className="flex items-end gap-2 flex-wrap">
-                <div>
-                  <label style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", display: "block", marginBottom: "0.25rem" }}>
-                    RuneScape Name
-                  </label>
-                  <input
-                    type="text"
-                    value={newAltRsn}
-                    onChange={(e) => { setNewAltRsn(e.target.value) }}
-                    maxLength={12}
-                    placeholder="Enter RSN"
-                    className="ch-admin-input"
-                    style={{ width: "180px" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", display: "block", marginBottom: "0.25rem" }}>
-                    Game
-                  </label>
-                  <select
-                    value={newAltGame}
-                    onChange={(e) => { setNewAltGame(e.target.value) }}
-                    className="ch-admin-input"
-                    style={{ width: "90px" }}
-                  >
-                    <option value="RS3">RS3</option>
-                    <option value="OSRS">OSRS</option>
-                  </select>
-                </div>
+              <button
+                onClick={() => { setShowAltModal(true); setSubmitError(""); setNewAltRsn(""); setNewAltGame("RS3") }}
+                className="ch-mod-action-btn"
+                style={{ fontSize: "0.75rem", padding: "0.4rem 1rem" }}
+              >
+                Request Alt
+              </button>
+            </div>
+          )}
+
+          {/* Alt Request Modal */}
+          {showAltModal && (
+            <div className="ch-rsn-modal-overlay">
+              <div className="ch-rsn-modal">
                 <button
-                  onClick={() => { void handleSubmitAlt() }}
-                  disabled={submitLoading || !newAltRsn.trim()}
-                  className="ch-mod-action-btn"
-                  style={{ fontSize: "0.6875rem", padding: "0.3rem 0.75rem" }}
+                  type="button"
+                  onClick={() => { setShowAltModal(false) }}
+                  className="ch-rsn-modal-close"
+                  aria-label="Close"
                 >
-                  {submitLoading ? "Submitting…" : "Submit Request"}
+                  ×
                 </button>
+                <div className="ch-rsn-modal-highlight" />
+                <div className="ch-rsn-modal-header">
+                  <h2 className="ch-rsn-modal-title">Request Alternate Account</h2>
+                  <p className="ch-rsn-modal-subtitle">
+                    Link an additional RuneScape account to your profile. Your request will be
+                    reviewed by a moderator before the alt account is approved.
+                  </p>
+                </div>
+
+                <form onSubmit={(e) => { e.preventDefault(); void handleSubmitAlt() }} className="ch-rsn-modal-form">
+                  <div className="ch-rsn-modal-field">
+                    <label className="ch-rsn-modal-label">RuneScape Display Name</label>
+                    <input
+                      type="text"
+                      value={newAltRsn}
+                      onChange={(e) => { setNewAltRsn(e.target.value) }}
+                      placeholder="Enter alt RSN"
+                      maxLength={12}
+                      className="ch-rsn-modal-input"
+                      autoFocus
+                      disabled={submitLoading}
+                    />
+                  </div>
+
+                  <div className="ch-rsn-modal-field">
+                    <label className="ch-rsn-modal-label">Game</label>
+                    <div className="ch-rsn-modal-game-toggle">
+                      <button
+                        type="button"
+                        onClick={() => { setNewAltGame("RS3") }}
+                        className={`ch-rsn-modal-game-btn ${newAltGame === "RS3" ? "ch-rsn-modal-game-btn--active" : ""}`}
+                        disabled={submitLoading}
+                      >
+                        RS3
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setNewAltGame("OSRS") }}
+                        className={`ch-rsn-modal-game-btn ${newAltGame === "OSRS" ? "ch-rsn-modal-game-btn--active" : ""}`}
+                        disabled={submitLoading}
+                      >
+                        OSRS
+                      </button>
+                    </div>
+                  </div>
+
+                  {submitError && <div className="ch-rsn-modal-error">{submitError}</div>}
+
+                  <button
+                    type="submit"
+                    disabled={submitLoading || !newAltRsn.trim()}
+                    className="ch-rsn-modal-submit"
+                  >
+                    {submitLoading ? <span>Validating<span className="ch-rsn-modal-dots" /></span> : "Submit Request"}
+                  </button>
+
+                  <p className="ch-rsn-modal-note">
+                    Your alt account will be verified against the RuneScape Hiscores and submitted for moderator approval.
+                  </p>
+                </form>
               </div>
-              {submitError && (
-                <p style={{ color: "#e57373", fontSize: "0.6875rem", marginTop: "0.5rem" }}>
-                  {submitError}
-                </p>
-              )}
             </div>
           )}
         </div>
