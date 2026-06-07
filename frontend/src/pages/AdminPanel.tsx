@@ -480,7 +480,7 @@ function SliderImageManager() {
                       className="ch-news-upload-preview"
                       style={{
                         flexShrink: 0,
-                        background: slot.imageGradient || "linear-gradient(135deg, #1a1a2e, #16213e)",
+                        background: "rgba(30,30,30,0.5)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
