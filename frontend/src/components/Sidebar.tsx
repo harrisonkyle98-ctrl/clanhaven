@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, ChevronLeft } from "lucide-react"
 import SidebarAccountModule from "@/components/SidebarAccountModule"
 
 const mainNavItems = [
@@ -35,7 +35,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       className={`hidden lg:flex shrink-0 h-full sidebar-bg transition-all duration-300 ease-in-out ch-sidebar-width ${open ? "ml-0 opacity-100" : "ch-sidebar-hidden opacity-0 pointer-events-none"}`}
     >
       <div className="flex flex-col h-full w-full">
-        {/* Brand + branding image */}
+        {/* Brand + branding image with collapse arrow */}
         <div className="ch-sidebar-branding shrink-0">
           <img
             src="/images/sidebar-branding.jpg"
@@ -46,6 +46,13 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           <div className="ch-sidebar-branding-content">
             <span className="ch-sidebar-branding-title">Clan Haven</span>
           </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); onClose() }}
+            className="ch-sidebar-collapse-arrow"
+            aria-label="Collapse sidebar"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Main section */}
@@ -100,16 +107,6 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
         {/* Account module — pushed to bottom */}
         <SidebarAccountModule />
-
-        {/* Collapse button — below account module */}
-        <div className="px-2.5 shrink-0 mb-2">
-          <button
-            onClick={(e) => { e.stopPropagation(); onClose() }}
-            className="ch-sidebar-btn ch-sidebar-btn--no-flare w-full cursor-pointer"
-          >
-            <span>Collapse</span>
-          </button>
-        </div>
       </div>
     </aside>
   )

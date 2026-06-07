@@ -569,6 +569,35 @@ body {
   justify-content: center;
 }
 
+/* Collapse arrow — matches slider arrow styling */
+.ch-sidebar-collapse-arrow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: #b0a088;
+  cursor: pointer;
+  transition: opacity 0.3s ease, background 0.2s ease;
+  z-index: 3;
+  opacity: 0;
+}
+
+.ch-sidebar-branding:hover .ch-sidebar-collapse-arrow {
+  opacity: 1;
+}
+
+.ch-sidebar-collapse-arrow:hover {
+  background: rgba(18, 15, 11, 0.5);
+  color: #e8d5b0;
+}
+
 .ch-sidebar-branding-title {
   font-family: "Cinzel Decorative", serif;
   font-size: 1.1rem;
@@ -638,10 +667,6 @@ body {
   );
   pointer-events: none;
   z-index: 2;
-}
-
-.ch-sidebar-btn--no-flare::before {
-  display: none;
 }
 
 .ch-sidebar-btn:hover {
