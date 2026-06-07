@@ -397,6 +397,14 @@ async def request_alt_account(body: AltRequestBody, current_user: dict = Depends
         if not clan_name:
             clan_name = await lookup_clan_for_rsn(rsn)
 
+        # Index the alt's clan if discovered
+        if clan_name:
+            try:
+                await fetch_and_index_clan(clan_name)
+                logger.info("[alt-request] Indexed clan '%s' for alt RSN '%s'", clan_name, rsn)
+            except Exception as exc:
+                logger.warning("[alt-request] Failed to index clan '%s' for alt RSN '%s': %s", clan_name, rsn, exc)
+
     request = await db.altaccountrequest.create(
         data={
             "userId": current_user["sub"],
