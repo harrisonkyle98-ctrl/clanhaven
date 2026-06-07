@@ -177,7 +177,7 @@ function ModAltAccountsTab() {
   const [requests, setRequests] = useState<AltRequestMod[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
-  const [noteInputs, setNoteInputs] = useState<Record<string, string>>({})
+  const [noteInputs] = useState<Record<string, string>>({})
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "denied">("pending")
 
   const fetchRequests = useCallback(async () => {
