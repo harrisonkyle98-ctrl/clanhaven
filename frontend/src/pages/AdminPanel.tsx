@@ -1429,7 +1429,7 @@ function AdminUsersTab() {
               {u.isBanned && (
                 <span className="badge-banned">Banned</span>
               )}
-              {/* Moderation controls — visible on hover only */}
+              {/* Moderation controls — visible on hover only, hidden for admins */}
               <div className="ch-mod-actions">
                 <button
                   onClick={() => { handleViewLogins(u.id) }}
@@ -1437,27 +1437,31 @@ function AdminUsersTab() {
                 >
                   View Logins
                 </button>
-                {!u.isBanned ? (
-                  <button
-                    onClick={() => { handleBan(u.id) }}
-                    className="ch-mod-action-btn ch-mod-action-btn--danger"
-                  >
-                    Ban Account
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => { handleUnban(u.id) }}
-                    className="ch-mod-action-btn ch-mod-action-btn--success"
-                  >
-                    Unban
-                  </button>
+                {u.privileges < 2 && (
+                  <>
+                    {!u.isBanned ? (
+                      <button
+                        onClick={() => { handleBan(u.id) }}
+                        className="ch-mod-action-btn ch-mod-action-btn--danger"
+                      >
+                        Ban Account
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => { handleUnban(u.id) }}
+                        className="ch-mod-action-btn ch-mod-action-btn--success"
+                      >
+                        Unban
+                      </button>
+                    )}
+                    <button
+                      onClick={() => { handleIpBan(u.id) }}
+                      className="ch-mod-action-btn ch-mod-action-btn--danger"
+                    >
+                      IP Ban
+                    </button>
+                  </>
                 )}
-                <button
-                  onClick={() => { handleIpBan(u.id) }}
-                  className="ch-mod-action-btn ch-mod-action-btn--danger"
-                >
-                  IP Ban
-                </button>
               </div>
             </div>
             <div className="ch-user-row-details">
