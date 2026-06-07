@@ -190,6 +190,20 @@ interface SliderSlot {
   updatedAt: string
 }
 
+interface HighlightSlot {
+  id: string
+  slotNumber: number
+  imageUrl: string
+  imagePosition: string
+  title: string
+  description: string
+  buttonText: string
+  buttonLink: string
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 const slotFieldStyle: React.CSSProperties = {
   background: "rgba(0, 0, 0, 0.3)",
   border: "1px solid rgba(120, 100, 60, 0.2)",
@@ -521,6 +535,311 @@ function SliderImageManager() {
   )
 }
 
+function HighlightManager() {
+  const [slots, setSlots] = useState<HighlightSlot[]>([])
+  const [loading, setLoading] = useState(true)
+  const [editingSlot, setEditingSlot] = useState<number | null>(null)
+  const [editFields, setEditFields] = useState<Partial<HighlightSlot>>({})
+  const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const hlFileRef = useRef<HTMLInputElement>(null)
+
+  const load = () => {
+    setLoading(true)
+    apiFetch<HighlightSlot[]>("/api/admin/highlights")
+      .then(setSlots)
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => { load() }, [])
+
+  const formatDate = (iso: string) => {
+    const d = new Date(iso)
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+  }
+
+  const openEditor = (slot: HighlightSlot) => {
+    setEditingSlot(slot.slotNumber)
+    setEditFields({
+      title: slot.title,
+      description: slot.description,
+      buttonText: slot.buttonText,
+      buttonLink: slot.buttonLink,
+      imagePosition: slot.imagePosition,
+    })
+  }
+
+  const closeEditor = () => {
+    setEditingSlot(null)
+    setEditFields({})
+  }
+
+  const saveSlot = async () => {
+    if (editingSlot === null) return
+    setSaving(true)
+    try {
+      await apiFetch(`/api/admin/highlights/${editingSlot}`, {
+        method: "PUT",
+        body: JSON.stringify(editFields),
+      })
+      load()
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const toggleActive = async (slotNumber: number, currentActive: boolean) => {
+    await apiFetch(`/api/admin/highlights/${slotNumber}`, {
+      method: "PUT",
+      body: JSON.stringify({ active: !currentActive }),
+    })
+    load()
+  }
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (editingSlot === null) return
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const form = new FormData()
+      form.append("file", file)
+      const token = localStorage.getItem("access_token")
+      const resp = await fetch(`/api/admin/highlights/${editingSlot}/upload`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: form,
+      })
+      if (!resp.ok) throw new Error("Upload failed")
+      load()
+    } finally {
+      setUploading(false)
+      if (hlFileRef.current) hlFileRef.current.value = ""
+    }
+  }
+
+  const removeImage = async (slotNumber: number) => {
+    await apiFetch(`/api/admin/highlights/${slotNumber}/image`, { method: "DELETE" })
+    load()
+  }
+
+  const currentSlot = slots.find((s) => s.slotNumber === editingSlot)
+
+  return (
+    <CollapsiblePanel variant="purple" title="Highlight Management">
+      <div className="flex flex-col gap-3 p-4">
+        <p className="text-[10px] text-text-muted">
+          Manage the 4 homepage highlight cards. Inactive highlights are skipped on the homepage; fallback cards are used when no active highlights exist.
+        </p>
+
+        {loading ? (
+          <p className="text-xs text-text-muted">Loading highlight slots…</p>
+        ) : editingSlot !== null && currentSlot ? (
+          /* ── Highlight Editor View ── */
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <button
+                className="ch-sidebar-account-action"
+                style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                onClick={closeEditor}
+              >
+                Back
+              </button>
+              <span className="text-xs text-text-primary" style={{ fontWeight: 600 }}>Editing Highlight {editingSlot}</span>
+            </div>
+
+            {/* Image preview */}
+            <div style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(120,100,60,0.15)", padding: "0.75rem" }}>
+              <div style={slotLabelStyle}>Highlight image</div>
+              {currentSlot.imageUrl ? (
+                <div className="flex items-end gap-3">
+                  <img
+                    src={currentSlot.imageUrl}
+                    alt={`Highlight ${editingSlot}`}
+                    style={{ maxWidth: "120px", height: "80px", objectFit: "cover" }}
+                  />
+                  <div className="flex gap-1.5">
+                    <button
+                      className="ch-sidebar-account-action"
+                      style={{ width: "auto", padding: "0.125rem 0.5rem", fontSize: "0.625rem" }}
+                      onClick={() => hlFileRef.current?.click()}
+                      disabled={uploading}
+                    >
+                      {uploading ? "Uploading…" : "Replace Image"}
+                    </button>
+                    <button
+                      className="ch-sidebar-account-action"
+                      style={{ width: "auto", padding: "0.125rem 0.5rem", fontSize: "0.625rem" }}
+                      onClick={() => { void removeImage(editingSlot) }}
+                    >
+                      Remove Image
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <div style={{ width: "120px", height: "80px", background: "rgba(30,30,30,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontSize: "0.5rem", color: "rgba(200,180,140,0.4)" }}>No image</span>
+                  </div>
+                  <div>
+                    <button
+                      className="ch-sidebar-account-action"
+                      style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                      onClick={() => hlFileRef.current?.click()}
+                      disabled={uploading}
+                    >
+                      {uploading ? "Uploading…" : "Upload Image"}
+                    </button>
+                  </div>
+                </div>
+              )}
+              <input
+                ref={hlFileRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={(e) => { void handleUpload(e) }}
+                style={{ display: "none" }}
+              />
+            </div>
+
+            {/* Editable fields */}
+            <div>
+              <div style={slotLabelStyle}>Title</div>
+              <input
+                type="text"
+                value={editFields.title ?? ""}
+                onChange={(e) => setEditFields({ ...editFields, title: e.target.value })}
+                placeholder="Highlight title"
+                style={slotFieldStyle}
+              />
+            </div>
+            <div>
+              <div style={slotLabelStyle}>Description</div>
+              <textarea
+                value={editFields.description ?? ""}
+                onChange={(e) => setEditFields({ ...editFields, description: e.target.value })}
+                placeholder="Highlight description text"
+                rows={2}
+                style={{ ...slotFieldStyle, resize: "vertical" }}
+              />
+            </div>
+            <div className="flex gap-3">
+              <div style={{ flex: 1 }}>
+                <div style={slotLabelStyle}>Button text</div>
+                <input
+                  type="text"
+                  value={editFields.buttonText ?? ""}
+                  onChange={(e) => setEditFields({ ...editFields, buttonText: e.target.value })}
+                  placeholder='e.g. "Explore"'
+                  style={slotFieldStyle}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={slotLabelStyle}>Button link (URL)</div>
+                <input
+                  type="text"
+                  value={editFields.buttonLink ?? ""}
+                  onChange={(e) => setEditFields({ ...editFields, buttonLink: e.target.value })}
+                  placeholder='e.g. "/clans" or "https://..."'
+                  style={slotFieldStyle}
+                />
+              </div>
+            </div>
+            <div>
+              <div style={slotLabelStyle}>Image position (CSS object-position)</div>
+              <input
+                type="text"
+                value={editFields.imagePosition ?? "center"}
+                onChange={(e) => setEditFields({ ...editFields, imagePosition: e.target.value })}
+                placeholder='e.g. "center", "center bottom", "top"'
+                style={slotFieldStyle}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2" style={{ marginTop: "0.25rem" }}>
+              <button
+                className="ch-sidebar-account-action"
+                style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                onClick={() => { void saveSlot() }}
+                disabled={saving}
+              >
+                {saving ? "Saving…" : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* ── Highlight Grid View ── */
+          <div className="flex flex-col gap-2">
+            {slots.map((slot) => (
+              <div key={slot.id} className="ch-row px-4 py-3 group cursor-pointer" onClick={() => openEditor(slot)}>
+                <div className="flex items-center gap-3">
+                  {slot.imageUrl ? (
+                    <img
+                      src={slot.imageUrl}
+                      alt={`Highlight ${slot.slotNumber}`}
+                      className="ch-news-upload-preview"
+                      style={{ flexShrink: 0 }}
+                    />
+                  ) : (
+                    <div
+                      className="ch-news-upload-preview"
+                      style={{
+                        flexShrink: 0,
+                        background: "rgba(30,30,30,0.5)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <span style={{ fontSize: "0.5rem", color: "rgba(200,180,140,0.4)" }}>No image</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <span className="text-sm font-medium text-text-highlight group-hover:text-gold transition-colors">
+                      Highlight {slot.slotNumber}{slot.title ? ` — ${slot.title}` : ""}
+                    </span>
+                    {slot.active ? (
+                      <span className="badge-online">Active</span>
+                    ) : (
+                      <span className="badge-offline">Inactive</span>
+                    )}
+                  </div>
+                </div>
+                <div className="ch-user-row-details">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {slot.imageUrl ? (
+                      <span className="badge-info">Image uploaded</span>
+                    ) : (
+                      <span className="badge-info">No image</span>
+                    )}
+                    <span className="badge-info">Edited {formatDate(slot.updatedAt)}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-2" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    className="ch-sidebar-account-action"
+                    style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                    onClick={() => openEditor(slot)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="ch-sidebar-account-action"
+                    style={{ width: "auto", padding: "0.25rem 0.75rem", fontSize: "0.6875rem" }}
+                    onClick={() => { void toggleActive(slot.slotNumber, slot.active) }}
+                  >
+                    {slot.active ? "Deactivate" : "Activate"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </CollapsiblePanel>
+  )
+}
+
 function AdminNewsTab() {
   const [posts, setPosts] = useState<NewsPost[]>([])
   const [loading, setLoading] = useState(true)
@@ -588,7 +907,10 @@ function AdminNewsTab() {
 
   return (
     <div className="space-y-4">
-    <SliderImageManager />
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <SliderImageManager />
+      <HighlightManager />
+    </div>
     <CollapsiblePanel variant="purple" title="News Management">
       <div
         className="flex flex-col gap-2 flex-1"

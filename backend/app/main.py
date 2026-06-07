@@ -30,6 +30,14 @@ async def lifespan(app: FastAPI):
                 await db.sliderimage.create(data={"slotNumber": slot, "active": False})
     except Exception:
         pass
+    # Seed 4 highlight slots if they don't exist
+    try:
+        for slot in range(1, 5):
+            existing = await db.highlight.find_first(where={"slotNumber": slot})
+            if not existing:
+                await db.highlight.create(data={"slotNumber": slot, "active": False})
+    except Exception:
+        pass
     # Seed example news posts if none exist
     try:
         from datetime import datetime, timezone

@@ -348,6 +348,8 @@ async def update_slider_slot(slot_number: int, body: SliderSlotUpdate, _admin: d
         data["meta"] = body.meta.strip()
     if body.cta is not None:
         data["cta"] = body.cta.strip()
+    if body.ctaLink is not None:
+        data["ctaLink"] = body.ctaLink.strip()
     if body.imageGradient is not None:
         data["imageGradient"] = body.imageGradient.strip()
     if body.active is not None:
@@ -375,3 +377,121 @@ async def remove_slider_slot_image(slot_number: int, _admin: dict = Depends(requ
         data={"imageUrl": ""},
     )
     return _serialize_slider(record)
+
+
+# ─── Highlight Management ───
+
+
+def _serialize_highlight(h) -> dict:
+    return {
+        "id": h.id,
+        "slotNumber": h.slotNumber,
+        "imageUrl": h.imageUrl,
+        "imagePosition": h.imagePosition,
+        "title": h.title,
+        "description": h.description,
+        "buttonText": h.buttonText,
+        "buttonLink": h.buttonLink,
+        "active": h.active,
+        "createdAt": h.createdAt.isoformat(),
+        "updatedAt": h.updatedAt.isoformat(),
+    }
+
+
+@router.get("/highlights")
+async def list_highlight_slots(_admin: dict = Depends(require_admin)):
+    """List all 4 highlight slots (admin view). Ordered by slot number."""
+    slots = await db.highlight.find_many(order={"slotNumber": "asc"})
+    return [_serialize_highlight(s) for s in slots]
+
+
+class HighlightSlotUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    buttonText: Optional[str] = None
+    buttonLink: Optional[str] = None
+    imagePosition: Optional[str] = None
+    active: Optional[bool] = None
+
+
+@router.post("/highlights/{slot_number}/upload")
+async def upload_highlight_image(
+    slot_number: int,
+    file: UploadFile = File(...),
+    _admin: dict = Depends(require_admin),
+):
+    """Upload/replace image for a specific highlight slot (1-4)."""
+    if slot_number < 1 or slot_number > 4:
+        raise HTTPException(status_code=400, detail="Slot number must be between 1 and 4")
+
+    if file.content_type not in ALLOWED_TYPES:
+        raise HTTPException(status_code=400, detail="Only JPEG, PNG, WebP and GIF images are allowed")
+
+    contents = await file.read()
+    if len(contents) > MAX_SIZE:
+        raise HTTPException(status_code=400, detail="Image must be under 5 MB")
+
+    uid = uuid4().hex
+    ext = file.filename.rsplit(".", 1)[-1] if file.filename and "." in file.filename else "jpg"
+    path = f"highlights/{uid}.{ext}"
+
+    image_url = await _upload_to_supabase(path, contents, file.content_type or "application/octet-stream")
+
+    slot = await db.highlight.find_first(where={"slotNumber": slot_number})
+    if not slot:
+        raise HTTPException(status_code=404, detail="Highlight slot not found")
+
+    record = await db.highlight.update(
+        where={"id": slot.id},
+        data={"imageUrl": image_url},
+    )
+
+    return _serialize_highlight(record)
+
+
+@router.put("/highlights/{slot_number}")
+async def update_highlight_slot(slot_number: int, body: HighlightSlotUpdate, _admin: dict = Depends(require_admin)):
+    """Update a highlight slot's content fields or active status."""
+    if slot_number < 1 or slot_number > 4:
+        raise HTTPException(status_code=400, detail="Slot number must be between 1 and 4")
+
+    slot = await db.highlight.find_first(where={"slotNumber": slot_number})
+    if not slot:
+        raise HTTPException(status_code=404, detail="Highlight slot not found")
+
+    data: dict = {}
+    if body.title is not None:
+        data["title"] = body.title.strip()
+    if body.description is not None:
+        data["description"] = body.description.strip()
+    if body.buttonText is not None:
+        data["buttonText"] = body.buttonText.strip()
+    if body.buttonLink is not None:
+        data["buttonLink"] = body.buttonLink.strip()
+    if body.imagePosition is not None:
+        data["imagePosition"] = body.imagePosition.strip()
+    if body.active is not None:
+        data["active"] = body.active
+
+    if not data:
+        return _serialize_highlight(slot)
+
+    record = await db.highlight.update(where={"id": slot.id}, data=data)
+    return _serialize_highlight(record)
+
+
+@router.delete("/highlights/{slot_number}/image")
+async def remove_highlight_image(slot_number: int, _admin: dict = Depends(require_admin)):
+    """Remove the image from a highlight slot (keeps the slot, clears the image URL)."""
+    if slot_number < 1 or slot_number > 4:
+        raise HTTPException(status_code=400, detail="Slot number must be between 1 and 4")
+
+    slot = await db.highlight.find_first(where={"slotNumber": slot_number})
+    if not slot:
+        raise HTTPException(status_code=404, detail="Highlight slot not found")
+
+    record = await db.highlight.update(
+        where={"id": slot.id},
+        data={"imageUrl": ""},
+    )
+    return _serialize_highlight(record)

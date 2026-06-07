@@ -1,4 +1,4 @@
-"""Public news and slider endpoints."""
+"""Public news, slider, and highlight endpoints."""
 
 from fastapi import APIRouter
 
@@ -27,6 +27,28 @@ async def list_active_slider_images():
             "imageGradient": s.imageGradient,
         }
         for s in images
+    ]
+
+
+@router.get("/highlights")
+async def list_active_highlights():
+    """List active highlight slots for the homepage. Public endpoint."""
+    highlights = await db.highlight.find_many(
+        where={"active": True},
+        order={"slotNumber": "asc"},
+    )
+    return [
+        {
+            "id": h.id,
+            "slotNumber": h.slotNumber,
+            "imageUrl": h.imageUrl,
+            "imagePosition": h.imagePosition,
+            "title": h.title,
+            "description": h.description,
+            "buttonText": h.buttonText,
+            "buttonLink": h.buttonLink,
+        }
+        for h in highlights
     ]
 
 

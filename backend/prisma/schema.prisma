@@ -162,6 +162,25 @@ model SliderImage {
   @@map("slider_images")
 }
 
+// ─── Highlights ───
+
+model Highlight {
+  id            String   @id @default(cuid())
+  slotNumber    Int      @unique @map("slot_number")
+  imageUrl      String   @default("") @map("image_url")
+  imagePosition String   @default("center") @map("image_position")
+  title         String   @default("")
+  description   String   @default("")
+  buttonText    String   @default("") @map("button_text")
+  buttonLink    String   @default("") @map("button_link")
+  active        Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([active, slotNumber])
+  @@map("highlights")
+}
+
 // ─── Enums ───
 
 enum GameType {
