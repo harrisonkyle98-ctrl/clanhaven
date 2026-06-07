@@ -241,7 +241,7 @@ function AccountTab({ user }: { user: UserData }) {
                       className="ch-mod-action-btn"
                       style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
                     >
-                      {switchLoading ? "…" : "Switch to Main"}
+                      {switchLoading ? "…" : "Switch"}
                     </button>
                   )}
                   <button
@@ -250,7 +250,7 @@ function AccountTab({ user }: { user: UserData }) {
                     className="ch-mod-action-btn ch-mod-action-btn--danger"
                     style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
                   >
-                    {unlinkLoading ? "…" : "Unlink Main"}
+                    {unlinkLoading ? "…" : "Unlink"}
                   </button>
                 </div>
               </div>
