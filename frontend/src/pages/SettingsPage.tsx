@@ -217,9 +217,7 @@ function AccountTab({ user }: { user: UserData }) {
                       />
                     )}
                     {!user.activeRsn && (
-                      <span style={{ color: "#7db8e0", fontSize: "0.625rem", marginLeft: "0.5rem", fontWeight: 400 }}>
-                        ACTIVE
-                      </span>
+                      <span className="badge-active" style={{ marginLeft: "0.4rem" }}>Active</span>
                     )}
                   </div>
                   <div className="flex items-center gap-1.5" style={{ marginTop: "0.25rem" }}>
@@ -331,9 +329,7 @@ function AccountTab({ user }: { user: UserData }) {
                           )}
                           <span className="badge-online" style={{ marginLeft: "0.4rem" }}>Approved</span>
                           {isActive && (
-                            <span style={{ color: "#7db8e0", fontSize: "0.625rem", marginLeft: "0.4rem", fontWeight: 400 }}>
-                              ACTIVE
-                            </span>
+                            <span className="badge-active" style={{ marginLeft: "0.4rem" }}>Active</span>
                           )}
                         </div>
                         <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
