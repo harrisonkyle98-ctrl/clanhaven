@@ -352,22 +352,14 @@ function ModAltAccountsTab() {
 
                   {/* Actions column */}
                   {(isPending || isApproved) && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", alignItems: "flex-end" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", alignItems: "stretch", minWidth: "5rem" }}>
                       {isPending && (
                         <>
-                          <input
-                            type="text"
-                            value={noteInputs[req.id] ?? ""}
-                            onChange={(e) => { setNoteInputs((prev) => ({ ...prev, [req.id]: e.target.value })) }}
-                            placeholder="Note (optional)"
-                            className="ch-admin-input"
-                            style={{ width: "160px", fontSize: "0.6875rem" }}
-                          />
                           <button
                             onClick={() => { void handleApprove(req.id) }}
                             disabled={actionLoading === req.id}
                             className="ch-mod-action-btn"
-                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem", width: "100%" }}
                           >
                             {actionLoading === req.id ? "…" : "Approve"}
                           </button>
@@ -375,31 +367,21 @@ function ModAltAccountsTab() {
                             onClick={() => { void handleDeny(req.id) }}
                             disabled={actionLoading === req.id}
                             className="ch-mod-action-btn ch-mod-action-btn--danger"
-                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem", width: "100%" }}
                           >
                             {actionLoading === req.id ? "…" : "Deny"}
                           </button>
                         </>
                       )}
                       {isApproved && (
-                        <>
-                          <input
-                            type="text"
-                            value={noteInputs[req.id] ?? ""}
-                            onChange={(e) => { setNoteInputs((prev) => ({ ...prev, [req.id]: e.target.value })) }}
-                            placeholder="Note (optional)"
-                            className="ch-admin-input"
-                            style={{ width: "160px", fontSize: "0.6875rem" }}
-                          />
-                          <button
-                            onClick={() => { void handleUnlink(req.id, req.rsn) }}
-                            disabled={actionLoading === req.id}
-                            className="ch-mod-action-btn ch-mod-action-btn--danger"
-                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
-                          >
-                            {actionLoading === req.id ? "…" : "Unlink"}
-                          </button>
-                        </>
+                        <button
+                          onClick={() => { void handleUnlink(req.id, req.rsn) }}
+                          disabled={actionLoading === req.id}
+                          className="ch-mod-action-btn ch-mod-action-btn--danger"
+                          style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem", width: "100%" }}
+                        >
+                          {actionLoading === req.id ? "…" : "Unlink"}
+                        </button>
                       )}
                     </div>
                   )}
