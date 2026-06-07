@@ -95,10 +95,6 @@ interface AltRequest {
   reviewedAt: string | null
 }
 
-function getRsAvatarUrl(rsn: string): string {
-  return `https://secure.runescape.com/m=avatar-rs/${encodeURIComponent(rsn)}/chat.png`
-}
-
 function AccountTab({ user }: { user: UserData }) {
   const { refreshUser } = useAuth()
   const [unlinkLoading, setUnlinkLoading] = useState(false)
@@ -197,14 +193,6 @@ function AccountTab({ user }: { user: UserData }) {
           {user.rsn ? (
             <div className="ch-row px-4 py-3">
               <div className="flex items-center gap-3">
-                <div className="ch-sidebar-account-avatar" style={{ width: "36px", minWidth: "36px" }}>
-                  <img
-                    src={getRsAvatarUrl(user.rsn)}
-                    alt="RS avatar"
-                    className="ch-sidebar-account-avatar-img"
-                    onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
-                  />
-                </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                     {user.rsn}
