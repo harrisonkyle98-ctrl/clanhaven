@@ -16,9 +16,15 @@ export default function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Home />} />
+            <Route path="/about" element={<Clans />} />
+            <Route path="/faq" element={<Clans />} />
+            <Route path="/features" element={<Clans />} />
             <Route path="/clans" element={<Clans />} />
             <Route path="/rankings" element={<Clans />} />
             <Route path="/competitions" element={<Clans />} />
+            <Route path="/clan-tools" element={<Clans />} />
+            <Route path="/verify-ownership" element={<Clans />} />
+            <Route path="/clan-management" element={<Clans />} />
             <Route path="/players" element={<Clans />} />
 
             {/* Authenticated routes */}

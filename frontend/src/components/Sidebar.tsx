@@ -5,10 +5,17 @@ import SidebarAccountModule from "@/components/SidebarAccountModule"
 
 const mainNavItems = [
   { label: "Home", to: "/" },
-  { label: "Clans", to: "/clans" },
+  { label: "About", to: "/about" },
+  { label: "FAQ", to: "/faq" },
+  { label: "Features", to: "/features" },
+]
+
+const clansNavItems = [
   { label: "Rankings", to: "/rankings" },
-  { label: "Competitions", to: "/competitions" },
-  { label: "Players", to: "/players" },
+  { label: "CvC Competitions", to: "/competitions" },
+  { label: "Clan Tools", to: "/clan-tools" },
+  { label: "Verify Ownership", to: "/verify-ownership" },
+  { label: "Clan Management", to: "/clan-management" },
 ]
 
 interface SidebarProps {
@@ -18,7 +25,7 @@ interface SidebarProps {
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const [mainOpen, setMainOpen] = useState(true)
-  const [systemOpen, setSystemOpen] = useState(true)
+  const [clansOpen, setClansOpen] = useState(true)
   const location = useLocation()
 
   const ribbonClass = "ch-sidebar-ribbon"
@@ -66,27 +73,43 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           </div>
         </div>
 
-        {/* System section */}
+        {/* Clans section */}
         <button
-          onClick={() => { setSystemOpen(!systemOpen) }}
+          onClick={() => { setClansOpen(!clansOpen) }}
           className={`${ribbonClass} cursor-pointer shrink-0 mt-1.5 mb-0.5`}
         >
-          <span className="ch-sidebar-ribbon-text">System</span>
-          <ChevronDown className={`ch-sidebar-ribbon-arrow ${systemOpen ? "" : "ch-sidebar-ribbon-arrow--collapsed"}`} />
+          <span className="ch-sidebar-ribbon-text">Clans</span>
+          <ChevronDown className={`ch-sidebar-ribbon-arrow ${clansOpen ? "" : "ch-sidebar-ribbon-arrow--collapsed"}`} />
         </button>
-        <div className={`ch-sidebar-section ${systemOpen ? "ch-sidebar-section-open" : ""}`}>
-          <div className="px-2.5 shrink-0">
-            <button
-              onClick={(e) => { e.stopPropagation(); onClose() }}
-              className="ch-sidebar-btn w-full cursor-pointer"
-            >
-              <span>Collapse</span>
-            </button>
+        <div className={`ch-sidebar-section ${clansOpen ? "ch-sidebar-section-open" : ""}`}>
+          <div className="px-2.5 space-y-1.5 shrink-0">
+            {clansNavItems.map((item) => {
+              const isActive = location.pathname === item.to
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`ch-sidebar-btn ${isActive ? "ch-sidebar-btn-active" : ""}`}
+                >
+                  <span>{item.label}</span>
+                </Link>
+              )
+            })}
           </div>
         </div>
 
         {/* Account module — pushed to bottom */}
         <SidebarAccountModule />
+
+        {/* Collapse button — below account module */}
+        <div className="px-2.5 shrink-0 mb-2">
+          <button
+            onClick={(e) => { e.stopPropagation(); onClose() }}
+            className="ch-sidebar-btn w-full cursor-pointer"
+          >
+            <span>Collapse</span>
+          </button>
+        </div>
       </div>
     </aside>
   )
