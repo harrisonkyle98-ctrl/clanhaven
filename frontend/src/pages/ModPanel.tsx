@@ -284,45 +284,45 @@ function ModAltAccountsTab() {
             return (
               <div
                 key={req.id}
+                className="ch-row"
                 style={{ marginBottom: "0.5rem", ...(isDenied ? { opacity: 0.6 } : {}) }}
               >
-                {/* Requester info container */}
+                {/* Requester row */}
                 <div
+                  className="flex items-center gap-3 px-4 py-2"
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.4rem",
-                    flexWrap: "wrap",
-                    padding: "0.35rem 1rem",
-                    background: "rgba(8, 6, 4, 0.6)",
-                    borderBottom: "1px solid rgba(100, 80, 50, 0.12)",
-                    fontSize: "0.625rem",
-                    color: "rgba(180,160,130,0.55)",
+                    borderBottom: "1px solid rgba(52, 45, 34, 0.4)",
                   }}
                 >
-                  <span style={{ fontWeight: 600, color: "rgba(200,180,150,0.7)" }}>
-                    {req.requesterRsn ?? req.requesterUsername ?? "Unknown"}
-                  </span>
-                  {req.requesterRsn && (req.requesterAccountType === "ironman" || req.requesterAccountType === "hardcore_ironman") && (
-                    <img
-                      src={req.requesterAccountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
-                      alt={req.requesterAccountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                      title={req.requesterAccountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                      style={{ width: "10px", height: "10px", objectFit: "contain" }}
-                    />
-                  )}
-                  {req.requesterClanName && (
-                    <span className="badge-clan">{req.requesterClanName}</span>
-                  )}
-                  {req.requesterGameType && (
-                    <span className={req.requesterGameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                      {req.requesterGameType}
-                    </span>
-                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
+                      {req.requesterRsn ?? req.requesterUsername ?? "Unknown"}
+                      {req.requesterRsn && (req.requesterAccountType === "ironman" || req.requesterAccountType === "hardcore_ironman") && (
+                        <img
+                          src={req.requesterAccountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                          alt={req.requesterAccountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                          title={req.requesterAccountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                          style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
+                        />
+                      )}
+                    </div>
+                    <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {req.requesterClanName && (
+                          <span className="badge-clan">{req.requesterClanName}</span>
+                        )}
+                        {req.requesterGameType && (
+                          <span className={req.requesterGameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                            {req.requesterGameType}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Requested alt account container */}
-                <div className="ch-row px-4 py-3" style={{ borderTop: "none" }}>
+                {/* Requested alt account row */}
+                <div className="px-4 py-3">
                 <div className="flex items-center gap-3">
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
