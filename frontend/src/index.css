@@ -640,6 +640,10 @@ body {
   z-index: 2;
 }
 
+.ch-sidebar-btn--no-flare::before {
+  display: none;
+}
+
 .ch-sidebar-btn:hover {
   color: #f8f3ea;
   background: rgba(38, 33, 26, 0.9);

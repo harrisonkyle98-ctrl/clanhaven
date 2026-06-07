@@ -105,7 +105,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         <div className="px-2.5 shrink-0 mb-2">
           <button
             onClick={(e) => { e.stopPropagation(); onClose() }}
-            className="ch-sidebar-btn w-full cursor-pointer"
+            className="ch-sidebar-btn ch-sidebar-btn--no-flare w-full cursor-pointer"
           >
             <span>Collapse</span>
           </button>
