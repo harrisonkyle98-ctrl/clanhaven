@@ -88,6 +88,7 @@ interface AltRequest {
   rsn: string
   gameType: string
   accountType: string | null
+  clanName: string | null
   status: string
   reviewNote: string | null
   createdAt: string
@@ -330,11 +331,16 @@ function AccountTab({ user }: { user: UserData }) {
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-1.5" style={{ marginTop: "0.2rem" }}>
-                          <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                            {alt.gameType}
-                          </span>
-                          <span className="badge-online">Approved</span>
+                        <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {alt.clanName && (
+                              <span className="badge-clan">{alt.clanName}</span>
+                            )}
+                            <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                              {alt.gameType}
+                            </span>
+                            <span className="badge-online">Approved</span>
+                          </div>
                         </div>
                       </div>
                       {!isActive && (
@@ -384,14 +390,27 @@ function AccountTab({ user }: { user: UserData }) {
                       onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
                     />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600 }}>
+                      <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                         {alt.rsn}
+                        {(alt.accountType === "ironman" || alt.accountType === "hardcore_ironman") && (
+                          <img
+                            src={alt.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                            alt={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                            title={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                            style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
+                          />
+                        )}
                       </div>
-                      <div className="flex items-center gap-1.5" style={{ marginTop: "0.2rem" }}>
-                        <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                          {alt.gameType}
-                        </span>
-                        <span className="badge-info">Pending</span>
+                      <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {alt.clanName && (
+                            <span className="badge-clan">{alt.clanName}</span>
+                          )}
+                          <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                            {alt.gameType}
+                          </span>
+                          <span className="badge-info">Pending</span>
+                        </div>
                       </div>
                     </div>
                     <span style={{ color: "rgba(180,160,130,0.4)", fontSize: "0.625rem" }}>
@@ -417,14 +436,27 @@ function AccountTab({ user }: { user: UserData }) {
                 >
                   <div className="flex items-center gap-3">
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600 }}>
+                      <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                         {alt.rsn}
+                        {(alt.accountType === "ironman" || alt.accountType === "hardcore_ironman") && (
+                          <img
+                            src={alt.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                            alt={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                            title={alt.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                            style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
+                          />
+                        )}
                       </div>
-                      <div className="flex items-center gap-1.5" style={{ marginTop: "0.2rem" }}>
-                        <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                          {alt.gameType}
-                        </span>
-                        <span className="badge-offline">Denied</span>
+                      <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {alt.clanName && (
+                            <span className="badge-clan">{alt.clanName}</span>
+                          )}
+                          <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                            {alt.gameType}
+                          </span>
+                          <span className="badge-offline">Denied</span>
+                        </div>
                       </div>
                       {alt.reviewNote && (
                         <div style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", marginTop: "0.3rem" }}>

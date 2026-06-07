@@ -228,6 +228,7 @@ model AltAccountRequest {
   rsnLower       String   @map("rsn_lower")
   gameType       GameType @default(RS3) @map("game_type")
   accountType    String?  @map("account_type")
+  clanName       String?  @map("clan_name")
   status         String   @default("pending")
   reviewedById   String?  @map("reviewed_by_id")
   reviewedAt     DateTime? @map("reviewed_at")

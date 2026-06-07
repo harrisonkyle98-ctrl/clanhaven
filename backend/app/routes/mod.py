@@ -1,5 +1,6 @@
 """Mod panel routes. Accessible by moderators (privilege >= 1) and admins."""
 
+import logging
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -8,6 +9,9 @@ from pydantic import BaseModel
 
 from app.core.database import db
 from app.routes.admin import require_mod
+from app.services.clan_indexer import fetch_and_index_clan
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -41,6 +45,7 @@ async def list_alt_requests(_mod: dict = Depends(require_mod)):
             "rsn": r.rsn,
             "gameType": r.gameType,
             "accountType": r.accountType,
+            "clanName": r.clanName,
             "status": r.status,
             "reviewedById": r.reviewedById,
             "reviewedAt": r.reviewedAt.isoformat() if r.reviewedAt else None,
@@ -88,6 +93,14 @@ async def approve_alt_request(request_id: str, body: ReviewAltRequest, _mod: dic
     )
     if other_approved:
         raise HTTPException(status_code=400, detail="This RSN is already approved as another user's alt")
+
+    # Index the alt's clan if it has one
+    if req.clanName:
+        try:
+            await fetch_and_index_clan(req.clanName)
+            logger.info("[mod] Indexed clan '%s' for approved alt RSN '%s'", req.clanName, req.rsn)
+        except Exception as exc:
+            logger.warning("[mod] Failed to index clan '%s' for alt RSN '%s': %s", req.clanName, req.rsn, exc)
 
     updated = await db.altaccountrequest.update(
         where={"id": request_id},

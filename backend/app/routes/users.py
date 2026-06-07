@@ -120,12 +120,17 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         if alt_req:
             active_game_type = alt_req.gameType
             active_account_type = alt_req.accountType
-            # Look up clan for the alt RSN
-            active_clan_name = None
-            if alt_req.gameType == "RS3":
+            active_clan_name = alt_req.clanName
+            # If no stored clan, try live lookup and cache it
+            if not active_clan_name and alt_req.gameType == "RS3":
                 active_clan_name = await _fetch_rs3_clan(alt_req.rsn)
                 if not active_clan_name:
                     active_clan_name = await lookup_clan_for_rsn(alt_req.rsn)
+                if active_clan_name:
+                    await db.altaccountrequest.update(
+                        where={"id": alt_req.id},
+                        data={"clanName": active_clan_name},
+                    )
 
     return {
         "id": user.id,
@@ -307,6 +312,7 @@ async def get_my_alt_accounts(current_user: dict = Depends(get_current_user)):
             "rsn": r.rsn,
             "gameType": r.gameType,
             "accountType": r.accountType,
+            "clanName": r.clanName,
             "status": r.status,
             "reviewNote": r.reviewNote,
             "createdAt": r.createdAt.isoformat(),
@@ -384,8 +390,12 @@ async def request_alt_account(body: AltRequestBody, current_user: dict = Depends
 
     # Detect account type for RS3
     account_type = None
+    clan_name = None
     if game_type == "RS3":
         account_type = await _detect_rs3_account_type(rsn)
+        clan_name = await _fetch_rs3_clan(rsn)
+        if not clan_name:
+            clan_name = await lookup_clan_for_rsn(rsn)
 
     request = await db.altaccountrequest.create(
         data={
@@ -394,6 +404,7 @@ async def request_alt_account(body: AltRequestBody, current_user: dict = Depends
             "rsnLower": rsn_lower,
             "gameType": game_type,
             "accountType": account_type,
+            "clanName": clan_name,
             "status": "pending",
         }
     )
@@ -402,6 +413,7 @@ async def request_alt_account(body: AltRequestBody, current_user: dict = Depends
         "rsn": request.rsn,
         "gameType": request.gameType,
         "accountType": request.accountType,
+        "clanName": request.clanName,
         "status": request.status,
         "createdAt": request.createdAt.isoformat(),
     }
