@@ -284,12 +284,23 @@ function ModAltAccountsTab() {
             return (
               <div
                 key={req.id}
-                className="ch-row px-4 py-3"
-                style={{ marginBottom: "0.25rem", ...(isDenied ? { opacity: 0.6 } : {}) }}
+                style={{ marginBottom: "0.5rem", ...(isDenied ? { opacity: 0.6 } : {}) }}
               >
-                {/* Requester's main RSN */}
-                <div style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", marginBottom: "0.3rem" }}>
-                  <span style={{ fontWeight: 600 }}>
+                {/* Requester info container */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    flexWrap: "wrap",
+                    padding: "0.35rem 1rem",
+                    background: "rgba(8, 6, 4, 0.6)",
+                    borderBottom: "1px solid rgba(100, 80, 50, 0.12)",
+                    fontSize: "0.625rem",
+                    color: "rgba(180,160,130,0.55)",
+                  }}
+                >
+                  <span style={{ fontWeight: 600, color: "rgba(200,180,150,0.7)" }}>
                     {req.requesterRsn ?? req.requesterUsername ?? "Unknown"}
                   </span>
                   {req.requesterRsn && (req.requesterAccountType === "ironman" || req.requesterAccountType === "hardcore_ironman") && (
@@ -297,20 +308,21 @@ function ModAltAccountsTab() {
                       src={req.requesterAccountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
                       alt={req.requesterAccountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
                       title={req.requesterAccountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                      style={{ width: "10px", height: "10px", objectFit: "contain", marginLeft: "3px", verticalAlign: "middle" }}
+                      style={{ width: "10px", height: "10px", objectFit: "contain" }}
                     />
                   )}
                   {req.requesterClanName && (
-                    <span className="badge-clan" style={{ marginLeft: "0.4rem" }}>{req.requesterClanName}</span>
+                    <span className="badge-clan">{req.requesterClanName}</span>
                   )}
                   {req.requesterGameType && (
-                    <span className={req.requesterGameType === "RS3" ? "badge-rs3" : "badge-osrs"} style={{ marginLeft: "0.25rem" }}>
+                    <span className={req.requesterGameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
                       {req.requesterGameType}
                     </span>
                   )}
                 </div>
 
-                {/* Requested alt RSN row — matches Settings page alt row structure */}
+                {/* Requested alt account container */}
+                <div className="ch-row px-4 py-3" style={{ borderTop: "none" }}>
                 <div className="flex items-center gap-3">
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
@@ -385,6 +397,7 @@ function ModAltAccountsTab() {
                       )}
                     </div>
                   )}
+                </div>
                 </div>
               </div>
             )
