@@ -284,120 +284,132 @@ function ModAltAccountsTab() {
             return (
               <div
                 key={req.id}
-                className="ch-row"
                 style={{ marginBottom: "0.5rem", ...(isDenied ? { opacity: 0.6 } : {}) }}
               >
-                {/* Requester row */}
+                {/* Requester container — standalone ch-row, no bottom border */}
                 <div
-                  className="flex items-center gap-3 px-4 py-2"
+                  className="ch-row"
                   style={{
-                    borderBottom: "1px solid rgba(52, 45, 34, 0.4)",
+                    borderRadius: "2px 2px 0 0",
+                    boxShadow:
+                      "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6), inset 0 1px 0 rgba(115, 98, 72, 0.2), inset 0 3px 8px rgba(0, 0, 0, 0.4)",
                   }}
                 >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
-                      {req.requesterRsn ?? req.requesterUsername ?? "Unknown"}
-                      {req.requesterRsn && (req.requesterAccountType === "ironman" || req.requesterAccountType === "hardcore_ironman") && (
-                        <img
-                          src={req.requesterAccountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
-                          alt={req.requesterAccountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                          title={req.requesterAccountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                          style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
-                        />
-                      )}
-                    </div>
-                    <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {req.requesterClanName && (
-                          <span className="badge-clan">{req.requesterClanName}</span>
+                  <div className="flex items-center gap-3 px-4 py-2">
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
+                        {req.requesterRsn ?? req.requesterUsername ?? "Unknown"}
+                        {req.requesterRsn && (req.requesterAccountType === "ironman" || req.requesterAccountType === "hardcore_ironman") && (
+                          <img
+                            src={req.requesterAccountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                            alt={req.requesterAccountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                            title={req.requesterAccountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                            style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
+                          />
                         )}
-                        {req.requesterGameType && (
-                          <span className={req.requesterGameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                            {req.requesterGameType}
-                          </span>
-                        )}
+                      </div>
+                      <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {req.requesterClanName && (
+                            <span className="badge-clan">{req.requesterClanName}</span>
+                          )}
+                          {req.requesterGameType && (
+                            <span className={req.requesterGameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                              {req.requesterGameType}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Requested alt account row */}
-                <div className="px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
-                      {req.rsn}
-                      {(req.accountType === "ironman" || req.accountType === "hardcore_ironman") && (
-                        <img
-                          src={req.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
-                          alt={req.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                          title={req.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                          style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
-                        />
-                      )}
-                      {isApproved && <span className="badge-online" style={{ marginLeft: "0.4rem" }}>Approved</span>}
-                      {isPending && <span className="badge-pending" style={{ marginLeft: "0.4rem" }}>Pending</span>}
-                      {isPending && <span className="badge-pending-date" style={{ marginLeft: "0.4rem" }}>Requested on {new Date(req.createdAt).toLocaleDateString()}</span>}
-                      {isDenied && <span className="badge-offline" style={{ marginLeft: "0.4rem" }}>Denied</span>}
-                    </div>
-                    <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {req.clanName && (
-                          <span className="badge-clan">{req.clanName}</span>
+                {/* Requested alt account container — standalone ch-row, no top border */}
+                <div
+                  className="ch-row"
+                  style={{
+                    borderRadius: "0 0 2px 2px",
+                    boxShadow:
+                      "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6), inset 0 -1px 4px rgba(0, 0, 0, 0.15)",
+                  }}
+                >
+                  <div className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
+                          {req.rsn}
+                          {(req.accountType === "ironman" || req.accountType === "hardcore_ironman") && (
+                            <img
+                              src={req.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                              alt={req.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                              title={req.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                              style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
+                            />
+                          )}
+                          {isApproved && <span className="badge-online" style={{ marginLeft: "0.4rem" }}>Approved</span>}
+                          {isPending && <span className="badge-pending" style={{ marginLeft: "0.4rem" }}>Pending</span>}
+                          {isPending && <span className="badge-pending-date" style={{ marginLeft: "0.4rem" }}>Requested on {new Date(req.createdAt).toLocaleDateString()}</span>}
+                          {isDenied && <span className="badge-offline" style={{ marginLeft: "0.4rem" }}>Denied</span>}
+                        </div>
+                        <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {req.clanName && (
+                              <span className="badge-clan">{req.clanName}</span>
+                            )}
+                            <span className={req.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                              {req.gameType}
+                            </span>
+                          </div>
+                        </div>
+                        {isDenied && req.reviewNote && (
+                          <div style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", marginTop: "0.3rem" }}>
+                            Reason: {req.reviewNote}
+                          </div>
                         )}
-                        <span className={req.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                          {req.gameType}
-                        </span>
+                        {!isPending && req.reviewedAt && (
+                          <div style={{ color: "rgba(180,160,130,0.4)", fontSize: "0.625rem", marginTop: "0.2rem" }}>
+                            Reviewed: {new Date(req.reviewedAt).toLocaleString()}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    {isDenied && req.reviewNote && (
-                      <div style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", marginTop: "0.3rem" }}>
-                        Reason: {req.reviewNote}
-                      </div>
-                    )}
-                    {!isPending && req.reviewedAt && (
-                      <div style={{ color: "rgba(180,160,130,0.4)", fontSize: "0.625rem", marginTop: "0.2rem" }}>
-                        Reviewed: {new Date(req.reviewedAt).toLocaleString()}
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Actions column */}
-                  {(isPending || isApproved) && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", alignItems: "stretch", minWidth: "5rem" }}>
-                      {isPending && (
-                        <>
-                          <button
-                            onClick={() => { void handleApprove(req.id) }}
-                            disabled={actionLoading === req.id}
-                            className="ch-mod-action-btn"
-                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem", width: "100%" }}
-                          >
-                            {actionLoading === req.id ? "…" : "Approve"}
-                          </button>
-                          <button
-                            onClick={() => { void handleDeny(req.id) }}
-                            disabled={actionLoading === req.id}
-                            className="ch-mod-action-btn ch-mod-action-btn--danger"
-                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem", width: "100%" }}
-                          >
-                            {actionLoading === req.id ? "…" : "Deny"}
-                          </button>
-                        </>
-                      )}
-                      {isApproved && (
-                        <button
-                          onClick={() => { void handleUnlink(req.id, req.rsn) }}
-                          disabled={actionLoading === req.id}
-                          className="ch-mod-action-btn ch-mod-action-btn--danger"
-                          style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem", width: "100%" }}
-                        >
-                          {actionLoading === req.id ? "…" : "Unlink"}
-                        </button>
+                      {/* Actions column */}
+                      {(isPending || isApproved) && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", alignItems: "stretch", minWidth: "5rem" }}>
+                          {isPending && (
+                            <>
+                              <button
+                                onClick={() => { void handleApprove(req.id) }}
+                                disabled={actionLoading === req.id}
+                                className="ch-mod-action-btn"
+                                style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem", width: "100%" }}
+                              >
+                                {actionLoading === req.id ? "…" : "Approve"}
+                              </button>
+                              <button
+                                onClick={() => { void handleDeny(req.id) }}
+                                disabled={actionLoading === req.id}
+                                className="ch-mod-action-btn ch-mod-action-btn--danger"
+                                style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem", width: "100%" }}
+                              >
+                                {actionLoading === req.id ? "…" : "Deny"}
+                              </button>
+                            </>
+                          )}
+                          {isApproved && (
+                            <button
+                              onClick={() => { void handleUnlink(req.id, req.rsn) }}
+                              disabled={actionLoading === req.id}
+                              className="ch-mod-action-btn ch-mod-action-btn--danger"
+                              style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem", width: "100%" }}
+                            >
+                              {actionLoading === req.id ? "…" : "Unlink"}
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
+                  </div>
                 </div>
               </div>
             )
