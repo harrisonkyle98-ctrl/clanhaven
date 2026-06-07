@@ -196,8 +196,8 @@ function AccountTab({ user }: { user: UserData }) {
         <div className="ch-admin-section">
           {user.rsn ? (
             <>
-              <div className="flex items-center gap-4" style={{ marginBottom: "1rem" }}>
-                <div className="ch-sidebar-account-avatar" style={{ aspectRatio: "1" }}>
+              <div className="flex items-stretch gap-4" style={{ marginBottom: "1rem" }}>
+                <div className="ch-sidebar-account-avatar">
                   <img
                     src={getRsAvatarUrl(user.rsn)}
                     alt="RS avatar"
@@ -317,8 +317,8 @@ function AccountTab({ user }: { user: UserData }) {
                     className="ch-row px-4 py-3"
                     style={{ marginBottom: "0.25rem" }}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="ch-sidebar-account-avatar" style={{ width: "36px", minWidth: "36px", aspectRatio: "1" }}>
+                    <div className="flex items-stretch gap-3">
+                      <div className="ch-sidebar-account-avatar" style={{ width: "36px", minWidth: "36px" }}>
                         <img
                           src={getRsAvatarUrl(alt.rsn)}
                           alt=""
@@ -403,8 +403,8 @@ function AccountTab({ user }: { user: UserData }) {
                   className="ch-row px-4 py-3"
                   style={{ marginBottom: "0.25rem" }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="ch-sidebar-account-avatar" style={{ width: "36px", minWidth: "36px", aspectRatio: "1" }}>
+                  <div className="flex items-stretch gap-3">
+                    <div className="ch-sidebar-account-avatar" style={{ width: "36px", minWidth: "36px" }}>
                       <img
                         src={getRsAvatarUrl(alt.rsn)}
                         alt=""
@@ -457,7 +457,15 @@ function AccountTab({ user }: { user: UserData }) {
                   className="ch-row px-4 py-3"
                   style={{ marginBottom: "0.25rem", opacity: 0.6 }}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-stretch gap-3">
+                    <div className="ch-sidebar-account-avatar" style={{ width: "36px", minWidth: "36px" }}>
+                      <img
+                        src={getRsAvatarUrl(alt.rsn)}
+                        alt=""
+                        className="ch-sidebar-account-avatar-img"
+                        onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
+                      />
+                    </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                         {alt.rsn}
