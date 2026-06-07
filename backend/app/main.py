@@ -8,18 +8,25 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.database import connect_db, disconnect_db, db
-from app.routes import admin, auth, clans, health, members, users
+from app.routes import admin, auth, clans, health, members, mod, users
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown lifecycle."""
     await connect_db()
-    # Assign site admin privileges to lm Kyle
+    # Migrate existing admins (privilege 1) to new admin level (privilege 2)
+    try:
+        old_admins = await db.user.find_many(where={"privileges": 1})
+        for u in old_admins:
+            await db.user.update(where={"id": u.id}, data={"privileges": 2})
+    except Exception:
+        pass
+    # Assign site admin privileges to lm Kyle (always privilege 2)
     try:
         admin_user = await db.user.find_first(where={"rsn": "lm Kyle"})
-        if admin_user and admin_user.privileges != 1:
-            await db.user.update(where={"id": admin_user.id}, data={"privileges": 1})
+        if admin_user and admin_user.privileges != 2:
+            await db.user.update(where={"id": admin_user.id}, data={"privileges": 2})
     except Exception:
         pass
     # Seed 4 slider slots if they don't exist
@@ -97,6 +104,7 @@ app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(clans.router, prefix="/api/clans", tags=["clans"])
 app.include_router(members.router, prefix="/api/members", tags=["members"])
 app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
+app.include_router(mod.router, prefix="/api/mod", tags=["mod"])
 
 from app.routes import news
 app.include_router(news.router, prefix="/api/news", tags=["news"])

@@ -32,7 +32,7 @@ export default function AdminPanel() {
     )
   }
 
-  if (!user || user.privileges !== 1) {
+  if (!user || user.privileges < 2) {
     return <Navigate to="/" replace />
   }
 
@@ -1355,8 +1355,11 @@ function AdminUsersTab() {
                     {u.username}
                   </span>
                 )}
-                {u.privileges === 1 && (
+                {u.privileges >= 2 && (
                   <span className="badge-admin">Admin</span>
+                )}
+                {u.privileges === 1 && (
+                  <span className="badge-mod">Mod</span>
                 )}
                 {u.rsnClanName && (
                   <span className="badge-clan">{u.rsnClanName}</span>

@@ -17,10 +17,18 @@ router = APIRouter()
 
 
 async def require_admin(current_user: dict = Depends(get_current_user)) -> dict:
-    """Dependency: require privileges=1 (site admin)."""
+    """Dependency: require privileges >= 2 (site admin)."""
     user = await db.user.find_unique(where={"id": current_user["sub"]})
-    if not user or user.privileges != 1:
+    if not user or user.privileges < 2:
         raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
+
+
+async def require_mod(current_user: dict = Depends(get_current_user)) -> dict:
+    """Dependency: require privileges >= 1 (moderator or admin)."""
+    user = await db.user.find_unique(where={"id": current_user["sub"]})
+    if not user or user.privileges < 1:
+        raise HTTPException(status_code=403, detail="Moderator access required")
     return current_user
 
 

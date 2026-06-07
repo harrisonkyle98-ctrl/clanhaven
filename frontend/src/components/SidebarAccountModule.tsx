@@ -66,8 +66,11 @@ export default function SidebarAccountModule() {
               </div>
               <div className="ch-user-row-details" style={{ marginTop: "0.3rem" }}>
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  {user.privileges === 1 && (
+                  {user.privileges >= 2 && (
                     <span className="badge-admin">Admin</span>
+                  )}
+                  {user.privileges === 1 && (
+                    <span className="badge-mod">Mod</span>
                   )}
                   {user.rsnClanName && (
                     <span className="badge-clan">{user.rsnClanName}</span>
@@ -103,13 +106,22 @@ export default function SidebarAccountModule() {
             <button className="ch-sidebar-account-action">
               <span>Badges</span>
             </button>
-            {user.privileges === 1 && (
+            {user.privileges >= 2 && (
               <button
                 onClick={() => { navigate("/admin") }}
                 className="ch-sidebar-account-action"
                 style={{ gridColumn: "1 / -1" }}
               >
                 <span>Admin Panel</span>
+              </button>
+            )}
+            {user.privileges >= 1 && (
+              <button
+                onClick={() => { navigate("/mod") }}
+                className="ch-sidebar-account-action"
+                style={{ gridColumn: "1 / -1" }}
+              >
+                <span>Mod Panel</span>
               </button>
             )}
           </div>

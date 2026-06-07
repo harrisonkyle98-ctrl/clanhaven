@@ -6,6 +6,7 @@ import Clans from "@/pages/Clans"
 import Dashboard from "@/pages/Dashboard"
 import NotFound from "@/pages/NotFound"
 import AdminPanel from "@/pages/AdminPanel"
+import ModPanel from "@/pages/ModPanel"
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
             {/* Authenticated routes */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/mod" element={<ModPanel />} />
 
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
