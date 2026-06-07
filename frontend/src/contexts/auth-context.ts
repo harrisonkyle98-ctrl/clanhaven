@@ -12,6 +12,9 @@ interface User {
   gameType: string | null
   accountType: string | null
   rsnClanName: string | null
+  activeGameType: string | null
+  activeAccountType: string | null
+  activeClanName: string | null
   rsnLinkedAt: string | null
   privileges: number
   lastOnline: string | null

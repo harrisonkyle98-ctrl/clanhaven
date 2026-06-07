@@ -72,18 +72,18 @@ export default function SidebarAccountModule() {
                   {user.privileges === 1 && (
                     <span className="badge-mod">Mod</span>
                   )}
-                  {user.rsnClanName && (
-                    <span className="badge-clan">{user.rsnClanName}</span>
+                  {(user.activeClanName ?? user.rsnClanName) && (
+                    <span className="badge-clan">{user.activeClanName ?? user.rsnClanName}</span>
                   )}
-                  {user.accountType === "ironman" && (
+                  {(user.activeAccountType ?? user.accountType) === "ironman" && (
                     <span className="badge-ironman">Ironman</span>
                   )}
-                  {user.accountType === "hardcore_ironman" && (
+                  {(user.activeAccountType ?? user.accountType) === "hardcore_ironman" && (
                     <span className="badge-hardcore">Hardcore</span>
                   )}
-                  {user.gameType && (
-                    <span className={user.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                      {user.gameType}
+                  {(user.activeGameType ?? user.gameType) && (
+                    <span className={(user.activeGameType ?? user.gameType) === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                      {user.activeGameType ?? user.gameType}
                     </span>
                   )}
                 </div>

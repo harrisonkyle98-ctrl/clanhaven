@@ -105,6 +105,28 @@ async def get_me(current_user: dict = Depends(get_current_user)):
     # Determine display RSN (active identity)
     display_rsn = user.activeRsn if user.activeRsn else user.rsn
 
+    # If active identity is an alt, fetch alt-specific RS data
+    active_game_type = user.gameType
+    active_account_type = user.accountType
+    active_clan_name = rsn_clan_name
+    if user.activeRsn:
+        alt_req = await db.altaccountrequest.find_first(
+            where={
+                "userId": user.id,
+                "rsnLower": user.activeRsn.strip().lower(),
+                "status": "approved",
+            },
+        )
+        if alt_req:
+            active_game_type = alt_req.gameType
+            active_account_type = alt_req.accountType
+            # Look up clan for the alt RSN
+            active_clan_name = None
+            if alt_req.gameType == "RS3":
+                active_clan_name = await _fetch_rs3_clan(alt_req.rsn)
+                if not active_clan_name:
+                    active_clan_name = await lookup_clan_for_rsn(alt_req.rsn)
+
     return {
         "id": user.id,
         "discordId": user.discordId,
@@ -117,6 +139,9 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         "gameType": user.gameType,
         "accountType": user.accountType,
         "rsnClanName": rsn_clan_name,
+        "activeGameType": active_game_type,
+        "activeAccountType": active_account_type,
+        "activeClanName": active_clan_name,
         "rsnLinkedAt": user.rsnLinkedAt.isoformat() if user.rsnLinkedAt else None,
         "privileges": user.privileges,
         "lastOnline": user.lastOnline.isoformat() if user.lastOnline else None,
