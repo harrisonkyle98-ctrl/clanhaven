@@ -291,8 +291,16 @@ function ModAltAccountsTab() {
                   className="ch-row"
                   style={{
                     borderRadius: "2px 2px 0 0",
-                    boxShadow:
-                      "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6), inset 0 1px 0 rgba(115, 98, 72, 0.2), inset 0 3px 8px rgba(0, 0, 0, 0.4)",
+                    boxShadow: [
+                      "inset 0 1px 0 0 rgba(10, 8, 5, 0.9)",
+                      "inset 1px 0 0 0 rgba(10, 8, 5, 0.9)",
+                      "inset -1px 0 0 0 rgba(10, 8, 5, 0.9)",
+                      "inset 0 2px 0 0 rgba(52, 45, 34, 0.6)",
+                      "inset 2px 0 0 0 rgba(52, 45, 34, 0.6)",
+                      "inset -2px 0 0 0 rgba(52, 45, 34, 0.6)",
+                      "inset 0 1px 0 rgba(115, 98, 72, 0.2)",
+                      "inset 0 3px 8px rgba(0, 0, 0, 0.4)",
+                    ].join(", "),
                   }}
                 >
                   <div className="flex items-center gap-3 px-4 py-2">
