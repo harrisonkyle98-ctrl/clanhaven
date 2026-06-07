@@ -318,16 +318,6 @@ function AccountTab({ user }: { user: UserData }) {
                           {switchLoading ? "…" : "Switch"}
                         </button>
                       )}
-                      {isActive && (
-                        <button
-                          onClick={() => { void handleSwitchIdentity(null) }}
-                          disabled={switchLoading}
-                          className="ch-mod-action-btn"
-                          style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
-                        >
-                          {switchLoading ? "…" : "Use Main"}
-                        </button>
-                      )}
                       <button
                         onClick={() => { void handleUnlinkAlt(alt.id, alt.rsn) }}
                         className="ch-mod-action-btn ch-mod-action-btn--danger"
