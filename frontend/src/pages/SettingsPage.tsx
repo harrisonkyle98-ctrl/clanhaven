@@ -197,17 +197,14 @@ function AccountTab({ user }: { user: UserData }) {
           {user.rsn ? (
             <>
               <div className="flex items-center gap-4" style={{ marginBottom: "1rem" }}>
-                <img
-                  src={getRsAvatarUrl(user.rsn)}
-                  alt="RS avatar"
-                  style={{
-                    width: "48px",
-                    height: "48px",
-                    borderRadius: "0",
-                    border: "1px solid rgba(100,140,180,0.3)",
-                  }}
-                  onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
-                />
+                <div className="ch-sidebar-account-avatar">
+                  <img
+                    src={getRsAvatarUrl(user.rsn)}
+                    alt="RS avatar"
+                    className="ch-sidebar-account-avatar-img"
+                    onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
+                  />
+                </div>
                 <div>
                   <div style={{ color: "#e8d5b0", fontWeight: 600, fontSize: "0.875rem", display: "flex", alignItems: "center" }}>
                     {user.rsn}
@@ -321,12 +318,14 @@ function AccountTab({ user }: { user: UserData }) {
                     style={{ marginBottom: "0.25rem" }}
                   >
                     <div className="flex items-center gap-3">
-                      <img
-                        src={getRsAvatarUrl(alt.rsn)}
-                        alt=""
-                        style={{ width: "32px", height: "32px", border: "1px solid rgba(100,140,180,0.3)" }}
-                        onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
-                      />
+                      <div className="ch-sidebar-account-avatar" style={{ width: "36px", minWidth: "36px" }}>
+                        <img
+                          src={getRsAvatarUrl(alt.rsn)}
+                          alt=""
+                          className="ch-sidebar-account-avatar-img"
+                          onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
+                        />
+                      </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                           {alt.rsn}
@@ -405,12 +404,14 @@ function AccountTab({ user }: { user: UserData }) {
                   style={{ marginBottom: "0.25rem" }}
                 >
                   <div className="flex items-center gap-3">
-                    <img
-                      src={getRsAvatarUrl(alt.rsn)}
-                      alt=""
-                      style={{ width: "32px", height: "32px", border: "1px solid rgba(100,140,180,0.3)" }}
-                      onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
-                    />
+                    <div className="ch-sidebar-account-avatar" style={{ width: "36px", minWidth: "36px" }}>
+                      <img
+                        src={getRsAvatarUrl(alt.rsn)}
+                        alt=""
+                        className="ch-sidebar-account-avatar-img"
+                        onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
+                      />
+                    </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                         {alt.rsn}
