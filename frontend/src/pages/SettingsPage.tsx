@@ -195,9 +195,9 @@ function AccountTab({ user }: { user: UserData }) {
       <CollapsiblePanel variant="blue" title="Main RuneScape Account">
         <div className="ch-admin-section">
           {user.rsn ? (
-            <>
-              <div className="flex items-stretch gap-4" style={{ marginBottom: "1rem" }}>
-                <div className="ch-sidebar-account-avatar">
+            <div className="ch-row px-4 py-3">
+              <div className="flex items-center gap-3">
+                <div className="ch-sidebar-account-avatar" style={{ width: "36px", minWidth: "36px" }}>
                   <img
                     src={getRsAvatarUrl(user.rsn)}
                     alt="RS avatar"
@@ -205,15 +205,15 @@ function AccountTab({ user }: { user: UserData }) {
                     onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
                   />
                 </div>
-                <div>
-                  <div style={{ color: "#e8d5b0", fontWeight: 600, fontSize: "0.875rem", display: "flex", alignItems: "center" }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                     {user.rsn}
                     {(user.accountType === "ironman" || user.accountType === "hardcore_ironman") && (
                       <img
                         src={user.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
                         alt={user.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
                         title={user.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
-                        style={{ width: "14px", height: "14px", objectFit: "contain", marginLeft: "4px" }}
+                        style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
                       />
                     )}
                     {!user.activeRsn && (
@@ -233,28 +233,28 @@ function AccountTab({ user }: { user: UserData }) {
                     </div>
                   </div>
                 </div>
-              </div>
-              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
-                {user.activeRsn && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", alignItems: "flex-end" }}>
+                  {user.activeRsn && (
+                    <button
+                      onClick={() => { void handleSwitchIdentity(null) }}
+                      disabled={switchLoading}
+                      className="ch-mod-action-btn"
+                      style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                    >
+                      {switchLoading ? "…" : "Switch to Main"}
+                    </button>
+                  )}
                   <button
-                    onClick={() => { void handleSwitchIdentity(null) }}
-                    disabled={switchLoading}
-                    className="ch-mod-action-btn"
-                    style={{ fontSize: "0.6875rem", padding: "0.3rem 0.75rem" }}
+                    onClick={handleUnlink}
+                    disabled={unlinkLoading}
+                    className="ch-mod-action-btn ch-mod-action-btn--danger"
+                    style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
                   >
-                    {switchLoading ? "Switching…" : "Switch to Main"}
+                    {unlinkLoading ? "…" : "Unlink Main"}
                   </button>
-                )}
-                <button
-                  onClick={handleUnlink}
-                  disabled={unlinkLoading}
-                  className="ch-mod-action-btn ch-mod-action-btn--danger"
-                  style={{ fontSize: "0.6875rem", padding: "0.3rem 0.75rem" }}
-                >
-                  {unlinkLoading ? "Unlinking…" : "Unlink Main"}
-                </button>
+                </div>
               </div>
-            </>
+            </div>
           ) : (
             <div>
               <p className="ch-admin-placeholder" style={{ marginBottom: "0.75rem" }}>
