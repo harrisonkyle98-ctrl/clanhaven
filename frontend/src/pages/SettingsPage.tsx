@@ -85,12 +85,6 @@ function AccountTab({ user }: { user: UserData }) {
   const { refreshUser } = useAuth()
   const [unlinkLoading, setUnlinkLoading] = useState(false)
 
-  const discordAvatarUrl = user.avatar
-    ? `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png?size=128`
-    : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.discordId) % 5}.png`
-
-  const roleName = user.privileges >= 2 ? "Administrator" : user.privileges === 1 ? "Moderator" : "Member"
-
   function getRsAvatarUrl(rsn: string): string {
     return `https://secure.runescape.com/m=avatar-rs/${encodeURIComponent(rsn)}/chat.png`
   }
@@ -110,50 +104,6 @@ function AccountTab({ user }: { user: UserData }) {
 
   return (
     <div className="space-y-4">
-      <CollapsiblePanel variant="blue" title="Discord Account">
-        <div className="ch-admin-section">
-          <div className="flex items-center gap-4" style={{ marginBottom: "1rem" }}>
-            <img
-              src={discordAvatarUrl}
-              alt="Discord avatar"
-              style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "0",
-                border: "1px solid rgba(100,140,180,0.3)",
-              }}
-              onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
-            />
-            <div>
-              <div style={{ color: "#e8d5b0", fontWeight: 600, fontSize: "0.875rem" }}>
-                {user.username}
-              </div>
-              <div style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.6875rem" }}>
-                Discord ID: {user.discordId}
-              </div>
-            </div>
-          </div>
-          <div className="ch-admin-status-row">
-            <span className="ch-admin-status-label">Username</span>
-            <span className="ch-admin-status-value">{user.username}</span>
-          </div>
-          <div className="ch-admin-status-row">
-            <span className="ch-admin-status-label">Email</span>
-            <span className="ch-admin-status-value">{user.email ?? "Not available"}</span>
-          </div>
-          <div className="ch-admin-status-row">
-            <span className="ch-admin-status-label">Site Role</span>
-            <span className="ch-admin-status-value ch-settings-highlight">{roleName}</span>
-          </div>
-          <div className="ch-admin-status-row">
-            <span className="ch-admin-status-label">Last Online</span>
-            <span className="ch-admin-status-value">
-              {user.lastOnline ? new Date(user.lastOnline).toLocaleString() : "Now"}
-            </span>
-          </div>
-        </div>
-      </CollapsiblePanel>
-
       <CollapsiblePanel variant="blue" title="Linked RuneScape Account">
         <div className="ch-admin-section">
           {user.rsn ? (
