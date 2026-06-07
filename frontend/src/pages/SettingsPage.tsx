@@ -498,7 +498,7 @@ function AccountTab({ user }: { user: UserData }) {
 
           {/* Request Alt Button */}
           {user.rsn && (
-            <div style={{ borderTop: "1px solid rgba(100,140,180,0.15)", paddingTop: "1rem", marginTop: "0.5rem" }}>
+            <div style={{ marginTop: "0.5rem" }}>
               <button
                 onClick={() => { setShowAltModal(true); setSubmitError(""); setNewAltRsn(""); setNewAltGame("RS3") }}
                 className="ch-mod-action-btn"
