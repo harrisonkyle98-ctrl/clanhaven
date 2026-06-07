@@ -69,6 +69,22 @@ async def discord_callback(request: Request, code: str | None = None):
     avatar = discord_user.get("avatar")
     email = discord_user.get("email")
 
+    # Extract IP and user agent for login tracking
+    ip_address = (
+        request.headers.get("fly-client-ip")
+        or request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+        or (request.client.host if request.client else "unknown")
+    )
+    user_agent = request.headers.get("user-agent", "")
+
+    # Check IP ban before allowing login
+    ip_ban = await db.ipban.find_first(where={"ipAddress": ip_address, "active": True})
+    if ip_ban:
+        return RedirectResponse(
+            url=f"{settings.FRONTEND_URL}/?error=ip_banned",
+            status_code=302,
+        )
+
     # Upsert user in database
     user = await db.user.upsert(
         where={"discordId": discord_id},
@@ -86,6 +102,25 @@ async def discord_callback(request: Request, code: str | None = None):
             },
         },
     )
+
+    # Check if user is banned
+    if user.isBanned:
+        return RedirectResponse(
+            url=f"{settings.FRONTEND_URL}/?error=account_banned",
+            status_code=302,
+        )
+
+    # Record login history
+    try:
+        await db.userloginhistory.create(
+            data={
+                "userId": user.id,
+                "ipAddress": ip_address,
+                "userAgent": user_agent[:500],
+            }
+        )
+    except Exception:
+        pass
 
     # Issue JWT
     jwt_token = create_access_token({"sub": user.id, "discord_id": discord_id, "username": username})
@@ -108,6 +143,9 @@ async def get_current_user_info(request: Request):
     user = await db.user.find_unique(where={"id": token_data["sub"]})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+
+    if user.isBanned:
+        raise HTTPException(status_code=403, detail="Your account has been banned")
 
     # If user has RSN but no cached clan name, try indexed lookup and cache it
     rsn_clan_name = user.rsnClanName

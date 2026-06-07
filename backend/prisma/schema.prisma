@@ -23,12 +23,17 @@ model User {
   rsnLinkedAt DateTime? @map("rsn_linked_at")
   privileges  Int       @default(0)
   lastOnline  DateTime? @map("last_online")
+  isBanned      Boolean   @default(false) @map("is_banned")
+  bannedAt      DateTime? @map("banned_at")
+  bannedByUserId String?  @map("banned_by_user_id")
+  banReason     String?   @map("ban_reason")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   memberships ClanMember[]
   ownedClans  Clan[]       @relation("ClanOwner")
   newsPosts   NewsPost[]
+  loginHistory UserLoginHistory[]
 
   @@map("users")
 }
@@ -179,6 +184,36 @@ model Highlight {
 
   @@index([active, slotNumber])
   @@map("highlights")
+}
+
+// ─── User Login History ───
+
+model UserLoginHistory {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  ipAddress String   @map("ip_address")
+  userAgent String   @default("") @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([ipAddress])
+  @@map("user_login_history")
+}
+
+// ─── IP Bans ───
+
+model IpBan {
+  id             String   @id @default(cuid())
+  ipAddress      String   @map("ip_address")
+  reason         String   @default("")
+  active         Boolean  @default(true)
+  createdByUserId String  @map("created_by_user_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([ipAddress, active])
+  @@map("ip_bans")
 }
 
 // ─── Enums ───

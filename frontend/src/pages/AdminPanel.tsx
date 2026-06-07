@@ -1275,21 +1275,103 @@ interface AdminUser {
   rsnLinkedAt: string | null
   privileges: number
   lastOnline: string | null
+  isBanned: boolean
+  bannedAt: string | null
+  banReason: string | null
   createdAt: string
   updatedAt: string
+}
+
+interface LoginEntry {
+  id: string
+  ipAddress: string
+  userAgent: string
+  createdAt: string
 }
 
 function AdminUsersTab() {
   const [users, setUsers] = useState<AdminUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [loginHistoryUser, setLoginHistoryUser] = useState<string | null>(null)
+  const [loginHistory, setLoginHistory] = useState<LoginEntry[]>([])
+  const [loginLoading, setLoginLoading] = useState(false)
 
-  useEffect(() => {
+  const loadUsers = () => {
     apiFetch<AdminUser[]>("/api/admin/users")
       .then(setUsers)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    loadUsers()
   }, [])
+
+  const handleViewLogins = async (userId: string) => {
+    if (loginHistoryUser === userId) {
+      setLoginHistoryUser(null)
+      return
+    }
+    setLoginHistoryUser(userId)
+    setLoginLoading(true)
+    try {
+      const data = await apiFetch<LoginEntry[]>(`/api/admin/users/${userId}/logins`)
+      setLoginHistory(data)
+    } catch {
+      setLoginHistory([])
+    } finally {
+      setLoginLoading(false)
+    }
+  }
+
+  const handleBan = async (userId: string) => {
+    const reason = prompt("Ban reason (optional):")
+    if (reason === null) return
+    try {
+      await apiFetch(`/api/admin/users/${userId}/ban`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      })
+      loadUsers()
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Ban failed")
+    }
+  }
+
+  const handleUnban = async (userId: string) => {
+    try {
+      await apiFetch(`/api/admin/users/${userId}/unban`, { method: "POST" })
+      loadUsers()
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Unban failed")
+    }
+  }
+
+  const handleIpBan = async (userId: string) => {
+    const reason = prompt("IP Ban reason (optional):")
+    if (reason === null) return
+    setLoginLoading(true)
+    try {
+      const logins = await apiFetch<LoginEntry[]>(`/api/admin/users/${userId}/logins`)
+      if (logins.length === 0) {
+        alert("No login history found for this user.")
+        return
+      }
+      const ip = logins[0].ipAddress
+      await apiFetch("/api/admin/ip-bans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ipAddress: ip, reason }),
+      })
+      alert(`IP ${ip} has been banned.`)
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "IP Ban failed")
+    } finally {
+      setLoginLoading(false)
+    }
+  }
 
   const formatDate = (iso: string) => {
     const d = new Date(iso)
@@ -1332,7 +1414,7 @@ function AdminUsersTab() {
           </div>
         )}
         {users.map((u) => (
-          <div key={u.id} className="ch-row px-4 py-3 cursor-pointer group">
+          <div key={u.id} className="ch-row px-4 py-3 group">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-text-highlight group-hover:text-gold transition-colors">
                 {u.rsn ?? u.username}
@@ -1344,6 +1426,39 @@ function AdminUsersTab() {
               ) : (
                 <span className="badge-offline">Offline</span>
               )}
+              {u.isBanned && (
+                <span className="badge-banned">Banned</span>
+              )}
+              {/* Moderation controls — visible on hover only */}
+              <div className="ch-mod-actions">
+                <button
+                  onClick={() => { handleViewLogins(u.id) }}
+                  className="ch-mod-action-btn"
+                >
+                  View Logins
+                </button>
+                {!u.isBanned ? (
+                  <button
+                    onClick={() => { handleBan(u.id) }}
+                    className="ch-mod-action-btn ch-mod-action-btn--danger"
+                  >
+                    Ban Account
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => { handleUnban(u.id) }}
+                    className="ch-mod-action-btn ch-mod-action-btn--success"
+                  >
+                    Unban
+                  </button>
+                )}
+                <button
+                  onClick={() => { handleIpBan(u.id) }}
+                  className="ch-mod-action-btn ch-mod-action-btn--danger"
+                >
+                  IP Ban
+                </button>
+              </div>
             </div>
             <div className="ch-user-row-details">
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -1384,6 +1499,27 @@ function AdminUsersTab() {
                 )}
               </div>
             </div>
+            {/* Login history panel */}
+            {loginHistoryUser === u.id && (
+              <div className="ch-user-row-details" style={{ marginTop: "0.5rem" }}>
+                <div style={{ fontSize: "0.625rem", fontWeight: 700, color: "#b0a088", marginBottom: "0.4rem" }}>Login History</div>
+                {loginLoading ? (
+                  <span style={{ fontSize: "0.6rem", color: "rgba(180,160,130,0.6)" }}>Loading…</span>
+                ) : loginHistory.length === 0 ? (
+                  <span style={{ fontSize: "0.6rem", color: "rgba(180,160,130,0.6)" }}>No login records.</span>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    {loginHistory.slice(0, 10).map((l) => (
+                      <div key={l.id} className="flex items-center gap-2" style={{ fontSize: "0.6rem", color: "#b0a088" }}>
+                        <span className="badge-info">{l.ipAddress}</span>
+                        <span style={{ color: "rgba(180,160,130,0.5)" }}>{new Date(l.createdAt).toLocaleString()}</span>
+                        <span style={{ color: "rgba(180,160,130,0.35)", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.userAgent}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>

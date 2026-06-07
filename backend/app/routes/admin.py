@@ -13,6 +13,15 @@ from app.core.config import settings
 from app.core.database import db
 from app.services.clan_indexer import fetch_and_index_clan, lookup_clan_for_rsn
 
+# ─── Moderation request models ───
+
+class BanUserRequest(BaseModel):
+    reason: str = ""
+
+class IpBanRequest(BaseModel):
+    ipAddress: str
+    reason: str = ""
+
 router = APIRouter()
 
 
@@ -77,6 +86,9 @@ async def list_users(_admin: dict = Depends(require_admin)):
             "rsnLinkedAt": u.rsnLinkedAt.isoformat() if u.rsnLinkedAt else None,
             "privileges": u.privileges,
             "lastOnline": u.lastOnline.isoformat() if u.lastOnline else None,
+            "isBanned": u.isBanned,
+            "bannedAt": u.bannedAt.isoformat() if u.bannedAt else None,
+            "banReason": u.banReason,
             "createdAt": u.createdAt.isoformat(),
             "updatedAt": u.updatedAt.isoformat(),
         }
@@ -503,3 +515,125 @@ async def remove_highlight_image(slot_number: int, _admin: dict = Depends(requir
         data={"imageUrl": ""},
     )
     return _serialize_highlight(record)
+
+
+# ═══════════════════════════════════════════════════════════
+#  MODERATION / SECURITY ENDPOINTS (admin only)
+# ═══════════════════════════════════════════════════════════
+
+
+@router.get("/users/{user_id}/logins")
+async def get_user_login_history(user_id: str, _admin: dict = Depends(require_admin)):
+    """Get login history for a user (admin only)."""
+    user = await db.user.find_unique(where={"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    logins = await db.userloginhistory.find_many(
+        where={"userId": user_id},
+        order={"createdAt": "desc"},
+        take=50,
+    )
+    return [
+        {
+            "id": l.id,
+            "ipAddress": l.ipAddress,
+            "userAgent": l.userAgent,
+            "createdAt": l.createdAt.isoformat(),
+        }
+        for l in logins
+    ]
+
+
+@router.post("/users/{user_id}/ban")
+async def ban_user(user_id: str, body: BanUserRequest, _admin: dict = Depends(require_admin)):
+    """Ban a user account (admin only)."""
+    user = await db.user.find_unique(where={"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.privileges >= 2:
+        raise HTTPException(status_code=400, detail="Cannot ban an administrator")
+
+    updated = await db.user.update(
+        where={"id": user_id},
+        data={
+            "isBanned": True,
+            "bannedAt": datetime.now(timezone.utc),
+            "bannedByUserId": _admin["sub"],
+            "banReason": body.reason,
+        },
+    )
+    return {"success": True, "isBanned": updated.isBanned}
+
+
+@router.post("/users/{user_id}/unban")
+async def unban_user(user_id: str, _admin: dict = Depends(require_admin)):
+    """Unban a user account (admin only)."""
+    user = await db.user.find_unique(where={"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    updated = await db.user.update(
+        where={"id": user_id},
+        data={
+            "isBanned": False,
+            "bannedAt": None,
+            "bannedByUserId": None,
+            "banReason": None,
+        },
+    )
+    return {"success": True, "isBanned": updated.isBanned}
+
+
+@router.get("/ip-bans")
+async def list_ip_bans(_admin: dict = Depends(require_admin)):
+    """List all IP bans (admin only)."""
+    bans = await db.ipban.find_many(order={"createdAt": "desc"}, take=100)
+    return [
+        {
+            "id": b.id,
+            "ipAddress": b.ipAddress,
+            "reason": b.reason,
+            "active": b.active,
+            "createdByUserId": b.createdByUserId,
+            "createdAt": b.createdAt.isoformat(),
+        }
+        for b in bans
+    ]
+
+
+@router.post("/ip-bans")
+async def create_ip_ban(body: IpBanRequest, _admin: dict = Depends(require_admin)):
+    """Create an IP ban (admin only)."""
+    if not body.ipAddress.strip():
+        raise HTTPException(status_code=400, detail="IP address is required")
+
+    ban = await db.ipban.create(
+        data={
+            "ipAddress": body.ipAddress.strip(),
+            "reason": body.reason,
+            "active": True,
+            "createdByUserId": _admin["sub"],
+        }
+    )
+    return {
+        "id": ban.id,
+        "ipAddress": ban.ipAddress,
+        "reason": ban.reason,
+        "active": ban.active,
+        "createdAt": ban.createdAt.isoformat(),
+    }
+
+
+@router.delete("/ip-bans/{ban_id}")
+async def remove_ip_ban(ban_id: str, _admin: dict = Depends(require_admin)):
+    """Deactivate an IP ban (admin only)."""
+    ban = await db.ipban.find_unique(where={"id": ban_id})
+    if not ban:
+        raise HTTPException(status_code=404, detail="IP ban not found")
+
+    updated = await db.ipban.update(
+        where={"id": ban_id},
+        data={"active": False},
+    )
+    return {"success": True, "active": updated.active}
