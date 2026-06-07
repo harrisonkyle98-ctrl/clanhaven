@@ -6,7 +6,6 @@ import CollapsiblePanel from "@/components/CollapsiblePanel"
 
 const TABS = [
   { id: "account", label: "Account" },
-  { id: "linked-rsn", label: "Linked RSN" },
   { id: "preferences", label: "Preferences" },
   { id: "privacy", label: "Privacy & Security" },
 ] as const
@@ -60,7 +59,6 @@ export default function SettingsPage() {
 
         {/* Tab content */}
         {activeTab === "account" && <AccountTab user={user} />}
-        {activeTab === "linked-rsn" && <LinkedRsnTab user={user} />}
         {activeTab === "preferences" && <PreferencesTab />}
         {activeTab === "privacy" && <PrivacySecurityTab user={user} />}
       </div>
@@ -84,11 +82,31 @@ interface UserData {
 }
 
 function AccountTab({ user }: { user: UserData }) {
+  const { refreshUser } = useAuth()
+  const [unlinkLoading, setUnlinkLoading] = useState(false)
+
   const discordAvatarUrl = user.avatar
     ? `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png?size=128`
     : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.discordId) % 5}.png`
 
   const roleName = user.privileges >= 2 ? "Administrator" : user.privileges === 1 ? "Moderator" : "Member"
+
+  function getRsAvatarUrl(rsn: string): string {
+    return `https://secure.runescape.com/m=avatar-rs/${encodeURIComponent(rsn)}/chat.png`
+  }
+
+  const handleUnlink = async () => {
+    if (!confirm("Unlink your RSN? You will need to complete the account linking process again.")) return
+    setUnlinkLoading(true)
+    try {
+      await apiFetch("/api/users/me/unlink-rsn", { method: "POST" })
+      await refreshUser()
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Unlink failed")
+    } finally {
+      setUnlinkLoading(false)
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -136,41 +154,6 @@ function AccountTab({ user }: { user: UserData }) {
         </div>
       </CollapsiblePanel>
 
-      <CollapsiblePanel variant="blue" title="Account Actions">
-        <div className="ch-admin-section">
-          <p className="ch-admin-placeholder">
-            Account management options such as data export, account deactivation, and notification
-            preferences will be available here in future updates.
-          </p>
-        </div>
-      </CollapsiblePanel>
-    </div>
-  )
-}
-
-function LinkedRsnTab({ user }: { user: UserData }) {
-  const { refreshUser } = useAuth()
-  const [unlinkLoading, setUnlinkLoading] = useState(false)
-
-  function getRsAvatarUrl(rsn: string): string {
-    return `https://secure.runescape.com/m=avatar-rs/${encodeURIComponent(rsn)}/chat.png`
-  }
-
-  const handleUnlink = async () => {
-    if (!confirm("Unlink your RSN? You will need to complete the account linking process again.")) return
-    setUnlinkLoading(true)
-    try {
-      await apiFetch("/api/users/me/unlink-rsn", { method: "POST" })
-      await refreshUser()
-    } catch (e: unknown) {
-      alert(e instanceof Error ? e.message : "Unlink failed")
-    } finally {
-      setUnlinkLoading(false)
-    }
-  }
-
-  return (
-    <div className="space-y-4">
       <CollapsiblePanel variant="blue" title="Linked RuneScape Account">
         <div className="ch-admin-section">
           {user.rsn ? (
@@ -258,13 +241,11 @@ function LinkedRsnTab({ user }: { user: UserData }) {
         </div>
       </CollapsiblePanel>
 
-      <CollapsiblePanel variant="blue" title="Linking Information">
+      <CollapsiblePanel variant="blue" title="Account Actions">
         <div className="ch-admin-section">
-          <p style={{ color: "rgba(180,160,130,0.6)", fontSize: "0.6875rem", lineHeight: "1.6" }}>
-            Your RuneScape account is linked to your Discord account for identity verification.
-            This allows Clan Haven to display your in-game data, clan membership, and account status.
-            Unlinking will remove your RSN association and require you to complete the verification
-            process again on your next visit.
+          <p className="ch-admin-placeholder">
+            Account management options such as data export, account deactivation, and notification
+            preferences will be available here in future updates.
           </p>
         </div>
       </CollapsiblePanel>
