@@ -100,7 +100,10 @@ export default function SidebarAccountModule() {
             <button className="ch-sidebar-account-action">
               <span>My Clan</span>
             </button>
-            <button className="ch-sidebar-account-action">
+            <button
+              onClick={() => { navigate("/settings") }}
+              className="ch-sidebar-account-action"
+            >
               <span>Settings</span>
             </button>
             <button className="ch-sidebar-account-action">

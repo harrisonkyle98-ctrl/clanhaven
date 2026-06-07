@@ -7,6 +7,7 @@ export default function RouteLoadingBar() {
   const [progress, setProgress] = useState(0)
   const [isAdmin, setIsAdmin] = useState(false)
   const [isMod, setIsMod] = useState(false)
+  const [isSettings, setIsSettings] = useState(false)
   const prevPath = useRef(location.pathname)
   const rafRef = useRef(0)
 
@@ -16,6 +17,7 @@ export default function RouteLoadingBar() {
 
     setIsAdmin(location.pathname.startsWith("/admin"))
     setIsMod(location.pathname.startsWith("/mod"))
+    setIsSettings(location.pathname.startsWith("/settings"))
     setState("loading")
     setProgress(0)
 
@@ -50,7 +52,7 @@ export default function RouteLoadingBar() {
   return (
     <div className="ch-loading-bar-track">
       <div
-        className={`ch-loading-bar${isAdmin ? " ch-loading-bar--purple" : ""}${isMod ? " ch-loading-bar--green" : ""}${state === "completing" ? " ch-loading-bar--complete" : ""}`}
+        className={`ch-loading-bar${isAdmin ? " ch-loading-bar--purple" : ""}${isMod ? " ch-loading-bar--green" : ""}${isSettings ? " ch-loading-bar--blue" : ""}${state === "completing" ? " ch-loading-bar--complete" : ""}`}
         style={{ width: `${progress}%` }}
       />
     </div>

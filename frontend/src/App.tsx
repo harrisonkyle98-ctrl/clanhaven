@@ -7,6 +7,7 @@ import Dashboard from "@/pages/Dashboard"
 import NotFound from "@/pages/NotFound"
 import AdminPanel from "@/pages/AdminPanel"
 import ModPanel from "@/pages/ModPanel"
+import SettingsPage from "@/pages/SettingsPage"
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/mod" element={<ModPanel />} />
+            <Route path="/settings" element={<SettingsPage />} />
 
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />

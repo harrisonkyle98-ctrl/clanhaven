@@ -232,3 +232,19 @@ async def link_rsn(body: LinkRsnRequest, current_user: dict = Depends(get_curren
         "rsnClanName": user.rsnClanName,
         "rsnLinkedAt": user.rsnLinkedAt.isoformat() if user.rsnLinkedAt else None,
     }
+
+
+@router.post("/me/unlink-rsn")
+async def unlink_own_rsn(current_user: dict = Depends(get_current_user)):
+    """Allow a logged-in user to unlink their own RSN."""
+    await db.user.update(
+        where={"id": current_user["sub"]},
+        data={
+            "rsn": None,
+            "gameType": None,
+            "accountType": None,
+            "rsnClanName": None,
+            "rsnLinkedAt": None,
+        },
+    )
+    return {"success": True}

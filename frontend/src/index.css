@@ -2499,6 +2499,11 @@ body {
   border-bottom-color: #6ee7a0;
 }
 
+.ch-admin-tab--active.ch-admin-tab--blue {
+  color: #7db8e0;
+  border-bottom-color: #7db8e0;
+}
+
 .ch-admin-tab--disabled {
   opacity: 0.3;
   cursor: not-allowed;
@@ -2523,6 +2528,10 @@ body {
 
 .ch-mod-highlight {
   color: #6ee7a0;
+}
+
+.ch-settings-highlight {
+  color: #7db8e0;
 }
 
 /* Moderation action controls — hover-only */
@@ -2708,6 +2717,11 @@ body {
 .ch-loading-bar--green {
   background: linear-gradient(90deg, #3a6b4a, #5aaa6e, #3a6b4a);
   box-shadow: 0 0 8px rgba(90, 170, 110, 0.6), 0 0 2px rgba(90, 170, 110, 0.4);
+}
+
+.ch-loading-bar--blue {
+  background: linear-gradient(90deg, #415a73, #648cb4, #415a73);
+  box-shadow: 0 0 8px rgba(100, 140, 180, 0.6), 0 0 2px rgba(100, 140, 180, 0.4);
 }
 
 .ch-loading-bar--complete {
