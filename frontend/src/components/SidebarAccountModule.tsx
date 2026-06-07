@@ -53,7 +53,7 @@ export default function SidebarAccountModule() {
           <div className="ch-sidebar-account-user">
             <div className="ch-sidebar-account-avatar">
               <img
-                src={user.rsn ? getRsAvatarUrl(user.rsn) : "/images/default-avatar.png"}
+                src={user.displayRsn ? getRsAvatarUrl(user.displayRsn) : user.rsn ? getRsAvatarUrl(user.rsn) : "/images/default-avatar.png"}
                 alt=""
                 className="ch-sidebar-account-avatar-img"
                 onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
@@ -62,7 +62,7 @@ export default function SidebarAccountModule() {
             </div>
             <div className="ch-sidebar-account-info" style={{ flex: 1, minWidth: 0 }}>
               <div className="ch-sidebar-account-name-row">
-                <span className="ch-sidebar-account-name">{user.rsn}</span>
+                <span className="ch-sidebar-account-name">{user.displayRsn ?? user.rsn}</span>
               </div>
               <div className="ch-user-row-details" style={{ marginTop: "0.3rem" }}>
                 <div className="flex items-center gap-1.5 flex-wrap">

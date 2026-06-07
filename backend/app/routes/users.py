@@ -102,6 +102,9 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         include={"clanRef": True},
     )
 
+    # Determine display RSN (active identity)
+    display_rsn = user.activeRsn if user.activeRsn else user.rsn
+
     return {
         "id": user.id,
         "discordId": user.discordId,
@@ -109,6 +112,8 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         "avatar": user.avatar,
         "email": user.email,
         "rsn": user.rsn,
+        "activeRsn": user.activeRsn,
+        "displayRsn": display_rsn,
         "gameType": user.gameType,
         "accountType": user.accountType,
         "rsnClanName": rsn_clan_name,
@@ -245,6 +250,181 @@ async def unlink_own_rsn(current_user: dict = Depends(get_current_user)):
             "accountType": None,
             "rsnClanName": None,
             "rsnLinkedAt": None,
+            "activeRsn": None,
         },
     )
     return {"success": True}
+
+
+# ─── Alt Account Management ───
+
+
+def _normalize_rsn(rsn: str) -> str:
+    """Normalize RSN for canonical comparison (lowercase, strip spaces)."""
+    return rsn.strip().lower().replace(" ", " ")
+
+
+class AltRequestBody(BaseModel):
+    rsn: str
+    gameType: str
+
+
+@router.get("/me/alt-accounts")
+async def get_my_alt_accounts(current_user: dict = Depends(get_current_user)):
+    """Get the current user's alt account requests (all statuses)."""
+    requests = await db.altaccountrequest.find_many(
+        where={"userId": current_user["sub"]},
+        order={"createdAt": "desc"},
+    )
+    return [
+        {
+            "id": r.id,
+            "rsn": r.rsn,
+            "gameType": r.gameType,
+            "accountType": r.accountType,
+            "status": r.status,
+            "reviewNote": r.reviewNote,
+            "createdAt": r.createdAt.isoformat(),
+            "reviewedAt": r.reviewedAt.isoformat() if r.reviewedAt else None,
+        }
+        for r in requests
+    ]
+
+
+@router.post("/me/alt-accounts")
+async def request_alt_account(body: AltRequestBody, current_user: dict = Depends(get_current_user)):
+    """Submit an alt account link request."""
+    rsn = body.rsn.strip()
+    game_type = body.gameType.upper()
+
+    if not rsn or len(rsn) > 12:
+        raise HTTPException(status_code=400, detail="RSN must be 1-12 characters")
+    if game_type not in ("RS3", "OSRS"):
+        raise HTTPException(status_code=400, detail="gameType must be RS3 or OSRS")
+
+    rsn_lower = _normalize_rsn(rsn)
+
+    # Check if RSN is already someone's main account (case-insensitive)
+    all_users_with_rsn = await db.user.find_many(
+        where={"rsn": {"not": None}},
+    )
+    for u in all_users_with_rsn:
+        if u.rsn and _normalize_rsn(u.rsn) == rsn_lower:
+            if u.id == current_user["sub"]:
+                raise HTTPException(status_code=400, detail="This is already your main account")
+            raise HTTPException(status_code=400, detail="This RSN is already linked to another user's account")
+
+    # Check if RSN is already an approved alt for another user
+    existing_alt = await db.altaccountrequest.find_first(
+        where={
+            "rsnLower": rsn_lower,
+            "status": "approved",
+            "userId": {"not": current_user["sub"]},
+        },
+    )
+    if existing_alt:
+        raise HTTPException(status_code=400, detail="This RSN is already linked as another user's alt account")
+
+    # Check if user already has a pending request for this RSN
+    existing_pending = await db.altaccountrequest.find_first(
+        where={
+            "userId": current_user["sub"],
+            "rsnLower": rsn_lower,
+            "status": "pending",
+        },
+    )
+    if existing_pending:
+        raise HTTPException(status_code=400, detail="You already have a pending request for this RSN")
+
+    # Check if user already has an approved alt for this RSN
+    existing_approved = await db.altaccountrequest.find_first(
+        where={
+            "userId": current_user["sub"],
+            "rsnLower": rsn_lower,
+            "status": "approved",
+        },
+    )
+    if existing_approved:
+        raise HTTPException(status_code=400, detail="This RSN is already an approved alt on your account")
+
+    # Validate RSN exists on hiscores
+    hiscores_url = HISCORES_URLS.get(game_type, HISCORES_URLS["RS3"]) + rsn
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            resp = await client.get(hiscores_url)
+        except httpx.RequestError:
+            raise HTTPException(status_code=502, detail="Unable to reach RuneScape Hiscores")
+    if resp.status_code != 200:
+        raise HTTPException(status_code=404, detail=f"'{rsn}' was not found on {game_type} Hiscores")
+
+    # Detect account type for RS3
+    account_type = None
+    if game_type == "RS3":
+        account_type = await _detect_rs3_account_type(rsn)
+
+    request = await db.altaccountrequest.create(
+        data={
+            "userId": current_user["sub"],
+            "rsn": rsn,
+            "rsnLower": rsn_lower,
+            "gameType": game_type,
+            "accountType": account_type,
+            "status": "pending",
+        }
+    )
+    return {
+        "id": request.id,
+        "rsn": request.rsn,
+        "gameType": request.gameType,
+        "accountType": request.accountType,
+        "status": request.status,
+        "createdAt": request.createdAt.isoformat(),
+    }
+
+
+class SwitchIdentityBody(BaseModel):
+    rsn: Optional[str] = None
+
+
+@router.post("/me/active-identity")
+async def switch_active_identity(body: SwitchIdentityBody, current_user: dict = Depends(get_current_user)):
+    """Switch active site identity between main account and approved alts."""
+    user = await db.user.find_unique(where={"id": current_user["sub"]})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if body.rsn is None:
+        # Switch back to main account
+        await db.user.update(
+            where={"id": current_user["sub"]},
+            data={"activeRsn": None},
+        )
+        return {"success": True, "activeRsn": None}
+
+    target_rsn = body.rsn.strip()
+    target_lower = _normalize_rsn(target_rsn)
+
+    # Check if it's the main account
+    if user.rsn and _normalize_rsn(user.rsn) == target_lower:
+        await db.user.update(
+            where={"id": current_user["sub"]},
+            data={"activeRsn": None},
+        )
+        return {"success": True, "activeRsn": None}
+
+    # Check if it's an approved alt
+    approved_alt = await db.altaccountrequest.find_first(
+        where={
+            "userId": current_user["sub"],
+            "rsnLower": target_lower,
+            "status": "approved",
+        },
+    )
+    if not approved_alt:
+        raise HTTPException(status_code=400, detail="This RSN is not an approved alt on your account")
+
+    await db.user.update(
+        where={"id": current_user["sub"]},
+        data={"activeRsn": approved_alt.rsn},
+    )
+    return {"success": True, "activeRsn": approved_alt.rsn}

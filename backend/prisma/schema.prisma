@@ -30,10 +30,13 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  activeRsn   String?   @map("active_rsn")
+
   memberships ClanMember[]
   ownedClans  Clan[]       @relation("ClanOwner")
   newsPosts   NewsPost[]
   loginHistory UserLoginHistory[]
+  altRequests  AltAccountRequest[]
 
   @@map("users")
 }
@@ -214,6 +217,30 @@ model IpBan {
 
   @@index([ipAddress, active])
   @@map("ip_bans")
+}
+
+// ─── Alt Account Requests ───
+
+model AltAccountRequest {
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  rsn            String
+  rsnLower       String   @map("rsn_lower")
+  gameType       GameType @default(RS3) @map("game_type")
+  accountType    String?  @map("account_type")
+  status         String   @default("pending")
+  reviewedById   String?  @map("reviewed_by_id")
+  reviewedAt     DateTime? @map("reviewed_at")
+  reviewNote     String?  @map("review_note")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([rsnLower])
+  @@index([status])
+  @@map("alt_account_requests")
 }
 
 // ─── Enums ───

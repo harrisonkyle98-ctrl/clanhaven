@@ -7,6 +7,8 @@ interface User {
   avatar: string | null
   email: string | null
   rsn: string | null
+  activeRsn: string | null
+  displayRsn: string | null
   gameType: string | null
   accountType: string | null
   rsnClanName: string | null

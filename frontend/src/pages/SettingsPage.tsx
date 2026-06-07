@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Navigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { apiFetch } from "@/lib/api"
@@ -73,6 +73,8 @@ interface UserData {
   avatar: string | null
   email: string | null
   rsn: string | null
+  activeRsn: string | null
+  displayRsn: string | null
   gameType: string | null
   accountType: string | null
   rsnClanName: string | null
@@ -81,13 +83,46 @@ interface UserData {
   lastOnline: string | null
 }
 
+interface AltRequest {
+  id: string
+  rsn: string
+  gameType: string
+  accountType: string | null
+  status: string
+  reviewNote: string | null
+  createdAt: string
+  reviewedAt: string | null
+}
+
+function getRsAvatarUrl(rsn: string): string {
+  return `https://secure.runescape.com/m=avatar-rs/${encodeURIComponent(rsn)}/chat.png`
+}
+
 function AccountTab({ user }: { user: UserData }) {
   const { refreshUser } = useAuth()
   const [unlinkLoading, setUnlinkLoading] = useState(false)
+  const [altRequests, setAltRequests] = useState<AltRequest[]>([])
+  const [altLoading, setAltLoading] = useState(true)
+  const [newAltRsn, setNewAltRsn] = useState("")
+  const [newAltGame, setNewAltGame] = useState("RS3")
+  const [submitLoading, setSubmitLoading] = useState(false)
+  const [submitError, setSubmitError] = useState("")
+  const [switchLoading, setSwitchLoading] = useState(false)
 
-  function getRsAvatarUrl(rsn: string): string {
-    return `https://secure.runescape.com/m=avatar-rs/${encodeURIComponent(rsn)}/chat.png`
-  }
+  const fetchAlts = useCallback(async () => {
+    try {
+      const data = await apiFetch<AltRequest[]>("/api/users/me/alt-accounts")
+      setAltRequests(data)
+    } catch {
+      // ignore
+    } finally {
+      setAltLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void fetchAlts()
+  }, [fetchAlts])
 
   const handleUnlink = async () => {
     if (!confirm("Unlink your RSN? You will need to complete the account linking process again.")) return
@@ -102,9 +137,48 @@ function AccountTab({ user }: { user: UserData }) {
     }
   }
 
+  const handleSubmitAlt = async () => {
+    const rsn = newAltRsn.trim()
+    if (!rsn) return
+    setSubmitLoading(true)
+    setSubmitError("")
+    try {
+      await apiFetch("/api/users/me/alt-accounts", {
+        method: "POST",
+        body: JSON.stringify({ rsn, gameType: newAltGame }),
+      })
+      setNewAltRsn("")
+      await fetchAlts()
+    } catch (e: unknown) {
+      setSubmitError(e instanceof Error ? e.message : "Request failed")
+    } finally {
+      setSubmitLoading(false)
+    }
+  }
+
+  const handleSwitchIdentity = async (rsn: string | null) => {
+    setSwitchLoading(true)
+    try {
+      await apiFetch("/api/users/me/active-identity", {
+        method: "POST",
+        body: JSON.stringify({ rsn }),
+      })
+      await refreshUser()
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Switch failed")
+    } finally {
+      setSwitchLoading(false)
+    }
+  }
+
+  const approvedAlts = altRequests.filter((r) => r.status === "approved")
+  const pendingAlts = altRequests.filter((r) => r.status === "pending")
+  const deniedAlts = altRequests.filter((r) => r.status === "denied")
+
   return (
     <div className="space-y-4">
-      <CollapsiblePanel variant="blue" title="Linked RuneScape Account">
+      {/* Main Account */}
+      <CollapsiblePanel variant="blue" title="Main RuneScape Account">
         <div className="ch-admin-section">
           {user.rsn ? (
             <>
@@ -123,6 +197,11 @@ function AccountTab({ user }: { user: UserData }) {
                 <div>
                   <div style={{ color: "#e8d5b0", fontWeight: 600, fontSize: "0.875rem" }}>
                     {user.rsn}
+                    {!user.activeRsn && (
+                      <span style={{ color: "#7db8e0", fontSize: "0.625rem", marginLeft: "0.5rem", fontWeight: 400 }}>
+                        ACTIVE
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-1.5" style={{ marginTop: "0.25rem" }}>
                     {user.gameType && (
@@ -163,7 +242,17 @@ function AccountTab({ user }: { user: UserData }) {
                   {user.rsnLinkedAt ? new Date(user.rsnLinkedAt).toLocaleDateString() : "Unknown"}
                 </span>
               </div>
-              <div style={{ marginTop: "1rem" }}>
+              <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+                {user.activeRsn && (
+                  <button
+                    onClick={() => { void handleSwitchIdentity(null) }}
+                    disabled={switchLoading}
+                    className="ch-mod-action-btn"
+                    style={{ fontSize: "0.6875rem", padding: "0.3rem 0.75rem" }}
+                  >
+                    {switchLoading ? "Switching…" : "Switch to Main"}
+                  </button>
+                )}
                 <button
                   onClick={handleUnlink}
                   disabled={unlinkLoading}
@@ -172,7 +261,7 @@ function AccountTab({ user }: { user: UserData }) {
                 >
                   {unlinkLoading ? "Unlinking…" : "Unlink RSN"}
                 </button>
-                <span style={{ color: "rgba(180,160,130,0.4)", fontSize: "0.625rem", marginLeft: "0.75rem" }}>
+                <span style={{ color: "rgba(180,160,130,0.4)", fontSize: "0.625rem" }}>
                   You will need to re-link your RuneScape account after unlinking.
                 </span>
               </div>
@@ -186,6 +275,214 @@ function AccountTab({ user }: { user: UserData }) {
                 You will be prompted to link your RuneScape account when you close this page.
                 The linking process verifies your identity through the RuneScape Hiscores.
               </p>
+            </div>
+          )}
+        </div>
+      </CollapsiblePanel>
+
+      {/* Alt Accounts */}
+      <CollapsiblePanel variant="blue" title="Alternate Accounts">
+        <div className="ch-admin-section">
+          <p style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.6875rem", marginBottom: "1rem", lineHeight: 1.6 }}>
+            You can request to link additional RuneScape accounts as alternate accounts.
+            Alt account requests require moderator approval. Once approved, you can switch
+            your active site identity between your main account and any approved alt.
+            An RSN can only be linked to one Discord account — either as a main or alt account.
+          </p>
+
+          {/* Approved Alts */}
+          {approvedAlts.length > 0 && (
+            <div style={{ marginBottom: "1rem" }}>
+              <div style={{ color: "#e8d5b0", fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.5rem" }}>
+                Approved Alt Accounts
+              </div>
+              {approvedAlts.map((alt) => {
+                const isActive = user.activeRsn?.toLowerCase() === alt.rsn.toLowerCase()
+                return (
+                  <div
+                    key={alt.id}
+                    className="ch-row px-4 py-3"
+                    style={{ marginBottom: "0.25rem" }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={getRsAvatarUrl(alt.rsn)}
+                        alt=""
+                        style={{ width: "32px", height: "32px", border: "1px solid rgba(100,140,180,0.3)" }}
+                        onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
+                      />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600 }}>
+                          {alt.rsn}
+                          {isActive && (
+                            <span style={{ color: "#7db8e0", fontSize: "0.625rem", marginLeft: "0.5rem", fontWeight: 400 }}>
+                              ACTIVE
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5" style={{ marginTop: "0.2rem" }}>
+                          <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                            {alt.gameType}
+                          </span>
+                          {alt.accountType === "ironman" && <span className="badge-ironman">Ironman</span>}
+                          {alt.accountType === "hardcore_ironman" && <span className="badge-hardcore">Hardcore</span>}
+                          <span className="badge-online">Approved</span>
+                        </div>
+                      </div>
+                      {!isActive && (
+                        <button
+                          onClick={() => { void handleSwitchIdentity(alt.rsn) }}
+                          disabled={switchLoading}
+                          className="ch-mod-action-btn"
+                          style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                        >
+                          {switchLoading ? "…" : "Switch"}
+                        </button>
+                      )}
+                      {isActive && (
+                        <button
+                          onClick={() => { void handleSwitchIdentity(null) }}
+                          disabled={switchLoading}
+                          className="ch-mod-action-btn"
+                          style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                        >
+                          {switchLoading ? "…" : "Use Main"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Pending Requests */}
+          {pendingAlts.length > 0 && (
+            <div style={{ marginBottom: "1rem" }}>
+              <div style={{ color: "#e8d5b0", fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.5rem" }}>
+                Pending Requests
+              </div>
+              {pendingAlts.map((alt) => (
+                <div
+                  key={alt.id}
+                  className="ch-row px-4 py-3"
+                  style={{ marginBottom: "0.25rem" }}
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={getRsAvatarUrl(alt.rsn)}
+                      alt=""
+                      style={{ width: "32px", height: "32px", border: "1px solid rgba(100,140,180,0.3)" }}
+                      onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600 }}>
+                        {alt.rsn}
+                      </div>
+                      <div className="flex items-center gap-1.5" style={{ marginTop: "0.2rem" }}>
+                        <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                          {alt.gameType}
+                        </span>
+                        <span className="badge-info">Pending</span>
+                      </div>
+                    </div>
+                    <span style={{ color: "rgba(180,160,130,0.4)", fontSize: "0.625rem" }}>
+                      {new Date(alt.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Denied Requests */}
+          {deniedAlts.length > 0 && (
+            <div style={{ marginBottom: "1rem" }}>
+              <div style={{ color: "#e8d5b0", fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.5rem" }}>
+                Denied Requests
+              </div>
+              {deniedAlts.map((alt) => (
+                <div
+                  key={alt.id}
+                  className="ch-row px-4 py-3"
+                  style={{ marginBottom: "0.25rem", opacity: 0.6 }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600 }}>
+                        {alt.rsn}
+                      </div>
+                      <div className="flex items-center gap-1.5" style={{ marginTop: "0.2rem" }}>
+                        <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                          {alt.gameType}
+                        </span>
+                        <span className="badge-offline">Denied</span>
+                      </div>
+                      {alt.reviewNote && (
+                        <div style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", marginTop: "0.3rem" }}>
+                          Reason: {alt.reviewNote}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {altLoading && (
+            <p style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.6875rem" }}>Loading alt accounts…</p>
+          )}
+
+          {/* Request New Alt */}
+          {user.rsn && (
+            <div style={{ borderTop: "1px solid rgba(100,140,180,0.15)", paddingTop: "1rem", marginTop: "0.5rem" }}>
+              <div style={{ color: "#e8d5b0", fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.5rem" }}>
+                Request Alt Account
+              </div>
+              <div className="flex items-end gap-2 flex-wrap">
+                <div>
+                  <label style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", display: "block", marginBottom: "0.25rem" }}>
+                    RuneScape Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newAltRsn}
+                    onChange={(e) => { setNewAltRsn(e.target.value) }}
+                    maxLength={12}
+                    placeholder="Enter RSN"
+                    className="ch-admin-input"
+                    style={{ width: "180px" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", display: "block", marginBottom: "0.25rem" }}>
+                    Game
+                  </label>
+                  <select
+                    value={newAltGame}
+                    onChange={(e) => { setNewAltGame(e.target.value) }}
+                    className="ch-admin-input"
+                    style={{ width: "90px" }}
+                  >
+                    <option value="RS3">RS3</option>
+                    <option value="OSRS">OSRS</option>
+                  </select>
+                </div>
+                <button
+                  onClick={() => { void handleSubmitAlt() }}
+                  disabled={submitLoading || !newAltRsn.trim()}
+                  className="ch-mod-action-btn"
+                  style={{ fontSize: "0.6875rem", padding: "0.3rem 0.75rem" }}
+                >
+                  {submitLoading ? "Submitting…" : "Submit Request"}
+                </button>
+              </div>
+              {submitError && (
+                <p style={{ color: "#e57373", fontSize: "0.6875rem", marginTop: "0.5rem" }}>
+                  {submitError}
+                </p>
+              )}
             </div>
           )}
         </div>
