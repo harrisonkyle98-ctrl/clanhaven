@@ -197,7 +197,7 @@ function AccountTab({ user }: { user: UserData }) {
           {user.rsn ? (
             <>
               <div className="flex items-center gap-4" style={{ marginBottom: "1rem" }}>
-                <div className="ch-sidebar-account-avatar">
+                <div className="ch-sidebar-account-avatar" style={{ aspectRatio: "1" }}>
                   <img
                     src={getRsAvatarUrl(user.rsn)}
                     alt="RS avatar"
@@ -318,7 +318,7 @@ function AccountTab({ user }: { user: UserData }) {
                     style={{ marginBottom: "0.25rem" }}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="ch-sidebar-account-avatar" style={{ width: "36px", minWidth: "36px" }}>
+                      <div className="ch-sidebar-account-avatar" style={{ width: "36px", minWidth: "36px", aspectRatio: "1" }}>
                         <img
                           src={getRsAvatarUrl(alt.rsn)}
                           alt=""
@@ -404,7 +404,7 @@ function AccountTab({ user }: { user: UserData }) {
                   style={{ marginBottom: "0.25rem" }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="ch-sidebar-account-avatar" style={{ width: "36px", minWidth: "36px" }}>
+                    <div className="ch-sidebar-account-avatar" style={{ width: "36px", minWidth: "36px", aspectRatio: "1" }}>
                       <img
                         src={getRsAvatarUrl(alt.rsn)}
                         alt=""
