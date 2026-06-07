@@ -55,6 +55,9 @@ async def list_alt_requests(_mod: dict = Depends(require_mod)):
             "requesterRsn": r.user.rsn if r.user else None,
             "requesterAvatar": r.user.avatar if r.user else None,
             "requesterDiscordId": r.user.discordId if r.user else None,
+            "requesterAccountType": r.user.accountType if r.user else None,
+            "requesterClanName": r.user.rsnClanName if r.user else None,
+            "requesterGameType": r.user.gameType if r.user else None,
         }
         for r in requests
     ]

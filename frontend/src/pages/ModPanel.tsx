@@ -158,6 +158,7 @@ interface AltRequestMod {
   rsn: string
   gameType: string
   accountType: string | null
+  clanName: string | null
   status: string
   reviewedById: string | null
   reviewedAt: string | null
@@ -167,10 +168,9 @@ interface AltRequestMod {
   requesterRsn: string | null
   requesterAvatar: string | null
   requesterDiscordId: string | null
-}
-
-function getRsAvatarUrl(rsn: string): string {
-  return `https://secure.runescape.com/m=avatar-rs/${encodeURIComponent(rsn)}/chat.png`
+  requesterAccountType: string | null
+  requesterClanName: string | null
+  requesterGameType: string | null
 }
 
 function ModAltAccountsTab() {
@@ -249,9 +249,6 @@ function ModAltAccountsTab() {
       <CollapsiblePanel variant="green" title="Alt Account Requests">
         <div className="ch-admin-section">
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem", flexWrap: "wrap" }}>
-            <span style={{ color: "#e8d5b0", fontSize: "0.75rem", fontWeight: 600 }}>
-              Filter:
-            </span>
             {(["pending", "approved", "denied", "all"] as const).map((f) => (
               <button
                 key={f}
@@ -281,52 +278,43 @@ function ModAltAccountsTab() {
 
           {filtered.map((req) => {
             const isPending = req.status === "pending"
-            const discordAvatar = req.requesterAvatar && req.requesterDiscordId
-              ? `https://cdn.discordapp.com/avatars/${req.requesterDiscordId}/${req.requesterAvatar}.png?size=64`
-              : null
+            const isApproved = req.status === "approved"
+            const isDenied = req.status === "denied"
 
             return (
               <div
                 key={req.id}
                 className="ch-row px-4 py-3"
-                style={{ marginBottom: "0.5rem" }}
+                style={{ marginBottom: "0.25rem", ...(isDenied ? { opacity: 0.6 } : {}) }}
               >
-                {/* Row 1: Requester info */}
-                <div className="flex items-center gap-3" style={{ marginBottom: "0.5rem" }}>
-                  {discordAvatar && (
+                {/* Requester's main RSN */}
+                <div style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", marginBottom: "0.3rem" }}>
+                  <span style={{ fontWeight: 600 }}>
+                    {req.requesterRsn ?? req.requesterUsername ?? "Unknown"}
+                  </span>
+                  {req.requesterRsn && (req.requesterAccountType === "ironman" || req.requesterAccountType === "hardcore_ironman") && (
                     <img
-                      src={discordAvatar}
-                      alt=""
-                      style={{ width: "28px", height: "28px", border: "1px solid rgba(100,180,130,0.3)" }}
-                      onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
+                      src={req.requesterAccountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                      alt={req.requesterAccountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                      title={req.requesterAccountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                      style={{ width: "10px", height: "10px", objectFit: "contain", marginLeft: "3px", verticalAlign: "middle" }}
                     />
                   )}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600 }}>
-                      {req.requesterUsername ?? "Unknown User"}
-                      {req.requesterRsn && (
-                        <span style={{ color: "rgba(180,160,130,0.6)", fontSize: "0.6875rem", marginLeft: "0.5rem", fontWeight: 400 }}>
-                          (Main: {req.requesterRsn})
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <span style={{ color: "rgba(180,160,130,0.4)", fontSize: "0.625rem" }}>
-                    {new Date(req.createdAt).toLocaleString()}
-                  </span>
+                  {req.requesterClanName && (
+                    <span className="badge-clan" style={{ marginLeft: "0.4rem" }}>{req.requesterClanName}</span>
+                  )}
+                  {req.requesterGameType && (
+                    <span className={req.requesterGameType === "RS3" ? "badge-rs3" : "badge-osrs"} style={{ marginLeft: "0.25rem" }}>
+                      {req.requesterGameType}
+                    </span>
+                  )}
                 </div>
 
-                {/* Row 2: Requested RSN */}
-                <div className="flex items-center gap-3" style={{ marginBottom: isPending ? "0.5rem" : 0 }}>
-                  <img
-                    src={getRsAvatarUrl(req.rsn)}
-                    alt=""
-                    style={{ width: "32px", height: "32px", border: "1px solid rgba(100,180,130,0.3)" }}
-                    onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
-                  />
+                {/* Requested alt RSN row — matches Settings page alt row structure */}
+                <div className="flex items-center gap-3">
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", display: "flex", alignItems: "center" }}>
-                      Requesting:&nbsp;<span style={{ fontWeight: 600 }}>{req.rsn}</span>
+                    <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
+                      {req.rsn}
                       {(req.accountType === "ironman" || req.accountType === "hardcore_ironman") && (
                         <img
                           src={req.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
@@ -335,81 +323,87 @@ function ModAltAccountsTab() {
                           style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
                         />
                       )}
+                      {isApproved && <span className="badge-online" style={{ marginLeft: "0.4rem" }}>Approved</span>}
+                      {isPending && <span className="badge-info" style={{ marginLeft: "0.4rem" }}>Pending</span>}
+                      {isPending && <span className="badge-pending-date" style={{ marginLeft: "0.4rem" }}>Requested on {new Date(req.createdAt).toLocaleDateString()}</span>}
+                      {isDenied && <span className="badge-offline" style={{ marginLeft: "0.4rem" }}>Denied</span>}
                     </div>
-                    <div className="flex items-center gap-1.5" style={{ marginTop: "0.2rem" }}>
-                      <span className={req.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
-                        {req.gameType}
-                      </span>
-                      {req.status === "pending" && <span className="badge-info">Pending</span>}
-                      {req.status === "approved" && <span className="badge-online">Approved</span>}
-                      {req.status === "denied" && <span className="badge-offline">Denied</span>}
+                    <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {req.clanName && (
+                          <span className="badge-clan">{req.clanName}</span>
+                        )}
+                        <span className={req.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                          {req.gameType}
+                        </span>
+                      </div>
                     </div>
+                    {isDenied && req.reviewNote && (
+                      <div style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", marginTop: "0.3rem" }}>
+                        Reason: {req.reviewNote}
+                      </div>
+                    )}
+                    {!isPending && req.reviewedAt && (
+                      <div style={{ color: "rgba(180,160,130,0.4)", fontSize: "0.625rem", marginTop: "0.2rem" }}>
+                        Reviewed: {new Date(req.reviewedAt).toLocaleString()}
+                      </div>
+                    )}
                   </div>
+
+                  {/* Actions column */}
+                  {(isPending || isApproved) && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", alignItems: "flex-end" }}>
+                      {isPending && (
+                        <>
+                          <input
+                            type="text"
+                            value={noteInputs[req.id] ?? ""}
+                            onChange={(e) => { setNoteInputs((prev) => ({ ...prev, [req.id]: e.target.value })) }}
+                            placeholder="Note (optional)"
+                            className="ch-admin-input"
+                            style={{ width: "160px", fontSize: "0.6875rem" }}
+                          />
+                          <button
+                            onClick={() => { void handleApprove(req.id) }}
+                            disabled={actionLoading === req.id}
+                            className="ch-mod-action-btn"
+                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                          >
+                            {actionLoading === req.id ? "…" : "Approve"}
+                          </button>
+                          <button
+                            onClick={() => { void handleDeny(req.id) }}
+                            disabled={actionLoading === req.id}
+                            className="ch-mod-action-btn ch-mod-action-btn--danger"
+                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                          >
+                            {actionLoading === req.id ? "…" : "Deny"}
+                          </button>
+                        </>
+                      )}
+                      {isApproved && (
+                        <>
+                          <input
+                            type="text"
+                            value={noteInputs[req.id] ?? ""}
+                            onChange={(e) => { setNoteInputs((prev) => ({ ...prev, [req.id]: e.target.value })) }}
+                            placeholder="Note (optional)"
+                            className="ch-admin-input"
+                            style={{ width: "160px", fontSize: "0.6875rem" }}
+                          />
+                          <button
+                            onClick={() => { void handleUnlink(req.id, req.rsn) }}
+                            disabled={actionLoading === req.id}
+                            className="ch-mod-action-btn ch-mod-action-btn--danger"
+                            style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                          >
+                            {actionLoading === req.id ? "…" : "Unlink"}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
-
-                {/* Review note (for already reviewed) */}
-                {!isPending && req.reviewNote && (
-                  <div style={{ color: "rgba(180,160,130,0.5)", fontSize: "0.625rem", marginTop: "0.3rem" }}>
-                    Note: {req.reviewNote}
-                  </div>
-                )}
-                {!isPending && req.reviewedAt && (
-                  <div style={{ color: "rgba(180,160,130,0.4)", fontSize: "0.625rem", marginTop: "0.2rem" }}>
-                    Reviewed: {new Date(req.reviewedAt).toLocaleString()}
-                  </div>
-                )}
-
-                {/* Unlink action for approved requests */}
-                {req.status === "approved" && (
-                  <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap", marginTop: "0.5rem" }}>
-                    <input
-                      type="text"
-                      value={noteInputs[req.id] ?? ""}
-                      onChange={(e) => { setNoteInputs((prev) => ({ ...prev, [req.id]: e.target.value })) }}
-                      placeholder="Note (optional)"
-                      className="ch-admin-input"
-                      style={{ width: "200px", fontSize: "0.6875rem" }}
-                    />
-                    <button
-                      onClick={() => { void handleUnlink(req.id, req.rsn) }}
-                      disabled={actionLoading === req.id}
-                      className="ch-mod-action-btn ch-mod-action-btn--danger"
-                      style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
-                    >
-                      {actionLoading === req.id ? "…" : "Unlink"}
-                    </button>
-                  </div>
-                )}
-
-                {/* Actions for pending requests */}
-                {isPending && (
-                  <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
-                    <input
-                      type="text"
-                      value={noteInputs[req.id] ?? ""}
-                      onChange={(e) => { setNoteInputs((prev) => ({ ...prev, [req.id]: e.target.value })) }}
-                      placeholder="Note (optional)"
-                      className="ch-admin-input"
-                      style={{ width: "200px", fontSize: "0.6875rem" }}
-                    />
-                    <button
-                      onClick={() => { void handleApprove(req.id) }}
-                      disabled={actionLoading === req.id}
-                      className="ch-mod-action-btn"
-                      style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
-                    >
-                      {actionLoading === req.id ? "…" : "Approve"}
-                    </button>
-                    <button
-                      onClick={() => { void handleDeny(req.id) }}
-                      disabled={actionLoading === req.id}
-                      className="ch-mod-action-btn ch-mod-action-btn--danger"
-                      style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
-                    >
-                      {actionLoading === req.id ? "…" : "Deny"}
-                    </button>
-                  </div>
-                )}
               </div>
             )
           })}
