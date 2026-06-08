@@ -394,7 +394,7 @@ body {
 }
 
 .ch-row-arrow:hover .ch-row-arrow-fill {
-  background-color: rgba(255, 255, 255, 0.03);
+  background: rgba(28, 24, 18, 0.85);
 }
 
 /* Alt V-notch section — three nested clip-paths matching ch-row double border */
