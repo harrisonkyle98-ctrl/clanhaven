@@ -351,7 +351,7 @@ body {
 
 .ch-row-arrow-mid {
   clip-path: polygon(1px 1px, calc(100% - 21px) 1px, calc(100% - 1px) 50%, calc(100% - 21px) calc(100% - 1px), 1px calc(100% - 1px));
-  background: rgba(70, 100, 140, 0.6);
+  background: rgba(96, 165, 250, 0.3);
   height: 100%;
 }
 
@@ -363,7 +363,7 @@ body {
   overflow: hidden;
   transition: background-color 0.2s ease;
   box-shadow:
-    inset 0 1px 0 rgba(100, 140, 180, 0.25),
+    inset 0 1px 0 rgba(96, 165, 250, 0.2),
     inset 0 3px 8px rgba(0, 0, 0, 0.4),
     inset 0 -1px 4px rgba(0, 0, 0, 0.15);
 }
@@ -375,7 +375,7 @@ body {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-color: rgba(100, 140, 180, 0.6);
+  background-color: #60a5fa;
   -webkit-mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
   mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
   -webkit-mask-repeat: repeat;
@@ -384,7 +384,7 @@ body {
   mask-size: 20px 20px;
   -webkit-mask-position: 0 0;
   mask-position: 0 0;
-  opacity: 0.15;
+  opacity: 0.05;
 }
 
 /* Content renders above pattern */
@@ -394,7 +394,7 @@ body {
 }
 
 .ch-row-arrow:hover .ch-row-arrow-fill {
-  background: rgba(28, 24, 18, 0.85);
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 /* Alt V-notch section — three nested clip-paths matching ch-row double border */
