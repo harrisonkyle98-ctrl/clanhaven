@@ -346,11 +346,11 @@ body {
 /* Requester arrow section — bordered pentagon via nested clip-paths */
 .ch-row-arrow {
   clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%);
-  background: rgba(52, 45, 34, 0.6);
+  background: rgba(10, 8, 5, 0.9);
 }
 
 .ch-row-arrow > .ch-row-arrow-fill {
-  clip-path: polygon(2px 2px, calc(100% - 22px) 2px, calc(100% - 2px) 50%, calc(100% - 22px) calc(100% - 2px), 2px calc(100% - 2px));
+  clip-path: polygon(1px 1px, calc(100% - 21px) 1px, calc(100% - 1px) 50%, calc(100% - 21px) calc(100% - 1px), 1px calc(100% - 1px));
   background: rgba(22, 19, 14, 0.8);
   height: 100%;
   position: relative;
@@ -369,11 +369,11 @@ body {
 /* Alt V-notch section — bordered notch via nested clip-paths */
 .ch-row-notch {
   clip-path: polygon(20px 50%, 0 0, 100% 0, 100% 100%, 0 100%);
-  background: rgba(52, 45, 34, 0.6);
+  background: rgba(10, 8, 5, 0.9);
 }
 
 .ch-row-notch > .ch-row-notch-fill {
-  clip-path: polygon(22px 50%, 2px 2px, calc(100% - 2px) 2px, calc(100% - 2px) calc(100% - 2px), 2px calc(100% - 2px));
+  clip-path: polygon(21px 50%, 1px 1px, calc(100% - 1px) 1px, calc(100% - 1px) calc(100% - 1px), 1px calc(100% - 1px));
   background: rgba(22, 19, 14, 0.8);
   height: 100%;
   position: relative;
