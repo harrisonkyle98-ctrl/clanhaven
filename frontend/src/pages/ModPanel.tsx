@@ -286,22 +286,16 @@ function ModAltAccountsTab() {
                 key={req.id}
                 style={{ display: "flex", alignItems: "stretch", marginBottom: "0.5rem", position: "relative", ...(isDenied ? { opacity: 0.6 } : {}) }}
               >
-                {/* Requester container — arrow-shaped via clip-path pentagon */}
+                {/* Requester section — arrow-shaped via clip-path */}
                 <div
+                  className="ch-row"
                   style={{
                     width: "20%",
                     minWidth: "120px",
                     position: "relative",
                     zIndex: 2,
-                    filter: "drop-shadow(1px 0 0 rgba(52, 45, 34, 0.8)) drop-shadow(0 1px 0 rgba(52, 45, 34, 0.8)) drop-shadow(0 -1px 0 rgba(52, 45, 34, 0.8))",
-                  }}
-                >
-                <div
-                  className="ch-row"
-                  style={{
                     clipPath: "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%)",
                     borderRadius: "2px 0 0 2px",
-                    height: "100%",
                   }}
                 >
                     <div className="px-4 py-3" style={{ paddingRight: "2rem" }}>
@@ -330,9 +324,8 @@ function ModAltAccountsTab() {
                       </div>
                     </div>
                 </div>
-                </div>
 
-                {/* Requested alt account container — V-notch on left matches requester arrow */}
+                {/* Requested alt account section — V-notch on left matches requester arrow */}
                 <div
                   className="ch-row"
                   style={{
