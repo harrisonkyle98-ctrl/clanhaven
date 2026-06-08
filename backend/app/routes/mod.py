@@ -160,3 +160,17 @@ async def deny_alt_request(request_id: str, body: ReviewAltRequest, _mod: dict =
         },
     )
     return {"success": True, "status": updated.status}
+
+
+@router.delete("/alt-requests/{request_id}")
+async def delete_denied_alt_request(request_id: str, _mod: dict = Depends(require_mod)):
+    """Delete a denied alt account request permanently."""
+    req = await db.altaccountrequest.find_unique(where={"id": request_id})
+    if not req:
+        raise HTTPException(status_code=404, detail="Request not found")
+    if req.status != "denied":
+        raise HTTPException(status_code=400, detail="Only denied alt account requests can be deleted")
+
+    await db.altaccountrequest.delete(where={"id": request_id})
+    logger.info("[mod] Denied alt request '%s' (RSN '%s') deleted by mod %s", request_id, req.rsn, _mod["sub"])
+    return {"success": True}

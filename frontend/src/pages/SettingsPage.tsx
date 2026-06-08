@@ -181,6 +181,16 @@ function AccountTab({ user }: { user: UserData }) {
     }
   }
 
+  const handleDeleteDenied = async (altId: string, altRsn: string) => {
+    if (!confirm(`Permanently delete denied request for "${altRsn}"? This cannot be undone.`)) return
+    try {
+      await apiFetch(`/api/users/me/alt-accounts/${altId}/denied`, { method: "DELETE" })
+      await fetchAlts()
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Delete failed")
+    }
+  }
+
 
 
   return (
@@ -327,7 +337,15 @@ function AccountTab({ user }: { user: UserData }) {
                       </button>
                     </div>
                   )}
-
+                  {isDenied && (
+                    <button
+                      onClick={() => { void handleDeleteDenied(alt.id, alt.rsn) }}
+                      className="ch-mod-action-btn ch-mod-action-btn--danger"
+                      style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               </div>
             )

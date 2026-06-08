@@ -241,6 +241,19 @@ function ModAltAccountsTab() {
     }
   }
 
+  const handleDeleteDenied = async (id: string, rsn: string) => {
+    if (!confirm(`Permanently delete denied request for "${rsn}"? This cannot be undone.`)) return
+    setActionLoading(id)
+    try {
+      await apiFetch(`/api/mod/alt-requests/${id}`, { method: "DELETE" })
+      await fetchRequests()
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Delete failed")
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
   const filtered = filter === "all" ? requests : requests.filter((r) => r.status === filter)
   const pendingCount = requests.filter((r) => r.status === "pending").length
 
@@ -370,7 +383,7 @@ function ModAltAccountsTab() {
                       </div>
 
                       {/* Actions column */}
-                      {(isPending || isApproved) && (
+                      {(isPending || isApproved || isDenied) && (
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", alignItems: "stretch", minWidth: "5rem" }}>
                           {isPending && (
                             <>
@@ -400,6 +413,16 @@ function ModAltAccountsTab() {
                               style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem", width: "100%" }}
                             >
                               {actionLoading === req.id ? "…" : "Unlink"}
+                            </button>
+                          )}
+                          {isDenied && (
+                            <button
+                              onClick={() => { void handleDeleteDenied(req.id, req.rsn) }}
+                              disabled={actionLoading === req.id}
+                              className="ch-mod-action-btn ch-mod-action-btn--danger"
+                              style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem", width: "100%" }}
+                            >
+                              {actionLoading === req.id ? "…" : "Delete"}
                             </button>
                           )}
                         </div>
