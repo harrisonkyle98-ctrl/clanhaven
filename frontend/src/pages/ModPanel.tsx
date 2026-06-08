@@ -286,17 +286,19 @@ function ModAltAccountsTab() {
                 key={req.id}
                 style={{ display: "flex", alignItems: "stretch", marginBottom: "0.5rem", position: "relative", ...(isDenied ? { opacity: 0.6 } : {}) }}
               >
-                {/* Requester container — ch-row with arrow-right modifier */}
+                {/* Requester container — ch-row clipped to seamless pentagon, overlaps alt row */}
                 <div
-                  className="ch-row ch-row-arrow-right"
+                  className="ch-row"
                   style={{
-                    width: "20%",
-                    minWidth: "120px",
+                    width: "calc(20% + 20px)",
+                    minWidth: "140px",
                     zIndex: 2,
-                    marginRight: "-16px",
+                    marginRight: "-20px",
+                    clipPath: "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%)",
+                    borderRadius: "2px 0 0 2px",
                   }}
                 >
-                    <div className="px-4 py-3" style={{ paddingRight: "1.75rem" }}>
+                    <div className="px-4 py-3" style={{ paddingRight: "2.5rem" }}>
                       <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                         {req.requesterRsn ?? req.requesterUsername ?? "Unknown"}
                         {req.requesterRsn && (req.requesterAccountType === "ironman" || req.requesterAccountType === "hardcore_ironman") && (
