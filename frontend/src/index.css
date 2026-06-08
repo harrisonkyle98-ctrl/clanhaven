@@ -343,6 +343,44 @@ body {
   background: rgba(28, 24, 18, 0.85);
 }
 
+/* Requester arrow section — bordered pentagon via nested clip-paths */
+.ch-row-arrow {
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%);
+  background: rgba(52, 45, 34, 0.6);
+}
+
+.ch-row-arrow > .ch-row-arrow-fill {
+  clip-path: polygon(2px 2px, calc(100% - 22px) 2px, calc(100% - 2px) 50%, calc(100% - 22px) calc(100% - 2px), 2px calc(100% - 2px));
+  background: rgba(22, 19, 14, 0.8);
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.2s ease;
+}
+
+.ch-row-arrow:hover > .ch-row-arrow-fill {
+  background: rgba(28, 24, 18, 0.85);
+}
+
+/* Alt V-notch section — bordered notch via nested clip-paths */
+.ch-row-notch {
+  clip-path: polygon(20px 50%, 0 0, 100% 0, 100% 100%, 0 100%);
+  background: rgba(52, 45, 34, 0.6);
+}
+
+.ch-row-notch > .ch-row-notch-fill {
+  clip-path: polygon(22px 50%, 2px 2px, calc(100% - 2px) 2px, calc(100% - 2px) calc(100% - 2px), 2px calc(100% - 2px));
+  background: rgba(22, 19, 14, 0.8);
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.2s ease;
+}
+
+.ch-row-notch:hover > .ch-row-notch-fill {
+  background: rgba(28, 24, 18, 0.85);
+}
+
 
 /* ===========================================
    LOG ROW - Stormlight-style activity rows
