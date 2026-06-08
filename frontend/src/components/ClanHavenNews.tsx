@@ -67,8 +67,11 @@ export default function ClanHavenNews() {
               </button>
             </div>
             {selectedPost.bannerUrl && (
-              <div className="ch-news-banner">
+              <div className="ch-news-banner ch-news-banner--expanded">
                 <img src={selectedPost.bannerUrl} alt="" className="ch-news-banner-img" />
+                <div className="ch-news-banner-overlay">
+                  <h3 className="ch-news-banner-title">{selectedPost.title}</h3>
+                </div>
               </div>
             )}
             <div className="px-4 pb-4">
@@ -82,21 +85,25 @@ export default function ClanHavenNews() {
                     : formatDate(selectedPost.createdAt)}
                 </span>
               </div>
-              <h3 className="ch-news-article-title">
-                {selectedPost.title}
-              </h3>
-              {isHtmlContent(selectedPost.content) ? (
-                <div
-                  className="ch-news-article-body"
-                  dangerouslySetInnerHTML={{ __html: selectedPost.content }}
-                />
-              ) : (
-                <div className="ch-news-article-body">
-                  {selectedPost.content.split("\n").map((paragraph, i) => (
-                    <p key={i}>{paragraph}</p>
-                  ))}
-                </div>
+              {!selectedPost.bannerUrl && (
+                <h3 className="ch-news-article-title">
+                  {selectedPost.title}
+                </h3>
               )}
+              <div className="ch-news-article-container">
+                {isHtmlContent(selectedPost.content) ? (
+                  <div
+                    className="ch-news-article-body"
+                    dangerouslySetInnerHTML={{ __html: selectedPost.content }}
+                  />
+                ) : (
+                  <div className="ch-news-article-body">
+                    {selectedPost.content.split("\n").map((paragraph, i) => (
+                      <p key={i}>{paragraph}</p>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ) : (
