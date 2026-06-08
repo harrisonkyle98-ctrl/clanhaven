@@ -393,6 +393,11 @@ body {
   z-index: 1;
 }
 
+/* Tag container inside requester must be opaque so pattern doesn't bleed through */
+.ch-row-arrow-fill .ch-user-row-details {
+  background: rgb(12, 10, 8);
+}
+
 .ch-row-arrow:hover .ch-row-arrow-fill {
   background: rgba(28, 24, 18, 0.85);
 }
