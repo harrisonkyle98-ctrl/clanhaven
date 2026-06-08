@@ -294,18 +294,12 @@ function ModAltAccountsTab() {
                     position: "relative",
                     zIndex: 2,
                     marginRight: "-16px",
-                    filter: [
-                      "drop-shadow(0 0 0px rgba(10, 8, 5, 1))",
-                      "drop-shadow(0 0 0.5px rgba(10, 8, 5, 1))",
-                      "drop-shadow(0 0 1px rgba(52, 45, 34, 1))",
-                      "drop-shadow(0 0 1.5px rgba(52, 45, 34, 0.8))",
-                      "drop-shadow(3px 0 6px rgba(0, 0, 0, 0.5))",
-                    ].join(" "),
+                    filter: "drop-shadow(0 0 0.5px rgba(52, 45, 34, 0.8)) drop-shadow(2px 0 3px rgba(0, 0, 0, 0.35))",
                   }}
                 >
                   <div
                     style={{
-                      background: "rgb(20, 17, 12)",
+                      background: "rgba(22, 19, 14, 0.8)",
                       clipPath: "polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%)",
                       height: "100%",
                       display: "flex",
