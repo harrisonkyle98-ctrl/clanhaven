@@ -538,14 +538,14 @@ async def unlink_alt_account(request_id: str, current_user: dict = Depends(get_c
 
 @router.delete("/me/alt-accounts/{request_id}/denied")
 async def delete_denied_alt_request(request_id: str, current_user: dict = Depends(get_current_user)):
-    """Delete a denied alt account request from the current user's list."""
+    """Delete a denied or pending alt account request from the current user's list."""
     req = await db.altaccountrequest.find_unique(where={"id": request_id})
     if not req:
         raise HTTPException(status_code=404, detail="Alt account request not found")
     if req.userId != current_user["sub"]:
         raise HTTPException(status_code=403, detail="Not authorized")
-    if req.status != "denied":
-        raise HTTPException(status_code=400, detail="Only denied alt account requests can be deleted")
+    if req.status not in ("denied", "pending"):
+        raise HTTPException(status_code=400, detail="Only denied or pending alt account requests can be deleted")
 
     await db.altaccountrequest.delete(where={"id": request_id})
     return {"success": True}

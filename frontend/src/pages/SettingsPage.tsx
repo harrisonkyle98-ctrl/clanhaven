@@ -346,6 +346,15 @@ function AccountTab({ user }: { user: UserData }) {
                       Delete
                     </button>
                   )}
+                  {isPending && (
+                    <button
+                      onClick={() => { void handleDeleteDenied(alt.id, alt.rsn) }}
+                      className="ch-mod-action-btn ch-mod-action-btn--danger"
+                      style={{ fontSize: "0.6875rem", padding: "0.25rem 0.6rem" }}
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               </div>
             )
