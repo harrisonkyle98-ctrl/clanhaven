@@ -917,19 +917,27 @@ function AdminNewsTab() {
         style={{ opacity: transitioning ? 0 : 1, transition: "opacity 150ms ease" }}
       >
         {viewing ? (
-          <>
-            <div className="px-4 pt-3 pb-1">
-              <button className="ch-news-back" onClick={closeArticle}>
-                ← Back to News
-              </button>
-            </div>
+          <div className="ch-news-expanded">
             {viewing.bannerUrl && (
-              <div className="ch-news-banner">
+              <div className="ch-news-banner ch-news-banner--expanded">
+                <button className="ch-news-back-btn" onClick={closeArticle}>
+                  Back to News
+                </button>
                 <img src={viewing.bannerUrl} alt="" className="ch-news-banner-img" />
+                <div className="ch-news-banner-overlay">
+                  <h3 className="ch-news-banner-title">{viewing.title}</h3>
+                </div>
               </div>
             )}
-            <div className="px-4 pb-4">
-              <div className="flex items-center gap-2 mb-2">
+            {!viewing.bannerUrl && (
+              <div className="px-4 pt-3 pb-1">
+                <button className="ch-news-back-btn" onClick={closeArticle}>
+                  Back to News
+                </button>
+              </div>
+            )}
+            <div className={`ch-news-article-container${!viewing.bannerUrl ? " ch-news-article-container--standalone" : ""}`}>
+              <div className="flex items-center gap-2 mb-3">
                 <span className={`badge-category badge-category--${(viewing.category || "Update").toLowerCase()}`}>
                   {viewing.category || "Update"}
                 </span>
@@ -944,7 +952,9 @@ function AdminNewsTab() {
                     : formatDate(viewing.createdAt)}
                 </span>
               </div>
-              <h3 className="ch-news-article-title">{viewing.title}</h3>
+              {!viewing.bannerUrl && (
+                <h3 className="ch-news-article-title">{viewing.title}</h3>
+              )}
               {isHtmlContent(viewing.content) ? (
                 <div
                   className="ch-news-article-body"
@@ -958,7 +968,7 @@ function AdminNewsTab() {
                 </div>
               )}
             </div>
-          </>
+          </div>
         ) : (
           <>
         <div className="px-4 py-2">
