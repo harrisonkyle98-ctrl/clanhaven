@@ -286,19 +286,19 @@ function ModAltAccountsTab() {
                 key={req.id}
                 style={{ display: "flex", alignItems: "stretch", marginBottom: "0.5rem", position: "relative", ...(isDenied ? { opacity: 0.6 } : {}) }}
               >
-                {/* Requester container — ch-row clipped to seamless pentagon, overlaps alt row */}
+                {/* Requester container — arrow-shaped via clip-path pentagon */}
                 <div
                   className="ch-row"
                   style={{
-                    width: "calc(20% + 20px)",
-                    minWidth: "140px",
+                    width: "20%",
+                    minWidth: "120px",
+                    position: "relative",
                     zIndex: 2,
-                    marginRight: "-20px",
                     clipPath: "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%)",
                     borderRadius: "2px 0 0 2px",
                   }}
                 >
-                    <div className="px-4 py-3" style={{ paddingRight: "2.5rem" }}>
+                    <div className="px-4 py-3" style={{ paddingRight: "2rem" }}>
                       <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                         {req.requesterRsn ?? req.requesterUsername ?? "Unknown"}
                         {req.requesterRsn && (req.requesterAccountType === "ironman" || req.requesterAccountType === "hardcore_ironman") && (
@@ -325,12 +325,19 @@ function ModAltAccountsTab() {
                     </div>
                 </div>
 
-                {/* Requested alt account container */}
+                {/* Requested alt account container — V-notch on left matches requester arrow */}
                 <div
                   className="ch-row"
-                  style={{ flex: 1, borderRadius: "0 2px 2px 0", position: "relative", zIndex: 1 }}
+                  style={{
+                    flex: 1,
+                    borderRadius: "0 2px 2px 0",
+                    position: "relative",
+                    zIndex: 1,
+                    marginLeft: "-20px",
+                    clipPath: "polygon(20px 50%, 0 0, 100% 0, 100% 100%, 0 100%)",
+                  }}
                 >
-                  <div className="px-4 py-3" style={{ paddingLeft: "1rem" }}>
+                  <div className="px-4 py-3" style={{ paddingLeft: "calc(1rem + 20px)" }}>
                     <div className="flex items-center gap-3">
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
