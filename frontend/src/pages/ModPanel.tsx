@@ -346,6 +346,9 @@ function ModAltAccountsTab() {
                           {isPending && <span className="badge-pending" style={{ marginLeft: "0.4rem" }}>Pending</span>}
                           {isPending && <span className="badge-pending-date" style={{ marginLeft: "0.4rem" }}>Requested on {new Date(req.createdAt).toLocaleDateString()}</span>}
                           {isDenied && <span className="badge-offline" style={{ marginLeft: "0.4rem" }}>Denied</span>}
+                          {!isPending && req.reviewedAt && (
+                            <span className="badge-info" style={{ marginLeft: "0.4rem" }}>Reviewed {new Date(req.reviewedAt).toLocaleDateString()}</span>
+                          )}
                         </div>
                         <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
                           <div className="flex items-center gap-1.5 flex-wrap">
@@ -355,9 +358,6 @@ function ModAltAccountsTab() {
                             <span className={req.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
                               {req.gameType}
                             </span>
-                            {!isPending && req.reviewedAt && (
-                              <span className="badge-info">Reviewed {new Date(req.reviewedAt).toLocaleDateString()}</span>
-                            )}
                           </div>
                         </div>
                         {isDenied && req.reviewNote && (
