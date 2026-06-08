@@ -1230,21 +1230,34 @@ body {
   transition: opacity 0.15s ease;
 }
 
-.ch-news-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: none;
-  border: none;
+/* Expanded article layout — image and body flush, no gaps */
+.ch-news-expanded {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 0.5rem;
+  gap: 0;
+}
+
+/* Back to News button — overlaid on top-left of image */
+.ch-news-back-btn {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 3;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(52, 45, 34, 0.6);
   color: #b0a088;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.03em;
   cursor: pointer;
-  padding: 0.25rem 0;
-  transition: color 0.2s ease;
+  padding: 0.3rem 0.6rem;
+  border-radius: 2px;
+  transition: background 0.2s ease, color 0.2s ease;
 }
-.ch-news-back:hover {
+.ch-news-back-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
   color: #e8d5b0;
 }
 
@@ -1413,6 +1426,10 @@ body {
 }
 .ch-news-banner--expanded {
   position: relative;
+  border-radius: 2px 2px 0 0;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6);
 }
 .ch-news-banner-img {
   width: 100%;
@@ -1449,6 +1466,17 @@ body {
 .ch-news-article-container {
   background: rgba(22, 19, 14, 0.8);
   border: none;
+  border-radius: 0 0 2px 2px;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  padding: 1rem 1.25rem;
+}
+.ch-news-article-container--standalone {
   border-radius: 2px;
   box-shadow:
     inset 0 0 0 1px rgba(10, 8, 5, 0.9),
@@ -1456,11 +1484,9 @@ body {
     inset 0 1px 0 rgba(115, 98, 72, 0.2),
     inset 0 3px 8px rgba(0, 0, 0, 0.4),
     inset 0 -1px 4px rgba(0, 0, 0, 0.15);
-  position: relative;
-  overflow: hidden;
-  padding: 1rem 1.25rem;
 }
-.ch-news-article-container::before {
+/* Top highlight only when no image above (standalone container) */
+.ch-news-article-container--standalone::before {
   content: "";
   position: absolute;
   top: 0;

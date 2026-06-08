@@ -57,25 +57,33 @@ export default function ClanHavenNews() {
         style={{ opacity: transitioning ? 0 : 1 }}
       >
         {selectedPost ? (
-          <div className="flex flex-col gap-2 flex-1">
-            <div className="px-4 pt-3 pb-1">
-              <button
-                className="ch-news-back"
-                onClick={closeArticle}
-              >
-                ← Back to News
-              </button>
-            </div>
+          <div className="ch-news-expanded">
             {selectedPost.bannerUrl && (
               <div className="ch-news-banner ch-news-banner--expanded">
+                <button
+                  className="ch-news-back-btn"
+                  onClick={closeArticle}
+                >
+                  Back to News
+                </button>
                 <img src={selectedPost.bannerUrl} alt="" className="ch-news-banner-img" />
                 <div className="ch-news-banner-overlay">
                   <h3 className="ch-news-banner-title">{selectedPost.title}</h3>
                 </div>
               </div>
             )}
-            <div className="px-4 pb-4">
-              <div className="flex items-center gap-2 mb-2">
+            {!selectedPost.bannerUrl && (
+              <div className="px-4 pt-3 pb-1">
+                <button
+                  className="ch-news-back-btn"
+                  onClick={closeArticle}
+                >
+                  Back to News
+                </button>
+              </div>
+            )}
+            <div className={`ch-news-article-container${!selectedPost.bannerUrl ? " ch-news-article-container--standalone" : ""}`}>
+              <div className="flex items-center gap-2 mb-3">
                 <span className={`badge-category badge-category--${(selectedPost.category || "Update").toLowerCase()}`}>
                   {selectedPost.category || "Update"}
                 </span>
@@ -90,20 +98,18 @@ export default function ClanHavenNews() {
                   {selectedPost.title}
                 </h3>
               )}
-              <div className="ch-news-article-container">
-                {isHtmlContent(selectedPost.content) ? (
-                  <div
-                    className="ch-news-article-body"
-                    dangerouslySetInnerHTML={{ __html: selectedPost.content }}
-                  />
-                ) : (
-                  <div className="ch-news-article-body">
-                    {selectedPost.content.split("\n").map((paragraph, i) => (
-                      <p key={i}>{paragraph}</p>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {isHtmlContent(selectedPost.content) ? (
+                <div
+                  className="ch-news-article-body"
+                  dangerouslySetInnerHTML={{ __html: selectedPost.content }}
+                />
+              ) : (
+                <div className="ch-news-article-body">
+                  {selectedPost.content.split("\n").map((paragraph, i) => (
+                    <p key={i}>{paragraph}</p>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         ) : (
