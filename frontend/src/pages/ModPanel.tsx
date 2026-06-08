@@ -304,6 +304,7 @@ function ModAltAccountsTab() {
                             style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "4px" }}
                           />
                         )}
+                        <span className="badge-requester" style={{ marginLeft: "0.4rem" }}>Requester</span>
                       </div>
                       <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
                         <div className="flex items-center gap-1.5 flex-wrap">
