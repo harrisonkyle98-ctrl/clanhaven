@@ -1,0 +1,2973 @@
+@import "tailwindcss";
+
+@theme {
+  /* Stormlight-inspired warm brown/gold palette */
+  --color-background: #141210;
+  --color-foreground: #ccc0a8;
+  --color-card: #1a1610;
+  --color-card-foreground: #ccc0a8;
+  --color-primary: #c9a227;
+  --color-primary-foreground: #141210;
+  --color-secondary: #1e1a14;
+  --color-secondary-foreground: #ccc0a8;
+  --color-muted: #221e16;
+  --color-muted-foreground: #a49680;
+  --color-accent: #c9a227;
+  --color-border: rgba(68, 58, 44, 0.5);
+  --color-ring: #c9a227;
+  --color-surface: #181510;
+  --color-panel: rgba(24, 21, 16, 0.7);
+  --color-sidebar: #110f0c;
+  --color-gold: #c9a227;
+  --color-gold-dim: #a08420;
+  --color-gold-warm: #dccaaa;
+  --color-xp-green: #6bc96b;
+  --color-rs3: #6366f1;
+  --color-osrs: #c9a227;
+  --color-text-highlight: #f8f3ea;
+  --color-text-warm: #ccc0a8;
+  --color-text-muted: #a49680;
+  --color-text-dim: #b0a088;
+  --radius: 2px;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===========================================
+   OUTER CONTAINER - Base slab surface
+   =========================================== */
+.bg-container {
+  background: linear-gradient(
+    180deg,
+    rgba(36, 32, 26, 0.98) 0%,
+    rgba(26, 23, 18, 0.99) 100%
+  );
+}
+
+.bg-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===========================================
+   PANEL SYSTEM - Stormlight /test panel structure
+   Panel wrapper encloses colored header + body
+   =========================================== */
+.ch-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid rgba(58, 50, 38, 0.7);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ===========================================
+   PANEL HEADER - Colored bar with diamond pattern
+   Uses CSS variables for per-panel color tints
+   =========================================== */
+.ch-panel-header {
+  --panel-header-color: rgba(140, 115, 75, 0.9);
+  --panel-header-pattern: rgba(255, 255, 255, 0.5);
+  --panel-header-border: rgba(100, 80, 50, 0.9);
+
+  position: relative;
+  padding: 0.625rem 1rem;
+  min-height: 40px;
+  max-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: var(--panel-header-color);
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 30%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.08) 80%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  border: none;
+  border-bottom: 1px solid var(--panel-header-border);
+  box-shadow:
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  isolation: isolate;
+}
+
+/* Diamond grid pattern overlay on header */
+.ch-panel-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--panel-header-pattern);
+  -webkit-mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: 20px 20px;
+  mask-size: 20px 20px;
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+  opacity: 0.15;
+}
+
+/* Header title text — Cinzel to match Stormlight /test */
+.ch-panel-header-title {
+  position: relative;
+  z-index: 1;
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #f5efe6;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.6),
+    0 0 8px rgba(0, 0, 0, 0.3);
+  margin: 0;
+  padding: 0;
+}
+
+/* Header collapse toggle */
+.ch-panel-header-toggle {
+  position: relative;
+  z-index: 1;
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: rgba(245, 239, 230, 0.5);
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.ch-panel-header-toggle:hover {
+  color: rgba(245, 239, 230, 0.9);
+}
+
+.ch-panel-header-toggle[data-collapsed="true"] {
+  transform: rotate(180deg);
+}
+
+/* Header right-side content (tabs, badges — sits between title and toggle) */
+.ch-panel-header-right {
+  position: relative;
+  z-index: 1;
+  margin-left: auto;
+  margin-right: 0.5rem;
+}
+
+/* ===========================================
+   PANEL HEADER COLOR VARIANTS
+   Each section has a distinct tint
+   =========================================== */
+
+/* Platform Overview / Hero — warm gold (primary) */
+.ch-panel--gold .ch-panel-header {
+  --panel-header-color: rgba(165, 130, 70, 0.95);
+  --panel-header-pattern: rgba(215, 180, 100, 0.6);
+  --panel-header-border: rgba(115, 90, 45, 0.95);
+}
+
+/* Clan Rankings — sapphire blue */
+.ch-panel--blue .ch-panel-header {
+  --panel-header-color: rgba(65, 90, 115, 0.95);
+  --panel-header-pattern: rgba(100, 140, 180, 0.6);
+  --panel-header-border: rgba(40, 60, 85, 0.95);
+}
+
+/* Featured Clans — amethyst purple */
+.ch-panel--purple .ch-panel-header {
+  --panel-header-color: rgba(95, 80, 120, 0.95);
+  --panel-header-pattern: rgba(140, 120, 170, 0.6);
+  --panel-header-border: rgba(60, 50, 85, 0.95);
+}
+
+/* Community — emerald green */
+.ch-panel--green .ch-panel-header {
+  --panel-header-color: rgba(60, 100, 75, 0.95);
+  --panel-header-pattern: rgba(90, 150, 110, 0.6);
+  --panel-header-border: rgba(35, 70, 50, 0.95);
+}
+
+/* Today's Top Players — amber/orange */
+.ch-panel--amber .ch-panel-header {
+  --panel-header-color: rgba(140, 95, 55, 0.95);
+  --panel-header-pattern: rgba(190, 140, 80, 0.6);
+  --panel-header-border: rgba(100, 65, 35, 0.95);
+}
+
+/* Live Activity — crimson red */
+.ch-panel--red .ch-panel-header {
+  --panel-header-color: rgba(120, 65, 65, 0.95);
+  --panel-header-pattern: rgba(170, 100, 100, 0.6);
+  --panel-header-border: rgba(85, 40, 40, 0.95);
+}
+
+/* Panel collapse/expand animation */
+.ch-panel-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+  overflow: hidden;
+  flex: 1;
+}
+
+.ch-panel-collapse-inner {
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ch-panel--collapsed {
+  flex: none;
+}
+
+.ch-panel-collapse-open {
+  grid-template-rows: 1fr;
+}
+
+/* ===========================================
+   PANEL BODY - Content area below header
+   =========================================== */
+.ch-panel-body {
+  background: rgba(24, 21, 16, 0.7);
+  padding: 0.875rem;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: 0;
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 0 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Panel body ambient lighting */
+.ch-panel-body::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 70% 50% at 50% 0%,
+      rgba(255, 235, 200, 0.08) 0%,
+      rgba(255, 220, 180, 0.03) 50%,
+      transparent 100%
+    );
+  opacity: 0.8;
+}
+
+/* ===========================================
+   STAT CELL - Carved recessed data cell
+   =========================================== */
+.ch-stat-cell {
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.2s ease;
+}
+
+.ch-stat-cell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(175, 150, 110, 0.25) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ch-stat-cell:hover {
+  background: rgba(28, 24, 18, 0.85);
+}
+
+/* ===========================================
+   ROW ITEM - Carved cell for list rows
+   =========================================== */
+.ch-row {
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.2s ease;
+}
+
+.ch-row:hover {
+  background: rgba(28, 24, 18, 0.85);
+}
+
+/* Requester arrow section — three nested clip-paths matching ch-row double border */
+.ch-row-arrow {
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%);
+  background: rgba(10, 8, 5, 0.9);
+}
+
+.ch-row-arrow-mid {
+  clip-path: polygon(1px 1px, calc(100% - 21px) 1px, calc(100% - 1px) 50%, calc(100% - 21px) calc(100% - 1px), 1px calc(100% - 1px));
+  background: rgba(96, 165, 250, 0.3);
+  height: 100%;
+}
+
+.ch-row-arrow-fill {
+  clip-path: polygon(2px 2px, calc(100% - 22px) 2px, calc(100% - 2px) 50%, calc(100% - 22px) calc(100% - 2px), 2px calc(100% - 2px));
+  background: rgba(22, 19, 14, 0.8);
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.2s ease;
+  box-shadow:
+    inset 0 1px 0 rgba(96, 165, 250, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Blue pattern overlay on requester arrow fill — matches ch-log-row::before */
+.ch-row-arrow-fill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: #60a5fa;
+  -webkit-mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: 20px 20px;
+  mask-size: 20px 20px;
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+  opacity: 0.05;
+}
+
+/* Content renders above pattern */
+.ch-row-arrow-fill > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Tag container inside requester must be opaque so pattern doesn't bleed through */
+.ch-row-arrow-fill .ch-user-row-details {
+  background: rgb(12, 10, 8);
+}
+
+.ch-row-arrow:hover .ch-row-arrow-fill {
+  background: rgba(28, 24, 18, 0.85);
+}
+
+/* Alt V-notch section — three nested clip-paths matching ch-row double border */
+.ch-row-notch {
+  clip-path: polygon(20px 50%, 0 0, 100% 0, 100% 100%, 0 100%);
+  background: rgba(10, 8, 5, 0.9);
+}
+
+.ch-row-notch-mid {
+  clip-path: polygon(21px 50%, 1px 1px, calc(100% - 1px) 1px, calc(100% - 1px) calc(100% - 1px), 1px calc(100% - 1px));
+  background: rgba(52, 45, 34, 0.6);
+  height: 100%;
+}
+
+.ch-row-notch-fill {
+  clip-path: polygon(22px 50%, 2px 2px, calc(100% - 2px) 2px, calc(100% - 2px) calc(100% - 2px), 2px calc(100% - 2px));
+  background: rgba(22, 19, 14, 0.8);
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.2s ease;
+  box-shadow:
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ch-row-notch:hover .ch-row-notch-fill {
+  background: rgba(28, 24, 18, 0.85);
+}
+
+
+/* ===========================================
+   LOG ROW - Stormlight-style activity rows
+   with colored accent pattern background
+   =========================================== */
+.ch-log-row {
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+/* Pattern background layer using row accent color */
+.ch-log-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--row-accent, #c9a227);
+  -webkit-mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: 20px 20px;
+  mask-size: 20px 20px;
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+  opacity: 0.05;
+}
+
+/* Content renders above pattern */
+.ch-log-row > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ch-log-row:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.ch-log-row:focus-visible {
+  outline: 2px solid rgba(232, 213, 176, 0.6);
+  outline-offset: -2px;
+}
+
+/* Log row text elements */
+.ch-log-text {
+  color: #ccc0a8;
+  font-weight: 400;
+  font-size: 0.875rem;
+}
+
+.ch-log-username {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.ch-log-timestamp {
+  color: #a49680;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Log icon container */
+.ch-log-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 3px;
+  transition: transform 0.15s ease;
+}
+
+.ch-log-row:hover .ch-log-icon {
+  transform: scale(1.05);
+}
+
+/* Chevron indicator */
+.ch-log-chevron {
+  color: #a49680;
+  opacity: 0.5;
+  transform: translateX(0);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+
+.ch-log-row:hover .ch-log-chevron {
+  opacity: 0.9;
+  transform: translateX(3px);
+}
+
+/* ===========================================
+   TAB SYSTEM - Recessed tab strip
+   =========================================== */
+.ch-tabs {
+  display: inline-flex;
+  gap: 4px;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.ch-tab {
+  position: relative;
+  overflow: hidden;
+  color: #b0a088;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.25rem 0.625rem;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: rgba(22, 19, 14, 0.8);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.4),
+    inset 0 1px 0 rgba(115, 98, 72, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.ch-tab:hover {
+  color: #dccaaa;
+  background: rgba(28, 24, 18, 0.85);
+}
+
+.ch-tab-active {
+  background: rgba(32, 27, 16, 0.85);
+  color: #c9a227;
+  box-shadow:
+    inset 0 0 0 1px rgba(120, 98, 40, 0.4),
+    inset 0 0 0 2px rgba(62, 53, 34, 0.45),
+    inset 0 1px 0 rgba(160, 132, 55, 0.15),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ===========================================
+   NAV ITEM - Embedded game interface feel
+   =========================================== */
+.ch-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  color: #ccc0a8;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  background: rgba(34, 30, 24, 0.5);
+  box-shadow:
+    inset 0 0 0 1px rgba(68, 58, 44, 0.5),
+    inset 0 1px 0 rgba(115, 98, 72, 0.15);
+}
+
+.ch-nav-item:hover {
+  color: #f8f3ea;
+  background: rgba(56, 48, 36, 0.7);
+  box-shadow:
+    inset 0 0 0 1px rgba(92, 78, 56, 0.6),
+    inset 0 1px 0 rgba(135, 115, 85, 0.25);
+}
+
+.ch-nav-item-active {
+  color: #f8f3ea;
+  background: rgba(56, 48, 36, 0.7);
+  box-shadow:
+    inset 0 0 0 1px rgba(92, 78, 56, 0.6),
+    inset 0 1px 0 rgba(135, 115, 85, 0.25);
+}
+
+/* ===========================================
+   SIDEBAR BRANDING — Image area behind title
+   =========================================== */
+.ch-sidebar-branding {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.ch-sidebar-branding-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  opacity: 0.3;
+}
+
+.ch-sidebar-branding-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  background-size: 20px 20px;
+  background-repeat: repeat;
+  opacity: 0.04;
+}
+
+.ch-sidebar-branding-content {
+  position: relative;
+  z-index: 2;
+  padding: 1.25rem 1rem 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* Collapse arrow — matches slider arrow styling */
+.ch-sidebar-collapse-arrow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: #b0a088;
+  cursor: pointer;
+  transition: opacity 0.3s ease, background 0.2s ease;
+  z-index: 3;
+  opacity: 0;
+}
+
+.ch-sidebar-branding:hover .ch-sidebar-collapse-arrow {
+  opacity: 1;
+}
+
+.ch-sidebar-collapse-arrow:hover {
+  background: rgba(18, 15, 11, 0.5);
+  color: #e8d5b0;
+}
+
+.ch-sidebar-branding-title {
+  font-family: "Cinzel Decorative", serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e8d5b0;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+/* Sidebar section collapse/expand animation */
+.ch-sidebar-section {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+  overflow: hidden;
+}
+
+.ch-sidebar-section > div {
+  overflow: hidden;
+}
+
+.ch-sidebar-section-open {
+  grid-template-rows: 1fr;
+}
+
+/* ===========================================
+   SIDEBAR BUTTONS - Polished mini-containers
+   Inspired by ch-stat-cell / Featured Clans cards
+   =========================================== */
+.ch-sidebar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: #ccc0a8;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: center;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  background: rgba(22, 19, 14, 0.8);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Top highlight bar */
+.ch-sidebar-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(175, 150, 110, 0.2) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+.ch-sidebar-btn:hover {
+  color: #f8f3ea;
+  background: rgba(38, 33, 26, 0.9);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(72, 62, 46, 0.7),
+    inset 0 1px 0 rgba(155, 130, 95, 0.3),
+    inset 0 3px 8px rgba(0, 0, 0, 0.35),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.ch-sidebar-btn-active {
+  color: #f8f3ea;
+  background: rgba(38, 33, 26, 0.9);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(72, 62, 46, 0.7),
+    inset 0 1px 0 rgba(155, 130, 95, 0.3),
+    inset 0 3px 8px rgba(0, 0, 0, 0.35),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* ===========================================
+   SIDEBAR OPEN BUTTON - Themed reopen trigger
+   Visible when sidebar is fully hidden
+   =========================================== */
+.ch-sidebar-open-btn {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  color: rgba(204, 192, 168, 0.4);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  cursor: pointer;
+  background: rgba(22, 19, 14, 0.15);
+  border: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.15),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.1);
+  transition: all 0.25s ease;
+}
+
+.ch-sidebar-open-btn:hover {
+  color: #f8f3ea;
+  background: rgba(22, 19, 14, 0.95);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(72, 62, 46, 0.7),
+    inset 0 1px 0 rgba(135, 115, 85, 0.3),
+    0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* ===========================================
+   SIDEBAR - Warm dark base surface
+   =========================================== */
+.sidebar-bg {
+  background: linear-gradient(
+    180deg,
+    rgba(20, 18, 14, 0.98) 0%,
+    rgba(16, 14, 10, 0.99) 100%
+  );
+  border-right: 1px solid rgba(68, 58, 44, 0.4);
+  position: relative;
+  overflow: visible;
+  z-index: 10;
+}
+
+/* ===========================================
+   SIDEBAR & CONTENT LAYOUT — Responsive sizing
+   =========================================== */
+.ch-sidebar-width {
+  width: clamp(200px, 20vw, 300px);
+}
+
+.ch-sidebar-hidden {
+  margin-left: calc(-1 * clamp(200px, 20vw, 300px));
+}
+
+/* ===========================================
+   SIDEBAR RIBBON - Category header
+   Stormlight blue ribbon with right-side fold only.
+   Uses same single-element clip-path technique as
+   .fantasy-banner: main body is RAISED, fold is
+   DROPPED behind by --d.  Conic-gradient darkens
+   the fold area to create depth.
+   =========================================== */
+.ch-sidebar-ribbon {
+  --ribbon-top: #4f6ebc;
+  --ribbon-mid: #445ea1;
+  --ribbon-bot: #394f8b;
+  --s: 11px;   /* fold side width */
+  --d: 4px;    /* depth / drop — how far fold sits behind body */
+  --c: 4px;    /* V-notch cutout depth */
+
+  position: relative;
+  padding: calc(0.4rem + var(--d)) 0.75rem;
+  padding-right: calc(var(--s) + 0.75rem);
+  padding-bottom: calc(0.4rem + var(--d) + var(--d));
+  margin-left: -1px;
+  margin-right: calc((var(--s) + var(--d)) * -1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 0 12px rgba(100, 130, 200, 0.15);
+
+  background:
+    /* Top highlight — thin bright edge */
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.10) 0%,
+      rgba(255, 255, 255, 0.04) 3%,
+      rgba(255, 255, 255, 0) 8%
+    ),
+    /* Ambient glow — cloth sheen */
+    radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0) 70%
+    ),
+    /* Fold shading — right side only (darkens fold area) */
+    conic-gradient(
+      at right var(--s) bottom var(--d),
+      #0004 62.5%, #0008 0 75%, #0000 0
+    ) 100% / 50% 100% no-repeat,
+    /* Base gradient */
+    linear-gradient(
+      to bottom,
+      var(--ribbon-top),
+      var(--ribbon-mid) 35%,
+      var(--ribbon-bot)
+    );
+
+  /* Right-fold-only clip-path (adapted from .fantasy-banner).
+     Body sits at y=0..100%-d, fold at y=d..100%.
+     Fold is visually BEHIND the main face. */
+  clip-path: polygon(
+    0 0,                                              /* body top-left */
+    calc(100% - var(--s)) 0,                          /* body top-right */
+    calc(100% - var(--s)) var(--d),                   /* fold inner-top (dropped) */
+    100% var(--d),                                    /* fold outer-top (dropped) */
+    calc(100% - var(--c)) calc(50% + var(--d) / 2),   /* V-notch */
+    100% 100%,                                        /* fold outer-bottom */
+    calc(100% - var(--s) - var(--d)) 100%,            /* fold hinge-bottom */
+    calc(100% - var(--s) - var(--d)) calc(100% - var(--d)), /* body bottom-right */
+    0 calc(100% - var(--d))                           /* body bottom-left */
+  );
+
+  /* clip-path removes box-shadow; use filter instead */
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+
+  z-index: 2;
+}
+
+.ch-sidebar-ribbon-text {
+  flex: 1;
+  text-align: center;
+}
+
+.ch-sidebar-ribbon-arrow {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+.ch-sidebar-ribbon-arrow--collapsed {
+  transform: rotate(-90deg);
+}
+
+/* Cloth fiber grain overlay (::before kept inside clip-path) */
+.ch-sidebar-ribbon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.006) 0px,
+      rgba(255, 255, 255, 0.006) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0) 70%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.10) 0%,
+      rgba(255, 255, 255, 0) 30%
+    );
+}
+
+/* Collapsed sidebar: thin blue bar with fold still visible */
+.ch-sidebar-ribbon--collapsed {
+  --s: 11px;
+  --d: 3px;
+  --c: 3px;
+  padding: 0;
+  min-height: 6px;
+  max-height: 6px;
+  font-size: 0;
+  line-height: 0;
+}
+
+/* ===========================================
+   SCROLLBAR - Carved groove feel
+   =========================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(18, 14, 10, 0.8);
+  border: 1px solid rgba(46, 40, 30, 0.5);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(92, 78, 56, 0.8) 0%,
+    rgba(68, 58, 44, 0.9) 100%
+  );
+  border: 1px solid rgba(115, 98, 72, 0.3);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(115, 98, 72, 0.9) 0%,
+    rgba(85, 72, 54, 0.95) 100%
+  );
+}
+
+/* ===========================================
+   DIVIDERS - Engraved groove lines
+   =========================================== */
+.divider-groove {
+  height: 3px;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(68, 58, 42, 0.6) 50%,
+    rgba(135, 112, 78, 0.3) 100%
+  );
+  border-radius: 1px;
+}
+
+.divider-subtle {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(68, 58, 44, 0.5) 30%,
+    rgba(68, 58, 44, 0.5) 70%,
+    transparent
+  );
+}
+
+/* ===========================================
+   GAME TYPE BADGES
+   =========================================== */
+.badge-rs3 {
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-osrs {
+  background: rgba(201, 162, 39, 0.12);
+  color: #dccaaa;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(201, 162, 39, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-admin {
+  background: rgba(168, 85, 247, 0.12);
+  color: #c084fc;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(168, 85, 247, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+}
+
+.badge-mod {
+  background: rgba(60, 160, 90, 0.12);
+  color: #6ee7a0;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(60, 160, 90, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+}
+
+.badge-online {
+  background: rgba(74, 222, 128, 0.12);
+  color: #4ade80;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(74, 222, 128, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-active {
+  background: rgba(125, 184, 224, 0.12);
+  color: #7db8e0;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(125, 184, 224, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-offline {
+  background: rgba(107, 114, 128, 0.12);
+  color: #9ca3af;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(107, 114, 128, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-discord {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(88, 101, 242, 0.12);
+  color: #7289da;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(88, 101, 242, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+}
+
+.badge-discord svg {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+.badge-clan {
+  background: rgba(201, 162, 39, 0.12);
+  color: #e8d5b0;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(201, 162, 39, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+}
+
+.badge-info {
+  background: rgba(160, 145, 120, 0.1);
+  color: #b8a88a;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(160, 145, 120, 0.2);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+}
+
+.badge-requester {
+  background: rgba(96, 165, 250, 0.12);
+  color: #60a5fa;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.badge-pending {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.badge-pending-date {
+  background: rgba(160, 145, 120, 0.1);
+  color: #b8a88a;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(160, 145, 120, 0.2);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+}
+
+.ch-user-row-details {
+  margin-top: 0.4rem;
+  padding: 0.35rem 0.5rem;
+  background: rgba(12, 10, 8, 0.5);
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 50, 35, 0.5),
+    inset 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* ── News article view ── */
+.ch-news-content {
+  transition: opacity 0.15s ease;
+}
+
+/* Expanded article layout — image and body flush, no gaps */
+.ch-news-expanded {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 0.5rem;
+  gap: 0;
+}
+
+/* Back to News button — overlaid on top-left of image */
+.ch-news-back-btn {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 3;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(52, 45, 34, 0.6);
+  color: #b0a088;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: 2px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.ch-news-back-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
+  color: #e8d5b0;
+}
+
+.ch-news-article-title {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #e8d5b0;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.75rem;
+}
+
+.ch-news-article-body {
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: #b0a088;
+}
+.ch-news-article-body p {
+  margin-bottom: 0.6rem;
+}
+.ch-news-article-body p:last-child {
+  margin-bottom: 0;
+}
+.ch-news-article-body h2 {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e8d5b0;
+  margin: 0.75rem 0 0.4rem;
+}
+.ch-news-article-body h3 {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #d4c4a0;
+  margin: 0.6rem 0 0.3rem;
+}
+.ch-news-article-body ul {
+  padding-left: 1.25rem;
+  margin: 0.25rem 0 0.5rem;
+  list-style-type: disc;
+}
+.ch-news-article-body ol {
+  padding-left: 1.25rem;
+  margin: 0.25rem 0 0.5rem;
+  list-style-type: decimal;
+}
+.ch-news-article-body li {
+  margin-bottom: 0.15rem;
+  display: list-item;
+}
+.ch-news-article-body blockquote {
+  border-left: 3px solid rgba(101, 138, 180, 0.4);
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  color: #b0a088;
+  font-style: italic;
+}
+.ch-news-article-body hr {
+  border: none;
+  border-top: 1px solid rgba(60, 50, 35, 0.5);
+  margin: 0.75rem 0;
+}
+.ch-news-article-body a {
+  color: #648cb4;
+  text-decoration: underline;
+}
+.ch-news-article-body a:hover {
+  color: #e8d5b0;
+}
+.ch-news-article-body strong {
+  color: #e8d5b0;
+}
+
+/* ── RS3 account type tags ── */
+.badge-ironman {
+  background: rgba(160, 160, 170, 0.12);
+  color: #a0a0aa;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(160, 160, 170, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.badge-hardcore {
+  background: rgba(180, 50, 50, 0.12);
+  color: #c45050;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(180, 50, 50, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* ── News category tags (reuses sidebar badge styling) ── */
+.badge-category--news {
+  background: rgba(201, 162, 39, 0.12);
+  color: #e8d5b0;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(201, 162, 39, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.badge-category--update {
+  background: rgba(100, 140, 180, 0.12);
+  color: #7cb3d4;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(100, 140, 180, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.badge-category--maintenance {
+  background: rgba(212, 168, 85, 0.12);
+  color: #d4a855;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(212, 168, 85, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.badge-category--event {
+  background: rgba(107, 196, 122, 0.12);
+  color: #6bc47a;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(107, 196, 122, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.badge-category--competition {
+  background: rgba(176, 136, 212, 0.12);
+  color: #b088d4;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(176, 136, 212, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.ch-news-banner {
+  width: 100%;
+  overflow: hidden;
+}
+.ch-news-banner--expanded {
+  position: relative;
+  border-radius: 2px 2px 0 0;
+}
+/* Layered border on top/left/right only — no bottom to avoid double-border at junction */
+.ch-news-banner--expanded::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 2px 2px 0 0;
+  box-shadow:
+    inset 1px 1px 0 rgba(10, 8, 5, 0.9),
+    inset -1px 0 0 rgba(10, 8, 5, 0.9),
+    inset 0 1px 0 rgba(10, 8, 5, 0.9),
+    inset 2px 2px 0 rgba(52, 45, 34, 0.6),
+    inset -2px 0 0 rgba(52, 45, 34, 0.6),
+    inset 0 2px 0 rgba(52, 45, 34, 0.6),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  z-index: 2;
+}
+.ch-news-banner-img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  max-height: 280px;
+}
+.ch-news-banner-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 1.25rem 0.75rem;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.6) 40%,
+    rgba(0, 0, 0, 0.2) 70%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+.ch-news-banner-title {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #e8d5b0;
+  letter-spacing: 0.02em;
+  margin: 0;
+  max-width: 70%;
+}
+
+/* Article body container — uses ch-stat-cell (Featured Clans) styling */
+.ch-news-article-container {
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  border-radius: 0 0 2px 2px;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  padding: 1rem 1.25rem;
+}
+.ch-news-article-container--standalone {
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+/* Top highlight only when no image above (standalone container) */
+.ch-news-article-container--standalone::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(175, 150, 110, 0.25) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ch-news-thumbnail {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(60, 50, 35, 0.4);
+}
+
+/* ── Rich Text Editor ── */
+.ch-rte-wrapper {
+  border: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 50, 35, 0.5),
+    inset 0 1px 3px rgba(0, 0, 0, 0.25);
+  background: rgba(12, 10, 8, 0.6);
+  border-radius: 0;
+}
+.ch-rte-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid rgba(60, 50, 35, 0.4);
+  flex-wrap: wrap;
+}
+.ch-rte-btn {
+  background: none;
+  border: none;
+  color: #b0a088;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+  line-height: 1;
+}
+.ch-rte-btn:hover {
+  background: rgba(60, 50, 35, 0.5);
+  color: #e8d5b0;
+}
+.ch-rte-btn--active {
+  background: rgba(168, 85, 247, 0.25);
+  color: #c084fc;
+}
+.ch-rte-sep {
+  width: 1px;
+  height: 14px;
+  background: rgba(60, 50, 35, 0.5);
+  margin: 0 4px;
+}
+.ch-rte-content .tiptap {
+  padding: 0.5rem 0.625rem;
+  min-height: 150px;
+  color: #e8d5b0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  outline: none;
+}
+.ch-rte-content .tiptap:focus {
+  box-shadow: none;
+}
+.ch-rte-content .tiptap h2 {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e8d5b0;
+  margin: 0.75rem 0 0.4rem;
+}
+.ch-rte-content .tiptap h3 {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #d4c4a0;
+  margin: 0.6rem 0 0.3rem;
+}
+.ch-rte-content .tiptap p {
+  margin: 0 0 0.5rem;
+}
+.ch-rte-content .tiptap ul {
+  padding-left: 1.25rem;
+  margin: 0.25rem 0 0.5rem;
+  list-style-type: disc;
+}
+.ch-rte-content .tiptap ol {
+  padding-left: 1.25rem;
+  margin: 0.25rem 0 0.5rem;
+  list-style-type: decimal;
+}
+.ch-rte-content .tiptap li {
+  margin-bottom: 0.15rem;
+  display: list-item;
+}
+.ch-rte-content .tiptap blockquote {
+  border-left: 3px solid rgba(168, 85, 247, 0.4);
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  color: #b0a088;
+  font-style: italic;
+}
+.ch-rte-content .tiptap hr {
+  border: none;
+  border-top: 1px solid rgba(60, 50, 35, 0.5);
+  margin: 0.75rem 0;
+}
+.ch-rte-content .tiptap a {
+  color: #c084fc;
+  text-decoration: underline;
+}
+.ch-rte-content .tiptap a:hover {
+  color: #e8d5b0;
+}
+
+/* ── News image upload ── */
+.ch-news-upload-area {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.ch-news-upload-preview {
+  width: 80px;
+  height: 50px;
+  object-fit: cover;
+  border: 1px solid rgba(60, 50, 35, 0.5);
+}
+.ch-news-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(12, 10, 8, 0.6);
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(60, 50, 35, 0.5);
+  color: #b0a088;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  transition: color 0.2s, box-shadow 0.2s;
+}
+.ch-news-upload-btn:hover {
+  color: #e8d5b0;
+  box-shadow: inset 0 0 0 1px rgba(168, 85, 247, 0.5);
+}
+.ch-news-upload-btn.uploading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ── News editor inputs ── */
+.ch-news-input {
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  background: rgba(12, 10, 8, 0.6);
+  border: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(60, 50, 35, 0.5),
+    inset 0 1px 3px rgba(0, 0, 0, 0.25);
+  color: #e8d5b0;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  outline: none;
+  border-radius: 0;
+}
+.ch-news-input:focus {
+  box-shadow:
+    inset 0 0 0 1px rgba(168, 85, 247, 0.5),
+    inset 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+.ch-news-input::placeholder {
+  color: rgba(200, 180, 150, 0.3);
+}
+
+/* ===========================================
+   PAGE BANNER - Full-width artwork header
+   Used as a page identity header, not a hero.
+   Image is easily swappable via the img src.
+   =========================================== */
+.ch-page-banner {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  height: 260px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(58, 50, 38, 0.7);
+  box-shadow: inset 0 -8px 12px rgba(0, 0, 0, 0.5);
+}
+
+.ch-page-banner-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-width: 1400px;
+  height: 100%;
+  object-fit: cover;
+  object-position: left 18%;
+  image-rendering: auto;
+}
+
+.ch-page-banner-content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 2.5rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Transparent pattern overlay — fades in from left to right */
+.ch-page-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  background-size: 48px 48px;
+  background-repeat: repeat;
+  opacity: 0.06;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0%, transparent 65%, rgba(0,0,0,0.5) 80%, rgba(0,0,0,1) 100%);
+  mask-image:
+    linear-gradient(90deg, transparent 0%, transparent 65%, rgba(0,0,0,0.5) 80%, rgba(0,0,0,1) 100%);
+}
+
+/* Dark overlay for text readability + subtle center-bright vignette */
+.ch-page-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(10, 8, 5, 0.75) 0%,
+      rgba(10, 8, 5, 0.45) 30%,
+      rgba(10, 8, 5, 0.08) 50%,
+      rgba(10, 8, 5, 0.15) 75%,
+      rgba(10, 8, 5, 0.3) 100%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Banner title */
+.ch-page-banner-title {
+  position: relative;
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f5efe6;
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(0, 0, 0, 0.3);
+  margin: 0;
+  padding: 0;
+}
+
+/* ===========================================
+   HOME SLIDER — Featured content carousel
+   =========================================== */
+.ch-home-slider {
+  position: relative;
+  z-index: 3;
+  margin: -92px 0 1rem;
+  background: rgba(24, 21, 16, 0.95);
+  border-radius: 0;
+  border: 1px solid rgba(58, 50, 38, 0.7);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.ch-home-slider-inner {
+  display: flex;
+  min-height: 276px;
+  transition: opacity 0.3s ease;
+}
+
+/* Slide image area */
+.ch-home-slider-image {
+  position: relative;
+  flex-shrink: 0;
+  width: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.ch-home-slider-image-bg {
+  position: absolute;
+  inset: 0;
+}
+
+
+.ch-home-slider-icon {
+  position: relative;
+  z-index: 1;
+  font-size: 3rem;
+  filter: grayscale(0.3);
+  opacity: 0.7;
+}
+
+
+/* Slide text area — matches ch-panel-body styling */
+.ch-home-slider-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.25rem 3.5rem 1.25rem 1.5rem;
+  gap: 0.5rem;
+  background: rgba(24, 21, 16, 0.95);
+  position: relative;
+  z-index: 1;
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 0 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Ambient lighting on slider info panel — matches ch-panel-body::after */
+.ch-home-slider-text::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 70% 50% at 50% 0%,
+      rgba(255, 235, 200, 0.08) 0%,
+      rgba(255, 220, 180, 0.03) 50%,
+      transparent 100%
+    );
+  opacity: 0.8;
+}
+
+.ch-home-slider-title {
+  font-family: "Cinzel", serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e8d5b0;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.ch-home-slider-desc {
+  color: #b0a088;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.ch-home-slider-footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+
+.ch-home-slider-meta {
+  color: #8a7d6b;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+.ch-home-slider-cta {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #c9a227;
+  background: rgba(201, 162, 39, 0.08);
+  border: 1px solid rgba(201, 162, 39, 0.2);
+  border-radius: 2px;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ch-home-slider-cta:hover {
+  background: rgba(201, 162, 39, 0.15);
+  border-color: rgba(201, 162, 39, 0.4);
+}
+
+/* Arrow controls — hidden by default, visible on slider hover */
+.ch-home-slider-arrow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: #b0a088;
+  cursor: pointer;
+  transition: opacity 0.3s ease, background 0.2s ease;
+  z-index: 3;
+  opacity: 0;
+}
+
+.ch-home-slider:hover .ch-home-slider-arrow {
+  opacity: 1;
+}
+
+.ch-home-slider-arrow:hover {
+  background: rgba(18, 15, 11, 0.5);
+  color: #e8d5b0;
+}
+
+.ch-home-slider-arrow--prev {
+  left: 0;
+}
+
+.ch-home-slider-arrow--next {
+  right: 0;
+}
+
+/* Dot indicators */
+.ch-home-slider-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 30%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 3;
+}
+
+.ch-home-slider-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(160, 140, 110, 0.3);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.ch-home-slider-dot--active {
+  background: rgba(201, 162, 39, 0.7);
+  box-shadow: 0 0 4px rgba(201, 162, 39, 0.3);
+}
+
+.ch-home-slider-dot:hover {
+  background: rgba(160, 140, 110, 0.6);
+}
+
+/* Content area below banner — lifts off the banner image
+   using the same top accent as ch-stat-cell (Featured Clans cards) */
+.ch-page-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Gold accent line — fades to page color at edges */
+.ch-page-content::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(175, 150, 110, 0.25) 20%,
+    rgba(175, 150, 110, 0.25) 80%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Shadow above accent (onto banner) — darkest in center, fades at edges */
+.ch-page-content::after {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 0;
+  right: 0;
+  height: 12px;
+  background: radial-gradient(
+    ellipse 60% 100% at 50% 100%,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.2) 60%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* ===========================================
+   SITE HIGHLIGHTS — 4-card feature row
+   Replaces the old "Clan Haven — The Home of
+   RuneScape Clans" hero/stat section.
+   =========================================== */
+.ch-site-highlights {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 1024px) {
+  .ch-site-highlights {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .ch-site-highlights {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ch-highlight-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 0;
+  overflow: hidden;
+  border: 1px solid rgba(58, 50, 38, 0.7);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.ch-highlight-card-image {
+  position: relative;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+
+
+.ch-highlight-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ch-highlight-card-body {
+  flex: 1;
+  background: rgba(24, 21, 16, 0.7);
+  padding: 0.875rem;
+  position: relative;
+  border: none;
+  border-radius: 0;
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 0 40px rgba(0, 0, 0, 0.15);
+}
+
+.ch-highlight-card-body::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 70% 50% at 50% 0%,
+      rgba(255, 235, 200, 0.08) 0%,
+      rgba(255, 220, 180, 0.03) 50%,
+      transparent 100%
+    );
+  opacity: 0.8;
+}
+
+.ch-highlight-card-title {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e8d5b0;
+  margin-bottom: 0.375rem;
+  letter-spacing: 0.03em;
+}
+
+.ch-highlight-card-desc {
+  font-size: 0.6875rem;
+  color: rgba(180, 165, 140, 0.7);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.ch-highlight-card-explore {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 0.875rem;
+  margin-bottom: 0;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.625rem;
+  color: rgba(200, 180, 150, 0.8);
+  cursor: pointer;
+  border: none;
+  border-radius: 2px;
+  background: rgba(28, 24, 18, 0.8);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 1px 0 rgba(115, 98, 72, 0.15);
+}
+
+.ch-highlight-card-explore:hover {
+  color: #f8f3ea;
+  background: rgba(38, 33, 26, 0.9);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(72, 62, 46, 0.7),
+    inset 0 1px 0 rgba(155, 130, 95, 0.3);
+}
+
+/* ===========================================
+   FOOTER — Global site footer
+   =========================================== */
+.ch-footer {
+  position: relative;
+  margin-top: 2rem;
+  background: rgba(16, 13, 10, 0.95);
+  border-top: 1px solid rgba(58, 50, 38, 0.7);
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.25),
+    inset 0 0 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Gold accent line at top of footer */
+.ch-footer-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(175, 150, 110, 0.3) 20%,
+    rgba(175, 150, 110, 0.3) 80%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.ch-footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.5rem;
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ch-footer-copyright {
+  color: #5e5648;
+  font-size: 0.75rem;
+  margin: 0;
+  letter-spacing: 0.03em;
+}
+
+/* ===========================================
+   SIDEBAR ACCOUNT MODULE — Bottom-of-sidebar
+   user/account panel. Uses ch-stat-cell styling
+   language for premium Clan Haven feel.
+   =========================================== */
+.ch-sidebar-account {
+  margin-top: auto;
+  padding: 0.625rem;
+}
+
+.ch-sidebar-account-card {
+  background: rgba(22, 19, 14, 0.8);
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+  padding: 0.875rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+/* Top highlight bar — mirrors ch-stat-cell::before */
+.ch-sidebar-account-card-highlight {
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(175, 150, 110, 0.25) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Logged-in: user row ── */
+.ch-sidebar-account-user {
+  display: flex;
+  align-items: stretch;
+  gap: 0.625rem;
+}
+
+.ch-sidebar-account-avatar {
+  width: 48px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, rgba(140, 115, 75, 0.6), rgba(85, 70, 50, 0.8));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.7),
+    inset 0 1px 0 rgba(175, 150, 110, 0.2);
+}
+
+.ch-sidebar-account-avatar--guest {
+  background: linear-gradient(135deg, rgba(60, 55, 45, 0.6), rgba(40, 36, 28, 0.8));
+}
+
+.ch-sidebar-account-avatar-img {
+  width: 80%;
+  height: 80%;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.ch-sidebar-account-avatar-text {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #e8d5b0;
+  letter-spacing: 0.04em;
+}
+
+.ch-sidebar-account-status {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #4ade80;
+  border: 2px solid rgba(22, 19, 14, 0.95);
+}
+
+.ch-sidebar-account-status--offline {
+  background: #6b7280;
+}
+
+.ch-sidebar-account-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ch-sidebar-account-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.ch-sidebar-account-name {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #e8d5b0;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ch-sidebar-account-role {
+  font-size: 0.6875rem;
+  color: #c9a227;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* ── Divider between user info and stats ── */
+.ch-sidebar-account-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(68, 58, 44, 0.5) 30%,
+    rgba(68, 58, 44, 0.5) 70%,
+    transparent 100%
+  );
+}
+
+/* ── Action buttons (2x2 grid) ── */
+.ch-sidebar-account-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.375rem;
+}
+
+.ch-sidebar-account-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #ccc0a8;
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 1px 0 rgba(115, 98, 72, 0.15);
+}
+
+.ch-sidebar-account-action:hover {
+  color: #f8f3ea;
+  background: rgba(38, 33, 26, 0.9);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(72, 62, 46, 0.7),
+    inset 0 1px 0 rgba(155, 130, 95, 0.3);
+}
+
+.ch-sidebar-account-action--signout {
+  grid-column: 1 / -1;
+  color: rgba(160, 145, 120, 0.5);
+  font-size: 0.625rem;
+  padding: 0.25rem;
+}
+
+.ch-sidebar-account-action--signout:hover {
+  color: rgba(200, 180, 150, 0.8);
+}
+
+/* ── Logged-out: guest state ── */
+.ch-sidebar-account-guest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0;
+}
+
+.ch-sidebar-account-guest-label {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #e8d5b0;
+  letter-spacing: 0.04em;
+}
+
+.ch-sidebar-account-guest-sub {
+  font-size: 0.625rem;
+  color: rgba(160, 145, 120, 0.6);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ── Discord sign-in button ── */
+.ch-sidebar-account-discord-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(88, 101, 242, 0.8), rgba(71, 82, 196, 0.9));
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  box-shadow:
+    inset 0 0 0 1px rgba(55, 65, 160, 0.9),
+    inset 0 1px 0 rgba(140, 150, 255, 0.25),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.2),
+    0 2px 6px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.03em;
+}
+
+.ch-sidebar-account-discord-btn:hover {
+  background: linear-gradient(180deg, rgba(100, 113, 255, 0.9), rgba(80, 92, 210, 0.95));
+  box-shadow:
+    inset 0 0 0 1px rgba(65, 75, 180, 0.9),
+    inset 0 1px 0 rgba(160, 170, 255, 0.3),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15),
+    0 3px 10px rgba(88, 101, 242, 0.3);
+}
+
+.ch-sidebar-account-discord-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* ── RSN Linking Modal ── */
+.ch-rsn-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+}
+
+.ch-rsn-modal {
+  position: relative;
+  width: 420px;
+  max-width: 90vw;
+  background: linear-gradient(180deg, rgba(28, 24, 18, 0.98), rgba(22, 18, 14, 0.99));
+  border: 1px solid rgba(120, 100, 60, 0.4);
+  border-radius: 6px;
+  padding: 2rem;
+  box-shadow:
+    inset 0 1px 0 rgba(180, 160, 100, 0.1),
+    inset 0 -2px 8px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+.ch-rsn-modal-dots::after {
+  content: '';
+  display: inline-block;
+  width: 1.2em;
+  text-align: left;
+  animation: ch-dots 1.4s steps(4, end) infinite;
+}
+@keyframes ch-dots {
+  0%   { content: ''; }
+  25%  { content: '.'; }
+  50%  { content: '..'; }
+  75%  { content: '...'; }
+  100% { content: ''; }
+}
+
+.ch-rsn-modal-close {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.625rem;
+  z-index: 2;
+  background: none;
+  border: none;
+  color: rgba(180, 160, 120, 0.5);
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0.25rem 0.375rem;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.ch-rsn-modal-close:hover {
+  color: rgba(220, 200, 160, 0.9);
+}
+
+.ch-rsn-modal-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.6), transparent);
+}
+
+.ch-rsn-modal-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.ch-rsn-modal-title {
+  font-family: 'Cinzel Decorative', 'Cinzel', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: rgba(220, 200, 140, 0.95);
+  margin-bottom: 0.5rem;
+}
+
+.ch-rsn-modal-subtitle {
+  font-size: 0.8rem;
+  color: rgba(180, 165, 130, 0.7);
+  line-height: 1.5;
+}
+
+.ch-rsn-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ch-rsn-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ch-rsn-modal-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(200, 180, 130, 0.8);
+  letter-spacing: 0.04em;
+}
+
+.ch-rsn-modal-input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  background: rgba(10, 8, 6, 0.6);
+  border: 1px solid rgba(120, 100, 60, 0.35);
+  border-radius: 4px;
+  color: rgba(220, 200, 140, 0.95);
+  font-size: 0.9rem;
+  outline: none;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.2s;
+}
+
+.ch-rsn-modal-input:focus {
+  border-color: rgba(201, 162, 39, 0.6);
+}
+
+.ch-rsn-modal-input::placeholder {
+  color: rgba(160, 140, 100, 0.4);
+}
+
+.ch-rsn-modal-input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ch-rsn-modal-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: rgba(201, 162, 39, 0.7);
+  cursor: pointer;
+}
+
+.ch-rsn-modal-checkbox-label input[type="checkbox"] {
+  accent-color: #c9a227;
+  cursor: pointer;
+}
+
+.ch-rsn-modal-game-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ch-rsn-modal-game-btn {
+  flex: 1;
+  padding: 0.5rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(180, 165, 130, 0.6);
+  background: rgba(10, 8, 6, 0.4);
+  border: 1px solid rgba(120, 100, 60, 0.25);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.ch-rsn-modal-game-btn:hover {
+  border-color: rgba(120, 100, 60, 0.5);
+  color: rgba(220, 200, 140, 0.8);
+}
+
+.ch-rsn-modal-game-btn--active {
+  background: rgba(201, 162, 39, 0.15);
+  border-color: rgba(201, 162, 39, 0.5);
+  color: rgba(220, 200, 140, 0.95);
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 162, 39, 0.15),
+    inset 0 1px 0 rgba(255, 230, 140, 0.1);
+}
+
+.ch-rsn-modal-error {
+  padding: 0.6rem 0.8rem;
+  background: rgba(60, 20, 15, 0.5);
+  border: 1px solid rgba(180, 60, 40, 0.4);
+  border-radius: 4px;
+  color: rgba(255, 140, 120, 0.9);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.ch-rsn-modal-submit {
+  width: 100%;
+  padding: 0.7rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(220, 200, 140, 0.95);
+  background: linear-gradient(180deg, rgba(201, 162, 39, 0.25), rgba(160, 130, 30, 0.2));
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 230, 140, 0.15),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.2),
+    0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s;
+}
+
+.ch-rsn-modal-submit:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(201, 162, 39, 0.35), rgba(160, 130, 30, 0.3));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 230, 140, 0.2),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15),
+    0 3px 10px rgba(201, 162, 39, 0.2);
+}
+
+.ch-rsn-modal-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ch-rsn-modal-note {
+  text-align: center;
+  font-size: 0.7rem;
+  color: rgba(160, 140, 100, 0.5);
+}
+
+/* ═══════════════════════════════════════════
+   Admin Panel
+   ═══════════════════════════════════════════ */
+
+.ch-admin-back-link {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: rgba(200, 180, 150, 0.6);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.ch-admin-back-link:hover {
+  color: rgba(200, 180, 150, 0.9);
+}
+
+/* Tab navigation */
+.ch-admin-tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid rgba(100, 85, 60, 0.4);
+  padding-bottom: 0;
+  overflow-x: auto;
+}
+
+.ch-admin-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.75rem;
+  font-family: "Cinzel", serif;
+  color: rgba(200, 180, 150, 0.5);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.ch-admin-tab:hover:not(:disabled) {
+  color: rgba(200, 180, 150, 0.8);
+}
+
+.ch-admin-tab--active {
+  color: #c9a0ff;
+  border-bottom-color: #c9a0ff;
+}
+
+.ch-admin-tab--active.ch-admin-tab--green {
+  color: #6ee7a0;
+  border-bottom-color: #6ee7a0;
+}
+
+.ch-admin-tab--active.ch-admin-tab--blue {
+  color: #7db8e0;
+  border-bottom-color: #7db8e0;
+}
+
+.ch-admin-tab--disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Overview section */
+.ch-admin-overview {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.ch-admin-welcome {
+  font-family: "Cinzel", serif;
+  font-size: 1rem;
+  color: rgba(220, 200, 170, 0.9);
+  margin-bottom: 0.5rem;
+}
+
+.ch-admin-highlight {
+  color: #c9a0ff;
+}
+
+.ch-mod-highlight {
+  color: #6ee7a0;
+}
+
+.ch-settings-highlight {
+  color: #7db8e0;
+}
+
+/* Moderation action controls — hover-only */
+.ch-mod-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.group:hover .ch-mod-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ch-mod-action-btn {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  background: rgba(160, 145, 120, 0.1);
+  color: #b0a088;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(160, 145, 120, 0.25);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  letter-spacing: 0.02em;
+}
+
+.ch-mod-action-btn:hover {
+  background: rgba(160, 145, 120, 0.2);
+  color: #e8d5b0;
+}
+
+.ch-mod-action-btn--danger {
+  background: rgba(239, 68, 68, 0.08);
+  color: #f87171;
+  box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.2);
+}
+
+.ch-mod-action-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
+.ch-mod-action-btn--success {
+  background: rgba(74, 222, 128, 0.08);
+  color: #4ade80;
+  box-shadow: inset 0 0 0 1px rgba(74, 222, 128, 0.2);
+}
+
+.ch-mod-action-btn--success:hover {
+  background: rgba(74, 222, 128, 0.15);
+  color: #86efac;
+}
+
+.badge-banned {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.25);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ch-admin-description {
+  font-size: 0.8rem;
+  color: rgba(180, 160, 130, 0.6);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Status rows */
+.ch-admin-section {
+  padding: 0.25rem 0;
+}
+
+.ch-admin-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(100, 85, 60, 0.15);
+}
+
+.ch-admin-status-row:last-child {
+  border-bottom: none;
+}
+
+.ch-admin-status-label {
+  font-size: 0.75rem;
+  color: rgba(180, 160, 130, 0.5);
+}
+
+.ch-admin-status-value {
+  font-size: 0.75rem;
+  color: rgba(220, 200, 170, 0.8);
+}
+
+/* Placeholder text */
+.ch-admin-placeholder {
+  font-size: 0.8rem;
+  color: rgba(180, 160, 130, 0.5);
+  line-height: 1.5;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+/* Module cards grid */
+.ch-admin-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.ch-admin-module-card {
+  background: rgba(40, 35, 25, 0.4);
+  border: 1px solid rgba(100, 85, 60, 0.25);
+  border-radius: 6px;
+  padding: 0.75rem;
+  position: relative;
+}
+
+.ch-admin-module-title {
+  font-family: "Cinzel", serif;
+  font-size: 0.8rem;
+  color: rgba(220, 200, 170, 0.85);
+  margin-bottom: 0.3rem;
+}
+
+.ch-admin-module-desc {
+  font-size: 0.7rem;
+  color: rgba(180, 160, 130, 0.5);
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+
+.ch-admin-module-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-family: "Cinzel", serif;
+  color: rgba(160, 120, 220, 0.6);
+  border: 1px solid rgba(160, 120, 220, 0.2);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  background: rgba(120, 80, 180, 0.08);
+}
+
+/* ===========================================
+   ROUTE LOADING BAR - Top-of-page progress
+   =========================================== */
+.ch-loading-bar-track {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 9999;
+  background: transparent;
+  pointer-events: none;
+}
+
+.ch-loading-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #415a73, #648cb4, #415a73);
+  box-shadow: 0 0 8px rgba(100, 140, 180, 0.6), 0 0 2px rgba(100, 140, 180, 0.4);
+  border-radius: 0 1px 1px 0;
+  transition: width 0.15s ease-out;
+}
+
+.ch-loading-bar--purple {
+  background: linear-gradient(90deg, #5f5078, #8c78aa, #5f5078);
+  box-shadow: 0 0 8px rgba(140, 120, 170, 0.6), 0 0 2px rgba(140, 120, 170, 0.4);
+}
+
+.ch-loading-bar--green {
+  background: linear-gradient(90deg, #3a6b4a, #5aaa6e, #3a6b4a);
+  box-shadow: 0 0 8px rgba(90, 170, 110, 0.6), 0 0 2px rgba(90, 170, 110, 0.4);
+}
+
+.ch-loading-bar--blue {
+  background: linear-gradient(90deg, #415a73, #648cb4, #415a73);
+  box-shadow: 0 0 8px rgba(100, 140, 180, 0.6), 0 0 2px rgba(100, 140, 180, 0.4);
+}
+
+.ch-loading-bar--complete {
+  transition: width 0.15s ease-out, opacity 0.25s ease-out 0.1s;
+  opacity: 0;
+}
+

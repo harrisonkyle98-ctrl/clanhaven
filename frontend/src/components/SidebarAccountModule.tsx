@@ -1,0 +1,168 @@
+import { useNavigate } from "react-router-dom"
+import { useAuth } from "@/hooks/useAuth"
+
+function getRsAvatarUrl(rsn: string): string {
+  return `https://secure.runescape.com/m=avatar-rs/${encodeURIComponent(rsn)}/chat.png`
+}
+
+export default function SidebarAccountModule() {
+  const { user, loading, login, logout } = useAuth()
+  const navigate = useNavigate()
+
+  if (loading) {
+    return (
+      <div className="ch-sidebar-account">
+        <div className="ch-sidebar-account-card">
+          <div className="ch-sidebar-account-card-highlight" />
+          <div className="ch-sidebar-account-guest">
+            <span className="ch-sidebar-account-guest-label">Loading...</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (user && !user.rsn) {
+    return (
+      <div className="ch-sidebar-account">
+        <div className="ch-sidebar-account-card">
+          <div className="ch-sidebar-account-card-highlight" />
+          <div className="ch-sidebar-account-guest">
+            <span className="ch-sidebar-account-guest-label">Almost there!</span>
+            <span className="ch-sidebar-account-guest-sub">
+              Link your RuneScape account to continue
+            </span>
+          </div>
+          <button
+            onClick={logout}
+            className="ch-sidebar-account-action ch-sidebar-account-action--signout"
+          >
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="ch-sidebar-account">
+      {user ? (
+        /* ── Logged-in + RSN linked state ── */
+        <div className="ch-sidebar-account-card">
+          <div className="ch-sidebar-account-card-highlight" />
+          <div className="ch-sidebar-account-user">
+            <div className="ch-sidebar-account-avatar">
+              <img
+                src={user.displayRsn ? getRsAvatarUrl(user.displayRsn) : user.rsn ? getRsAvatarUrl(user.rsn) : "/images/default-avatar.png"}
+                alt=""
+                className="ch-sidebar-account-avatar-img"
+                onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
+              />
+              <span className="ch-sidebar-account-status" />
+            </div>
+            <div className="ch-sidebar-account-info" style={{ flex: 1, minWidth: 0 }}>
+              <div className="ch-sidebar-account-name-row">
+                <span className="ch-sidebar-account-name" style={{ display: "inline-flex", alignItems: "center" }}>
+                  {user.displayRsn ?? user.rsn}
+                  {((user.activeAccountType ?? user.accountType) === "ironman" || (user.activeAccountType ?? user.accountType) === "hardcore_ironman") && (
+                    <img
+                      src={(user.activeAccountType ?? user.accountType) === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                      alt={(user.activeAccountType ?? user.accountType) === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                      title={(user.activeAccountType ?? user.accountType) === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                      style={{ width: "14px", height: "14px", objectFit: "contain", marginLeft: "4px", flexShrink: 0 }}
+                    />
+                  )}
+                </span>
+              </div>
+              <div className="ch-user-row-details" style={{ marginTop: "0.3rem" }}>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {user.privileges >= 2 && (
+                    <span className="badge-admin">Admin</span>
+                  )}
+                  {user.privileges === 1 && (
+                    <span className="badge-mod">Mod</span>
+                  )}
+                  {(user.activeClanName ?? user.rsnClanName) && (
+                    <span className="badge-clan">{user.activeClanName ?? user.rsnClanName}</span>
+                  )}
+
+                  {(user.activeGameType ?? user.gameType) && (
+                    <span className={(user.activeGameType ?? user.gameType) === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                      {user.activeGameType ?? user.gameType}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="ch-sidebar-account-divider" />
+
+          <div className="ch-sidebar-account-actions">
+            <button className="ch-sidebar-account-action">
+              <span>My Profile</span>
+            </button>
+            <button className="ch-sidebar-account-action">
+              <span>My Clan</span>
+            </button>
+            <button
+              onClick={() => { navigate("/settings") }}
+              className="ch-sidebar-account-action"
+            >
+              <span>Settings</span>
+            </button>
+            <button className="ch-sidebar-account-action">
+              <span>Badges</span>
+            </button>
+            {user.privileges >= 2 && (
+              <button
+                onClick={() => { navigate("/admin") }}
+                className="ch-sidebar-account-action"
+                style={{ gridColumn: "1 / -1" }}
+              >
+                <span>Admin Panel</span>
+              </button>
+            )}
+            {user.privileges >= 1 && (
+              <button
+                onClick={() => { navigate("/mod") }}
+                className="ch-sidebar-account-action"
+                style={{ gridColumn: "1 / -1" }}
+              >
+                <span>Mod Panel</span>
+              </button>
+            )}
+          </div>
+
+          <button
+            onClick={logout}
+            className="ch-sidebar-account-action ch-sidebar-account-action--signout"
+          >
+            <span>Sign Out</span>
+          </button>
+        </div>
+      ) : (
+        /* ── Logged-out state ── */
+        <div className="ch-sidebar-account-card">
+          <div className="ch-sidebar-account-card-highlight" />
+          <div className="ch-sidebar-account-guest">
+            <span className="ch-sidebar-account-guest-label">Welcome,</span>
+            <span className="ch-sidebar-account-guest-sub">
+              Connect your Discord to Clan Haven
+            </span>
+          </div>
+
+          <button
+            onClick={() => { void login() }}
+            className="ch-sidebar-account-discord-btn"
+          >
+            <svg className="ch-sidebar-account-discord-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286z"/>
+            </svg>
+            <span>Login with Discord</span>
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}

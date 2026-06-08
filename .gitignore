@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+.venv/
+
+# Environment files (never commit secrets)
+.env
+backend/.env
+frontend/.env
+
+# Build artifacts
+dist/
+build/
+static/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Caches
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Poetry
+*.egg-info/
