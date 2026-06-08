@@ -288,14 +288,20 @@ function ModAltAccountsTab() {
               >
                 {/* Requester container — arrow-shaped via clip-path pentagon */}
                 <div
-                  className="ch-row"
                   style={{
                     width: "20%",
                     minWidth: "120px",
                     position: "relative",
                     zIndex: 2,
+                    filter: "drop-shadow(1px 0 0 rgba(52, 45, 34, 0.8)) drop-shadow(0 1px 0 rgba(52, 45, 34, 0.8)) drop-shadow(0 -1px 0 rgba(52, 45, 34, 0.8))",
+                  }}
+                >
+                <div
+                  className="ch-row"
+                  style={{
                     clipPath: "polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%)",
                     borderRadius: "2px 0 0 2px",
+                    height: "100%",
                   }}
                 >
                     <div className="px-4 py-3" style={{ paddingRight: "2rem" }}>
@@ -324,6 +330,7 @@ function ModAltAccountsTab() {
                       </div>
                     </div>
                 </div>
+                </div>
 
                 {/* Requested alt account container — V-notch on left matches requester arrow */}
                 <div
@@ -335,6 +342,17 @@ function ModAltAccountsTab() {
                     zIndex: 1,
                     marginLeft: "-20px",
                     clipPath: "polygon(20px 50%, 0 0, 100% 0, 100% 100%, 0 100%)",
+                    boxShadow: `
+                      inset 0 1px 0 0 rgba(10, 8, 5, 0.9),
+                      inset -1px 0 0 0 rgba(10, 8, 5, 0.9),
+                      inset 0 -1px 0 0 rgba(10, 8, 5, 0.9),
+                      inset 0 2px 0 0 rgba(52, 45, 34, 0.6),
+                      inset -2px 0 0 0 rgba(52, 45, 34, 0.6),
+                      inset 0 -2px 0 0 rgba(52, 45, 34, 0.6),
+                      inset 0 1px 0 rgba(115, 98, 72, 0.2),
+                      inset 0 3px 8px rgba(0, 0, 0, 0.4),
+                      inset 0 -1px 4px rgba(0, 0, 0, 0.15)
+                    `,
                   }}
                 >
                   <div className="px-4 py-3" style={{ paddingLeft: "calc(1rem + 20px)" }}>
