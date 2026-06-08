@@ -355,6 +355,9 @@ function ModAltAccountsTab() {
                             <span className={req.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
                               {req.gameType}
                             </span>
+                            {!isPending && req.reviewedAt && (
+                              <span className="badge-info">Reviewed {new Date(req.reviewedAt).toLocaleDateString()}</span>
+                            )}
                           </div>
                         </div>
                         {isDenied && req.reviewNote && (
@@ -362,11 +365,7 @@ function ModAltAccountsTab() {
                             Reason: {req.reviewNote}
                           </div>
                         )}
-                        {!isPending && req.reviewedAt && (
-                          <div style={{ color: "rgba(180,160,130,0.4)", fontSize: "0.625rem", marginTop: "0.2rem" }}>
-                            Reviewed: {new Date(req.reviewedAt).toLocaleString()}
-                          </div>
-                        )}
+
                       </div>
 
                       {/* Actions column */}
