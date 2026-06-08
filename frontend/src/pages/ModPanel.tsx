@@ -347,7 +347,7 @@ function ModAltAccountsTab() {
                           {isPending && <span className="badge-pending-date" style={{ marginLeft: "0.4rem" }}>Requested on {new Date(req.createdAt).toLocaleDateString()}</span>}
                           {isDenied && <span className="badge-offline" style={{ marginLeft: "0.4rem" }}>Denied</span>}
                           {!isPending && req.reviewedAt && (
-                            <span className="badge-info" style={{ marginLeft: "0.4rem" }}>Reviewed {new Date(req.reviewedAt).toLocaleDateString()}</span>
+                            <span className="badge-info" style={{ marginLeft: "0.4rem" }}>Reviewed {new Date(req.reviewedAt).toLocaleDateString(undefined, { month: "numeric", day: "numeric", year: "numeric" })}</span>
                           )}
                         </div>
                         <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>
