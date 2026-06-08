@@ -284,27 +284,30 @@ function ModAltAccountsTab() {
             return (
               <div
                 key={req.id}
-                style={{ marginBottom: "0.5rem", ...(isDenied ? { opacity: 0.6 } : {}) }}
+                style={{ display: "flex", alignItems: "stretch", marginBottom: "0.5rem", position: "relative", ...(isDenied ? { opacity: 0.6 } : {}) }}
               >
-                {/* Requester container — standalone ch-row, no bottom border */}
+                {/* Requester container — arrow-shaped, floats over alt row */}
                 <div
-                  className="ch-row"
                   style={{
-                    borderRadius: "2px 2px 0 0",
-                    boxShadow: [
-                      "inset 0 1px 0 0 rgba(10, 8, 5, 0.9)",
-                      "inset 1px 0 0 0 rgba(10, 8, 5, 0.9)",
-                      "inset -1px 0 0 0 rgba(10, 8, 5, 0.9)",
-                      "inset 0 2px 0 0 rgba(52, 45, 34, 0.6)",
-                      "inset 2px 0 0 0 rgba(52, 45, 34, 0.6)",
-                      "inset -2px 0 0 0 rgba(52, 45, 34, 0.6)",
-                      "inset 0 1px 0 rgba(115, 98, 72, 0.2)",
-                      "inset 0 3px 8px rgba(0, 0, 0, 0.4)",
-                    ].join(", "),
+                    width: "30%",
+                    minWidth: "140px",
+                    position: "relative",
+                    zIndex: 2,
+                    filter: "drop-shadow(3px 0 4px rgba(0, 0, 0, 0.35))",
                   }}
                 >
-                  <div className="flex items-center gap-3 px-4 py-2">
-                    <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      background: "rgba(22, 19, 14, 0.9)",
+                      clipPath: "polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%)",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      overflow: "hidden",
+                      borderRadius: "2px 0 0 2px",
+                    }}
+                  >
+                    <div style={{ padding: "0.5rem 1.75rem 0.5rem 0.75rem", width: "100%" }}>
                       <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                         {req.requesterRsn ?? req.requesterUsername ?? "Unknown"}
                         {req.requesterRsn && (req.requesterAccountType === "ironman" || req.requesterAccountType === "hardcore_ironman") && (
@@ -332,16 +335,12 @@ function ModAltAccountsTab() {
                   </div>
                 </div>
 
-                {/* Requested alt account container — standalone ch-row, no top border */}
+                {/* Requested alt account container */}
                 <div
                   className="ch-row"
-                  style={{
-                    borderRadius: "0 0 2px 2px",
-                    boxShadow:
-                      "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6), inset 0 -1px 4px rgba(0, 0, 0, 0.15)",
-                  }}
+                  style={{ flex: 1, borderRadius: "0 2px 2px 0", position: "relative", zIndex: 1 }}
                 >
-                  <div className="px-4 py-3">
+                  <div className="px-4 py-3" style={{ paddingLeft: "1rem" }}>
                     <div className="flex items-center gap-3">
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
