@@ -294,19 +294,24 @@ function ModAltAccountsTab() {
                     position: "relative",
                     zIndex: 2,
                     marginRight: "-16px",
-                    filter: "drop-shadow(3px 0 6px rgba(0, 0, 0, 0.5))",
+                    filter: [
+                      "drop-shadow(0 0 0px rgba(10, 8, 5, 1))",
+                      "drop-shadow(0 0 0.5px rgba(10, 8, 5, 1))",
+                      "drop-shadow(0 0 1px rgba(52, 45, 34, 1))",
+                      "drop-shadow(0 0 1.5px rgba(52, 45, 34, 0.8))",
+                      "drop-shadow(3px 0 6px rgba(0, 0, 0, 0.5))",
+                    ].join(" "),
                   }}
                 >
                   <div
                     style={{
-                      background: "rgba(22, 19, 14, 0.8)",
+                      background: "rgb(20, 17, 12)",
                       clipPath: "polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%)",
                       height: "100%",
                       display: "flex",
                       alignItems: "center",
                       overflow: "hidden",
                       borderRadius: "2px 0 0 2px",
-                      boxShadow: "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6), inset 0 1px 0 rgba(115, 98, 72, 0.2), inset 0 3px 8px rgba(0, 0, 0, 0.4), inset 0 -1px 4px rgba(0, 0, 0, 0.15)",
                     }}
                   >
                     <div className="px-4 py-3" style={{ paddingRight: "1.75rem", width: "100%" }}>
