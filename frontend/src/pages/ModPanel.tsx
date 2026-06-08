@@ -341,8 +341,8 @@ function ModAltAccountsTab() {
                   className="ch-row-notch"
                   style={{ flex: 1, position: "relative", zIndex: 1, marginLeft: "-20px" }}
                 >
-                  <div className="ch-row-notch-mid">
-                  <div className="ch-row-notch-fill">
+                  <div className={`ch-row-notch-mid${isPending ? " ch-row-notch-mid--pending" : isApproved ? " ch-row-notch-mid--approved" : isDenied ? " ch-row-notch-mid--denied" : ""}`}>
+                  <div className={`ch-row-notch-fill${isPending ? " ch-row-notch-fill--pending" : isApproved ? " ch-row-notch-fill--approved" : isDenied ? " ch-row-notch-fill--denied" : ""}`}>
                   <div className="px-4 py-3" style={{ paddingLeft: "calc(1rem + 20px)" }}>
                     <div className="flex items-center gap-3">
                       <div style={{ flex: 1, minWidth: 0 }}>
