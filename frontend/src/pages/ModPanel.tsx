@@ -289,25 +289,27 @@ function ModAltAccountsTab() {
                 {/* Requester container — arrow-shaped, floats over alt row */}
                 <div
                   style={{
-                    width: "30%",
-                    minWidth: "140px",
+                    width: "20%",
+                    minWidth: "120px",
                     position: "relative",
                     zIndex: 2,
-                    filter: "drop-shadow(3px 0 4px rgba(0, 0, 0, 0.35))",
+                    marginRight: "-16px",
+                    filter: "drop-shadow(3px 0 6px rgba(0, 0, 0, 0.5))",
                   }}
                 >
                   <div
                     style={{
-                      background: "rgba(22, 19, 14, 0.9)",
+                      background: "rgba(22, 19, 14, 0.8)",
                       clipPath: "polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%)",
                       height: "100%",
                       display: "flex",
                       alignItems: "center",
                       overflow: "hidden",
                       borderRadius: "2px 0 0 2px",
+                      boxShadow: "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6), inset 0 1px 0 rgba(115, 98, 72, 0.2), inset 0 3px 8px rgba(0, 0, 0, 0.4), inset 0 -1px 4px rgba(0, 0, 0, 0.15)",
                     }}
                   >
-                    <div style={{ padding: "0.5rem 1.75rem 0.5rem 0.75rem", width: "100%" }}>
+                    <div className="px-4 py-3" style={{ paddingRight: "1.75rem", width: "100%" }}>
                       <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                         {req.requesterRsn ?? req.requesterUsername ?? "Unknown"}
                         {req.requesterRsn && (req.requesterAccountType === "ironman" || req.requesterAccountType === "hardcore_ironman") && (
