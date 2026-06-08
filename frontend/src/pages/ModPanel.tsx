@@ -286,25 +286,16 @@ function ModAltAccountsTab() {
                 key={req.id}
                 style={{ display: "flex", alignItems: "stretch", marginBottom: "0.5rem", position: "relative", ...(isDenied ? { opacity: 0.6 } : {}) }}
               >
-                {/* Requester container — same ch-row as alt row, arrow-shaped right edge */}
+                {/* Requester container — ch-row with arrow-right modifier */}
                 <div
+                  className="ch-row ch-row-arrow-right"
                   style={{
                     width: "20%",
                     minWidth: "120px",
-                    position: "relative",
                     zIndex: 2,
                     marginRight: "-16px",
-                    filter: "drop-shadow(2px 0 3px rgba(0, 0, 0, 0.35))",
                   }}
                 >
-                  <div
-                    className="ch-row"
-                    style={{
-                      clipPath: "polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%)",
-                      height: "100%",
-                      borderRadius: "2px 0 0 2px",
-                    }}
-                  >
                     <div className="px-4 py-3" style={{ paddingRight: "1.75rem" }}>
                       <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                         {req.requesterRsn ?? req.requesterUsername ?? "Unknown"}
@@ -330,7 +321,6 @@ function ModAltAccountsTab() {
                         </div>
                       </div>
                     </div>
-                  </div>
                 </div>
 
                 {/* Requested alt account container */}
