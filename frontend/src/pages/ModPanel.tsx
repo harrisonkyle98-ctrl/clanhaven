@@ -286,7 +286,7 @@ function ModAltAccountsTab() {
                 key={req.id}
                 style={{ display: "flex", alignItems: "stretch", marginBottom: "0.5rem", position: "relative", ...(isDenied ? { opacity: 0.6 } : {}) }}
               >
-                {/* Requester container — arrow-shaped, floats over alt row */}
+                {/* Requester container — same ch-row as alt row, arrow-shaped right edge */}
                 <div
                   style={{
                     width: "20%",
@@ -294,21 +294,18 @@ function ModAltAccountsTab() {
                     position: "relative",
                     zIndex: 2,
                     marginRight: "-16px",
-                    filter: "drop-shadow(0 0 0.5px rgba(52, 45, 34, 0.8)) drop-shadow(2px 0 3px rgba(0, 0, 0, 0.35))",
+                    filter: "drop-shadow(2px 0 3px rgba(0, 0, 0, 0.35))",
                   }}
                 >
                   <div
+                    className="ch-row"
                     style={{
-                      background: "rgba(22, 19, 14, 0.8)",
                       clipPath: "polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%)",
                       height: "100%",
-                      display: "flex",
-                      alignItems: "center",
-                      overflow: "hidden",
                       borderRadius: "2px 0 0 2px",
                     }}
                   >
-                    <div className="px-4 py-3" style={{ paddingRight: "1.75rem", width: "100%" }}>
+                    <div className="px-4 py-3" style={{ paddingRight: "1.75rem" }}>
                       <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
                         {req.requesterRsn ?? req.requesterUsername ?? "Unknown"}
                         {req.requesterRsn && (req.requesterAccountType === "ironman" || req.requesterAccountType === "hardcore_ironman") && (
