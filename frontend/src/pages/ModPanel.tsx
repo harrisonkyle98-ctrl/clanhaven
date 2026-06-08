@@ -291,6 +291,7 @@ function ModAltAccountsTab() {
                   className="ch-row-arrow"
                   style={{ width: "20%", minWidth: "120px", position: "relative", zIndex: 2 }}
                 >
+                  <div className="ch-row-arrow-mid">
                   <div className="ch-row-arrow-fill">
                     <div className="px-4 py-3" style={{ paddingRight: "2rem" }}>
                       <div style={{ color: "#e8d5b0", fontSize: "0.8125rem", fontWeight: 600, display: "flex", alignItems: "center" }}>
@@ -318,6 +319,7 @@ function ModAltAccountsTab() {
                       </div>
                     </div>
                   </div>
+                  </div>
                 </div>
 
                 {/* Requested alt account section — bordered V-notch shape */}
@@ -325,6 +327,7 @@ function ModAltAccountsTab() {
                   className="ch-row-notch"
                   style={{ flex: 1, position: "relative", zIndex: 1, marginLeft: "-20px" }}
                 >
+                  <div className="ch-row-notch-mid">
                   <div className="ch-row-notch-fill">
                   <div className="px-4 py-3" style={{ paddingLeft: "calc(1rem + 20px)" }}>
                     <div className="flex items-center gap-3">
@@ -402,6 +405,7 @@ function ModAltAccountsTab() {
                         </div>
                       )}
                     </div>
+                  </div>
                   </div>
                   </div>
                 </div>
