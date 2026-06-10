@@ -145,7 +145,7 @@ export default function SidebarAccountModule() {
             )}
           </div>
         </div>
-        {isMainActive && <span className="ch-identity-dropdown-active">Active</span>}
+        {isMainActive && <span className="badge-active">Active</span>}
       </button>
 
       {/* Approved alts */}
@@ -184,7 +184,7 @@ export default function SidebarAccountModule() {
                 )}
               </div>
             </div>
-            {altActive && <span className="ch-identity-dropdown-active">Active</span>}
+            {altActive && <span className="badge-active">Active</span>}
           </button>
         )
       })}
