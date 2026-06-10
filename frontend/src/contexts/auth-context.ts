@@ -25,6 +25,12 @@ interface User {
     clanRole: string
     gameType: string | null
   }[]
+  approvedAlts: {
+    rsn: string
+    gameType: string | null
+    accountType: string | null
+    clanName: string | null
+  }[]
 }
 
 export type { User }

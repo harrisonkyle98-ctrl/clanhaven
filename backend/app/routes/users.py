@@ -132,6 +132,12 @@ async def get_me(current_user: dict = Depends(get_current_user)):
                         data={"clanName": active_clan_name},
                     )
 
+    # Fetch approved alt accounts for sidebar identity switcher
+    approved_alts = await db.altaccountrequest.find_many(
+        where={"userId": user.id, "status": "approved"},
+        order={"rsn": "asc"},
+    )
+
     return {
         "id": user.id,
         "discordId": user.discordId,
@@ -160,6 +166,15 @@ async def get_me(current_user: dict = Depends(get_current_user)):
                 "gameType": m.clanRef.gameType if m.clanRef else None,
             }
             for m in memberships
+        ],
+        "approvedAlts": [
+            {
+                "rsn": a.rsn,
+                "gameType": a.gameType,
+                "accountType": a.accountType,
+                "clanName": a.clanName,
+            }
+            for a in approved_alts
         ],
     }
 
