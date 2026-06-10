@@ -163,6 +163,8 @@ interface AltRequestMod {
   reviewedById: string | null
   reviewedAt: string | null
   reviewNote: string | null
+  reviewerRsn: string | null
+  reviewerUsername: string | null
   createdAt: string
   requesterUsername: string | null
   requesterRsn: string | null
