@@ -90,6 +90,21 @@ async def lifespan(app: FastAPI):
                 )
     except Exception:
         pass
+    # Clean up stale seed jobs left in "running" state after restart/deploy
+    try:
+        from datetime import datetime, timezone
+        stale = await db.seedjob.find_many(where={"status": {"in": ["running", "pending"]}})
+        for j in stale:
+            await db.seedjob.update(
+                where={"id": j.id},
+                data={
+                    "status": "failed",
+                    "lastError": "Job interrupted by server restart",
+                    "completedAt": datetime.now(timezone.utc),
+                },
+            )
+    except Exception:
+        pass
     yield
     await disconnect_db()
 

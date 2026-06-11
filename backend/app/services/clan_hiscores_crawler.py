@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 CLAN_RANKING_URL = "https://secure.runescape.com/m=clan-hiscores/ranking"
 PAGE_DELAY = 1.5  # seconds between hiscore page fetches
 INDEX_DELAY = 2.0  # seconds between clan index calls
+CLAN_INDEX_TIMEOUT = 120  # max seconds per individual clan indexing
 
 
 def _extract_clan_names(html: str) -> list[str]:
@@ -119,7 +120,10 @@ async def run_seed_job(job_id: str) -> None:
                     data={"currentClan": clan_name, "currentPage": None},
                 )
 
-                result = await fetch_and_index_clan(clan_name)
+                result = await asyncio.wait_for(
+                    fetch_and_index_clan(clan_name),
+                    timeout=CLAN_INDEX_TIMEOUT,
+                )
 
                 if result.get("error"):
                     failed += 1
@@ -138,6 +142,18 @@ async def run_seed_job(job_id: str) -> None:
                         data={"clansIndexed": indexed},
                     )
                     logger.info("Indexed '%s' — %d members", clan_name, result.get("member_count", 0))
+
+            except asyncio.TimeoutError:
+                failed += 1
+                error_msg = f"{clan_name}: timed out after {CLAN_INDEX_TIMEOUT}s"
+                logger.warning("Seed job timeout: %s", error_msg)
+                await db.seedjob.update(
+                    where={"id": job_id},
+                    data={
+                        "clansFailed": failed,
+                        "lastError": error_msg[:500],
+                    },
+                )
 
             except Exception as e:
                 failed += 1
