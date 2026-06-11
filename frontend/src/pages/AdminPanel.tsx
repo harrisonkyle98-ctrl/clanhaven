@@ -85,6 +85,33 @@ export default function AdminPanel() {
 }
 
 function AdminHomeTab({ username }: { username: string }) {
+  const [crawling, setCrawling] = useState(false)
+  const [crawlResult, setCrawlResult] = useState<string | null>(null)
+  const [crawlPages, setCrawlPages] = useState(100)
+
+  const handleCrawl = async () => {
+    setCrawling(true)
+    setCrawlResult(null)
+    try {
+      const result = await apiFetch<{
+        pagesIndexed: number
+        clansIndexed: number
+        errors: string[]
+      }>("/api/admin/crawl-clan-hiscores", {
+        method: "POST",
+        body: JSON.stringify({ startPage: 1, maxPages: crawlPages }),
+      })
+      setCrawlResult(
+        `Indexed ${result.clansIndexed} clans from ${result.pagesIndexed} pages.` +
+          (result.errors.length > 0 ? ` Errors: ${result.errors.join(", ")}` : "")
+      )
+    } catch (err) {
+      setCrawlResult(`Error: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setCrawling(false)
+    }
+  }
+
   return (
     <div className="space-y-4">
       <CollapsiblePanel variant="purple" title="Admin Overview">
@@ -121,12 +148,44 @@ function AdminHomeTab({ username }: { username: string }) {
           </div>
         </CollapsiblePanel>
 
-        <CollapsiblePanel variant="purple" title="Quick Actions">
+        <CollapsiblePanel variant="purple" title="Clan HiScores Crawler">
           <div className="ch-admin-section">
-            <p className="ch-admin-placeholder">
-              Homepage content management, news publishing, and site configuration
-              controls will be available here in future updates.
+            <p style={{ color: "var(--color-text-muted)", fontSize: "0.8125rem", marginBottom: "0.75rem" }}>
+              Crawl RS3 Clan HiScores ranking pages to index clans for Clan Discovery.
             </p>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
+              <label style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Pages:</label>
+              <input
+                type="number"
+                value={crawlPages}
+                onChange={(e) => setCrawlPages(Math.max(1, Math.min(500, Number(e.target.value))))}
+                style={{
+                  width: "80px",
+                  background: "rgba(22, 19, 14, 0.8)",
+                  border: "none",
+                  boxShadow: "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6)",
+                  color: "var(--color-text-warm)",
+                  padding: "0.4rem 0.5rem",
+                  fontSize: "0.8125rem",
+                }}
+              />
+              <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
+                (25 clans/page, max 500)
+              </span>
+            </div>
+            <button
+              onClick={handleCrawl}
+              disabled={crawling}
+              className="ch-admin-btn"
+              style={{ opacity: crawling ? 0.6 : 1 }}
+            >
+              {crawling ? "Crawling..." : "Start Crawl"}
+            </button>
+            {crawlResult && (
+              <p style={{ color: "var(--color-xp-green)", fontSize: "0.8125rem", marginTop: "0.75rem" }}>
+                {crawlResult}
+              </p>
+            )}
           </div>
         </CollapsiblePanel>
       </div>
