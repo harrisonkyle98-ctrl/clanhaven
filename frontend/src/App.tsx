@@ -8,6 +8,7 @@ import NotFound from "@/pages/NotFound"
 import AdminPanel from "@/pages/AdminPanel"
 import ModPanel from "@/pages/ModPanel"
 import SettingsPage from "@/pages/SettingsPage"
+import ClanDiscovery from "@/pages/ClanDiscovery"
 
 export default function App() {
   return (
@@ -21,7 +22,7 @@ export default function App() {
             <Route path="/faq" element={<Clans />} />
             <Route path="/features" element={<Clans />} />
             <Route path="/clans" element={<Clans />} />
-            <Route path="/rankings" element={<Clans />} />
+            <Route path="/clan-discovery" element={<ClanDiscovery />} />
             <Route path="/competitions" element={<Clans />} />
             <Route path="/clan-tools" element={<Clans />} />
             <Route path="/verify-ownership" element={<Clans />} />

@@ -3140,3 +3140,247 @@ body {
   opacity: 0;
 }
 
+/* ===========================================
+   CLAN DISCOVERY PAGE
+   =========================================== */
+.ch-discovery-page {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.ch-discovery-header {
+  margin-bottom: 1.5rem;
+}
+
+.ch-discovery-title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ch-btn-back {
+  background: rgba(22, 19, 14, 0.8);
+  color: var(--color-text-muted);
+  border: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ch-btn-back:hover {
+  background: rgba(28, 24, 18, 0.85);
+  color: var(--color-text-highlight);
+}
+
+.ch-discovery-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-highlight);
+  margin: 0;
+}
+
+.ch-discovery-count {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-left: auto;
+}
+
+.ch-discovery-controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.ch-discovery-search {
+  flex: 1;
+  max-width: 320px;
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 2px 6px rgba(0, 0, 0, 0.3);
+  color: var(--color-text-warm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.ch-discovery-search::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.ch-discovery-search:focus {
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(201, 162, 39, 0.4),
+    inset 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.ch-discovery-sort {
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6);
+  color: var(--color-text-warm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.ch-discovery-sort:focus {
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(201, 162, 39, 0.4);
+}
+
+.ch-discovery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 1200px) {
+  .ch-discovery-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .ch-discovery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .ch-discovery-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ch-discovery-card {
+  padding: 1rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.ch-discovery-card-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  background: linear-gradient(135deg, #415a73, #2a3d52);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ch-discovery-card-icon span {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ch-discovery-card-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-highlight);
+  transition: color 0.2s ease;
+}
+
+.ch-discovery-card:hover .ch-discovery-card-name {
+  color: var(--color-gold);
+}
+
+.ch-discovery-card-rank {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+}
+
+.ch-discovery-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+}
+
+.ch-discovery-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.ch-discovery-stat-label {
+  font-size: 0.5625rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ch-discovery-stat-value {
+  font-size: 0.75rem;
+  color: var(--color-text-warm);
+  font-weight: 500;
+}
+
+.ch-xp-green {
+  color: var(--color-xp-green);
+}
+
+.ch-discovery-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding: 1rem 0;
+}
+
+.ch-discovery-page-btn {
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6);
+  color: var(--color-text-muted);
+  padding: 0.4rem 0.7rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ch-discovery-page-btn:hover:not(:disabled) {
+  background: rgba(28, 24, 18, 0.85);
+  color: var(--color-text-highlight);
+}
+
+.ch-discovery-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ch-discovery-page-info {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  padding: 0 0.5rem;
+}
+
+.ch-discovery-loading,
+.ch-discovery-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+

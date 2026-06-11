@@ -1,9 +1,65 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.auth import get_optional_user
 from app.core.database import db
 
 router = APIRouter()
+
+
+@router.get("/discovery")
+async def clan_discovery(
+    page: int = Query(1, ge=1),
+    pageSize: int = Query(24, ge=1, le=100),
+    search: Optional[str] = Query(None),
+    sort: str = Query("rank"),
+):
+    """Public paginated clan discovery from indexed RS3 Clan HiScores."""
+    where: dict = {}
+    if search and search.strip():
+        where["nameLower"] = {"contains": search.strip().lower()}
+
+    order: dict
+    if sort == "members":
+        order = {"memberCount": "desc"}
+    elif sort == "xp":
+        order = {"totalXp": "desc"}
+    elif sort == "name":
+        order = {"nameLower": "asc"}
+    elif sort == "recent":
+        order = {"lastIndexedAt": "desc"}
+    else:
+        order = {"rank": "asc"}
+
+    total = await db.indexedclan.count(where=where)
+
+    clans = await db.indexedclan.find_many(
+        where=where,
+        order=order,
+        skip=(page - 1) * pageSize,
+        take=pageSize,
+    )
+
+    return {
+        "clans": [
+            {
+                "id": c.id,
+                "name": c.name,
+                "gameType": c.gameType,
+                "memberCount": c.memberCount,
+                "rank": c.rank,
+                "totalXp": c.totalXp,
+                "source": c.source,
+                "lastIndexedAt": c.lastIndexedAt.isoformat() if c.lastIndexedAt else None,
+            }
+            for c in clans
+        ],
+        "total": total,
+        "page": page,
+        "pageSize": pageSize,
+        "totalPages": (total + pageSize - 1) // pageSize if total > 0 else 0,
+    }
 
 
 @router.get("/")

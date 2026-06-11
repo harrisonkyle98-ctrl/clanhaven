@@ -100,12 +100,18 @@ model IndexedClan {
   nameLower   String   @unique @map("name_lower")
   gameType    GameType @default(RS3) @map("game_type")
   memberCount Int      @default(0) @map("member_count")
+  rank        Int?
+  totalXp     BigInt   @default(0) @map("total_xp")
+  source      String   @default("player_lookup")
   lastIndexedAt DateTime? @map("last_indexed_at")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   members IndexedClanMember[]
 
+  @@index([rank])
+  @@index([memberCount(sort: Desc)])
+  @@index([totalXp(sort: Desc)])
   @@map("indexed_clans")
 }
 
