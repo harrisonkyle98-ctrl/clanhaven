@@ -90,34 +90,22 @@ async def fetch_and_index_clan(clan_name: str) -> dict:
         },
     )
 
-    # Upsert each member
-    for m in members:
-        await db.indexedclanmember.upsert(
-            where={
-                "clanId_rsnLower": {
-                    "clanId": indexed_clan.id,
-                    "rsnLower": m["rsnLower"],
-                }
-            },
-            data={
-                "create": {
-                    "clanId": indexed_clan.id,
-                    "rsn": m["rsn"],
-                    "rsnLower": m["rsnLower"],
-                    "clanRank": m["clanRank"],
-                    "clanXp": m["clanXp"],
-                    "kills": m["kills"],
-                    "lastSeenAt": now,
-                },
-                "update": {
-                    "rsn": m["rsn"],
-                    "clanRank": m["clanRank"],
-                    "clanXp": m["clanXp"],
-                    "kills": m["kills"],
-                    "lastSeenAt": now,
-                },
-            },
-        )
+    # Batch replace members: delete old + bulk create new (much faster than 500 individual upserts)
+    await db.indexedclanmember.delete_many(where={"clanId": indexed_clan.id})
+    await db.indexedclanmember.create_many(
+        data=[
+            {
+                "clanId": indexed_clan.id,
+                "rsn": m["rsn"],
+                "rsnLower": m["rsnLower"],
+                "clanRank": m["clanRank"],
+                "clanXp": m["clanXp"],
+                "kills": m["kills"],
+                "lastSeenAt": now,
+            }
+            for m in members
+        ]
+    )
 
     logger.info("Indexed %d members for clan '%s'", len(members), clan_name)
     return {"clan_name": clan_name, "member_count": len(members), "clan_id": indexed_clan.id}
