@@ -12,7 +12,7 @@ from app.core.auth import get_current_user
 from app.core.config import settings
 from app.core.database import db
 from app.services.clan_indexer import fetch_and_index_clan, lookup_clan_for_rsn
-from app.services.clan_hiscores_crawler import seed_clans_from_hiscores
+from app.services.clan_hiscores_crawler import run_seed_job
 
 # ─── Moderation request models ───
 
@@ -72,7 +72,7 @@ async def admin_lookup_clan(rsn: str):
 
 class SeedClansRequest(BaseModel):
     startPage: int = 1
-    maxPages: int = 5
+    pageCount: int = 5
 
 
 @router.post("/seed-clans")
@@ -80,14 +80,58 @@ async def admin_seed_clans(
     body: SeedClansRequest,
     _admin: dict = Depends(require_admin),
 ):
-    """Discover clan names from RS3 Clan HiScores and index via members_lite.ws. Admin only."""
-    if body.maxPages > 50:
-        raise HTTPException(status_code=400, detail="maxPages cannot exceed 50 per batch")
-    result = await seed_clans_from_hiscores(
-        start_page=body.startPage,
-        max_pages=body.maxPages,
+    """Start a background clan discovery seed job. Admin only."""
+    if body.pageCount > 50:
+        raise HTTPException(status_code=400, detail="pageCount cannot exceed 50 per batch")
+
+    # Check for already running jobs
+    running = await db.seedjob.find_first(where={"status": "running"})
+    if running:
+        raise HTTPException(status_code=409, detail="A seed job is already running")
+
+    import asyncio
+
+    job = await db.seedjob.create(
+        data={
+            "status": "pending",
+            "startPage": body.startPage,
+            "pageCount": body.pageCount,
+            "createdByUserId": _admin["sub"],
+        }
     )
-    return result
+
+    # Fire off background task
+    asyncio.create_task(run_seed_job(job.id))
+
+    return {"jobId": job.id, "status": "pending"}
+
+
+@router.get("/seed-jobs/latest")
+async def admin_get_latest_seed_job(
+    _admin: dict = Depends(require_admin),
+):
+    """Get the most recent seed job status."""
+    job = await db.seedjob.find_first(order={"createdAt": "desc"})
+    if not job:
+        return {"job": None}
+    return {
+        "job": {
+            "id": job.id,
+            "status": job.status,
+            "startPage": job.startPage,
+            "pageCount": job.pageCount,
+            "pagesProcessed": job.pagesProcessed,
+            "clansDiscovered": job.clansDiscovered,
+            "clansIndexed": job.clansIndexed,
+            "clansFailed": job.clansFailed,
+            "currentPage": job.currentPage,
+            "currentClan": job.currentClan,
+            "lastError": job.lastError,
+            "startedAt": job.startedAt.isoformat() if job.startedAt else None,
+            "completedAt": job.completedAt.isoformat() if job.completedAt else None,
+            "createdAt": job.createdAt.isoformat(),
+        }
+    }
 
 
 @router.get("/users")

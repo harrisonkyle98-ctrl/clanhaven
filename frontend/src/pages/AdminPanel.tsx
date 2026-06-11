@@ -84,41 +84,79 @@ export default function AdminPanel() {
   )
 }
 
+interface SeedJobStatus {
+  id: string
+  status: string
+  startPage: number
+  pageCount: number
+  pagesProcessed: number
+  clansDiscovered: number
+  clansIndexed: number
+  clansFailed: number
+  currentPage: number | null
+  currentClan: string | null
+  lastError: string | null
+  startedAt: string | null
+  completedAt: string | null
+  createdAt: string
+}
+
 function AdminHomeTab({ username }: { username: string }) {
-  const [seeding, setSeeding] = useState(false)
-  const [seedResult, setSeedResult] = useState<string | null>(null)
-  const [seedError, setSeedError] = useState<string | null>(null)
   const [seedPages, setSeedPages] = useState(5)
   const [seedStartPage, setSeedStartPage] = useState(1)
+  const [starting, setStarting] = useState(false)
+  const [startError, setStartError] = useState<string | null>(null)
+  const [job, setJob] = useState<SeedJobStatus | null>(null)
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const handleSeed = async () => {
-    setSeeding(true)
-    setSeedResult(null)
-    setSeedError(null)
+  const fetchLatestJob = async () => {
     try {
-      const result = await apiFetch<{
-        pagesScanned: number
-        namesDiscovered: number
-        clansIndexed: number
-        errors: string[]
-        startPage: number
-      }>("/api/admin/seed-clans", {
-        method: "POST",
-        body: JSON.stringify({ startPage: seedStartPage, maxPages: seedPages }),
-      })
-      setSeedResult(
-        `Discovered ${result.namesDiscovered} clan names from ${result.pagesScanned} pages. ` +
-        `Successfully indexed ${result.clansIndexed}/${result.namesDiscovered} clans via members_lite.ws.`
-      )
-      if (result.errors.length > 0) {
-        setSeedError(`${result.errors.length} error(s): ${result.errors.slice(0, 5).join(" | ")}${result.errors.length > 5 ? " ..." : ""}`)
-      }
-    } catch (err) {
-      setSeedError(`Request failed: ${err instanceof Error ? err.message : String(err)}`)
-    } finally {
-      setSeeding(false)
+      const data = await apiFetch<{ job: SeedJobStatus | null }>("/api/admin/seed-jobs/latest")
+      setJob(data.job)
+      return data.job
+    } catch {
+      return null
     }
   }
+
+  useEffect(() => {
+    fetchLatestJob()
+    return () => { if (pollRef.current) clearInterval(pollRef.current) }
+  }, [])
+
+  const startPolling = () => {
+    if (pollRef.current) clearInterval(pollRef.current)
+    pollRef.current = setInterval(async () => {
+      const latest = await fetchLatestJob()
+      if (latest && (latest.status === "completed" || latest.status === "failed")) {
+        if (pollRef.current) clearInterval(pollRef.current)
+        pollRef.current = null
+      }
+    }, 3000)
+  }
+
+  const handleSeed = async () => {
+    setStarting(true)
+    setStartError(null)
+    try {
+      await apiFetch<{ jobId: string; status: string }>("/api/admin/seed-clans", {
+        method: "POST",
+        body: JSON.stringify({ startPage: seedStartPage, pageCount: seedPages }),
+      })
+      await fetchLatestJob()
+      startPolling()
+    } catch (err) {
+      setStartError(`Failed to start: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setStarting(false)
+    }
+  }
+
+  useEffect(() => {
+    if (job && (job.status === "running" || job.status === "pending")) {
+      startPolling()
+    }
+  }, [job?.id])
 
   return (
     <div className="space-y-4">
@@ -160,8 +198,10 @@ function AdminHomeTab({ username }: { username: string }) {
           <div className="ch-admin-section">
             <p style={{ color: "var(--color-text-muted)", fontSize: "0.8125rem", marginBottom: "0.75rem" }}>
               Discover clan names from official RS3 Clan HiScores ranking pages, then index each clan
-              via <code style={{ color: "var(--color-text-warm)" }}>members_lite.ws</code> to populate members and stats.
+              sequentially via <code style={{ color: "var(--color-text-warm)" }}>members_lite.ws</code>.
             </p>
+
+            {/* Start controls */}
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
               <label style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Start Page:</label>
               <input
@@ -177,6 +217,7 @@ function AdminHomeTab({ username }: { username: string }) {
                   padding: "0.4rem 0.5rem",
                   fontSize: "0.8125rem",
                 }}
+                disabled={job?.status === "running"}
               />
               <label style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Pages:</label>
               <input
@@ -192,28 +233,73 @@ function AdminHomeTab({ username }: { username: string }) {
                   padding: "0.4rem 0.5rem",
                   fontSize: "0.8125rem",
                 }}
+                disabled={job?.status === "running"}
               />
               <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
-                (~20 clans/page, max 50 pages)
+                (~20 clans/page, max 50)
               </span>
             </div>
             <button
               onClick={handleSeed}
-              disabled={seeding}
+              disabled={starting || job?.status === "running"}
               className="ch-admin-btn"
-              style={{ opacity: seeding ? 0.6 : 1 }}
+              style={{ opacity: (starting || job?.status === "running") ? 0.6 : 1 }}
             >
-              {seeding ? "Seeding..." : "Start Seed"}
+              {starting ? "Starting..." : job?.status === "running" ? "Job Running..." : "Start Seed"}
             </button>
-            {seedResult && (
-              <p style={{ color: "var(--color-xp-green)", fontSize: "0.8125rem", marginTop: "0.75rem" }}>
-                {seedResult}
-              </p>
+            {startError && (
+              <p style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.5rem" }}>{startError}</p>
             )}
-            {seedError && (
-              <p style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.5rem" }}>
-                {seedError}
-              </p>
+
+            {/* Job progress */}
+            {job && (
+              <div style={{ marginTop: "1rem", padding: "0.75rem", background: "rgba(10, 8, 5, 0.4)", boxShadow: "inset 0 0 0 1px rgba(52, 45, 34, 0.4)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Job Status</span>
+                  <span style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    color: job.status === "running" ? "#f59e0b" :
+                           job.status === "completed" ? "var(--color-xp-green)" :
+                           job.status === "failed" ? "#ef4444" : "var(--color-text-muted)",
+                    textTransform: "uppercase",
+                  }}>{job.status}</span>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem 1rem", fontSize: "0.75rem" }}>
+                  <div style={{ color: "var(--color-text-muted)" }}>Pages processed:</div>
+                  <div style={{ color: "var(--color-text-warm)" }}>{job.pagesProcessed}/{job.pageCount}</div>
+
+                  <div style={{ color: "var(--color-text-muted)" }}>Clans discovered:</div>
+                  <div style={{ color: "var(--color-text-warm)" }}>{job.clansDiscovered}</div>
+
+                  <div style={{ color: "var(--color-text-muted)" }}>Clans indexed:</div>
+                  <div style={{ color: "var(--color-xp-green)" }}>{job.clansIndexed}</div>
+
+                  <div style={{ color: "var(--color-text-muted)" }}>Clans failed:</div>
+                  <div style={{ color: job.clansFailed > 0 ? "#ef4444" : "var(--color-text-warm)" }}>{job.clansFailed}</div>
+
+                  {job.currentPage && (
+                    <>
+                      <div style={{ color: "var(--color-text-muted)" }}>Current page:</div>
+                      <div style={{ color: "var(--color-text-warm)" }}>{job.currentPage}</div>
+                    </>
+                  )}
+
+                  {job.currentClan && (
+                    <>
+                      <div style={{ color: "var(--color-text-muted)" }}>Current clan:</div>
+                      <div style={{ color: "var(--color-text-warm)" }}>{job.currentClan}</div>
+                    </>
+                  )}
+                </div>
+
+                {job.lastError && (
+                  <div style={{ marginTop: "0.5rem", fontSize: "0.6875rem", color: "#ef4444", wordBreak: "break-word" }}>
+                    Last error: {job.lastError}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </CollapsiblePanel>

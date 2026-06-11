@@ -1,41 +1,35 @@
-"""Clan Discovery Seeder — discovers clan names from RS3 Clan HiScores pages.
+"""Clan Discovery Seeder — background job that discovers clan names from RS3 Clan
+HiScores pages and indexes each via the existing members_lite.ws flow.
 
-Parses the HTML-based Clan HiScores ranking pages to extract clan names,
-then passes each discovered name through the existing fetch_and_index_clan()
-flow which calls members_lite.ws and populates indexed_clans + indexed_clan_members.
+Flow:
+  1. Fetch RS3 Clan HiScores ranking pages → extract clan names
+  2. For each discovered name, call fetch_and_index_clan() which hits
+     members_lite.ws and populates indexed_clans + indexed_clan_members
+  3. Update SeedJob record with progress after each step
 
-Rate-limited and polite. Admin-only trigger.
+Rate-limited, sequential, admin-only trigger.
 """
 
 import asyncio
 import logging
 import re
+from datetime import datetime, timezone
 from html import unescape
 
 import httpx
 
+from app.core.database import db
 from app.services.clan_indexer import fetch_and_index_clan
 
 logger = logging.getLogger(__name__)
 
 CLAN_RANKING_URL = "https://secure.runescape.com/m=clan-hiscores/ranking"
 PAGE_DELAY = 1.5  # seconds between hiscore page fetches
-INDEX_DELAY = 2.0  # seconds between clan index calls (members_lite.ws)
+INDEX_DELAY = 2.0  # seconds between clan index calls
 
 
 def _extract_clan_names(html: str) -> list[str]:
-    """Extract clan names from an RS3 Clan HiScores ranking HTML page.
-
-    Each clan row has:
-      <td class="col2">
-        <a href="...">
-          <img ... alt="ClanName" ... />
-          ClanName
-        </a>
-      </td>
-
-    We pull the clan name from the img alt attribute.
-    """
+    """Extract clan names from an RS3 Clan HiScores ranking HTML page."""
     pattern = re.compile(
         r'<td\s+class="col2">\s*<a[^>]*>\s*<img[^>]*alt="([^"]+)"',
         re.DOTALL,
@@ -48,88 +42,142 @@ def _extract_clan_names(html: str) -> list[str]:
     return names
 
 
-async def _fetch_ranking_page(client: httpx.AsyncClient, page: int) -> str:
-    resp = await client.get(
-        CLAN_RANKING_URL,
-        params={"tableType": 0, "page": page},
-    )
-    resp.raise_for_status()
-    return resp.text
+async def run_seed_job(job_id: str) -> None:
+    """Background task: run a seed job to completion, updating progress in DB."""
+    try:
+        await db.seedjob.update(
+            where={"id": job_id},
+            data={
+                "status": "running",
+                "startedAt": datetime.now(timezone.utc),
+            },
+        )
 
+        job = await db.seedjob.find_unique(where={"id": job_id})
+        if not job:
+            return
 
-async def seed_clans_from_hiscores(
-    start_page: int = 1,
-    max_pages: int = 10,
-) -> dict:
-    """Discover clan names from RS3 Clan HiScores and index each via members_lite.ws.
+        start_page = job.startPage
+        page_count = job.pageCount
+        all_names: list[str] = []
 
-    Returns a summary with discovery/indexing counts and any errors.
-    """
-    names_discovered: list[str] = []
-    clans_indexed = 0
-    index_errors: list[str] = []
-    pages_fetched = 0
+        # Phase 1: Discover clan names from HiScores ranking pages
+        async with httpx.AsyncClient(
+            timeout=20.0,
+            follow_redirects=True,
+            headers={"User-Agent": "ClanHaven/1.0 (clan discovery)"},
+        ) as client:
+            for i in range(page_count):
+                page_num = start_page + i
+                try:
+                    await db.seedjob.update(
+                        where={"id": job_id},
+                        data={"currentPage": page_num, "currentClan": None},
+                    )
 
-    # Phase 1: Discover clan names from HiScores ranking pages
-    async with httpx.AsyncClient(
-        timeout=20.0,
-        follow_redirects=True,
-        headers={"User-Agent": "ClanHaven/1.0 (clan discovery)"},
-    ) as client:
-        page = start_page
-        while pages_fetched < max_pages:
-            try:
-                html = await _fetch_ranking_page(client, page)
-                names = _extract_clan_names(html)
+                    resp = await client.get(
+                        CLAN_RANKING_URL,
+                        params={"tableType": 0, "page": page_num},
+                    )
+                    resp.raise_for_status()
+                    names = _extract_clan_names(resp.text)
 
-                if not names:
-                    logger.info("No clan names found on page %d — stopping.", page)
+                    if not names:
+                        logger.info("No clans on page %d — stopping discovery.", page_num)
+                        break
+
+                    all_names.extend(names)
+
+                    await db.seedjob.update(
+                        where={"id": job_id},
+                        data={
+                            "pagesProcessed": i + 1,
+                            "clansDiscovered": len(all_names),
+                        },
+                    )
+
+                    logger.info("Page %d: discovered %d names (%d total)", page_num, len(names), len(all_names))
+                    await asyncio.sleep(PAGE_DELAY)
+
+                except Exception as e:
+                    error_msg = f"Page {page_num}: {e}"
+                    logger.warning("Seed job page error: %s", error_msg)
+                    await db.seedjob.update(
+                        where={"id": job_id},
+                        data={"lastError": error_msg[:500]},
+                    )
                     break
 
-                names_discovered.extend(names)
-                pages_fetched += 1
-                logger.info(
-                    "Discovered %d clan names on page %d (%d total)",
-                    len(names), page, len(names_discovered),
+        # Phase 2: Index each discovered clan sequentially
+        indexed = 0
+        failed = 0
+
+        for clan_name in all_names:
+            try:
+                await db.seedjob.update(
+                    where={"id": job_id},
+                    data={"currentClan": clan_name, "currentPage": None},
                 )
 
-                page += 1
-                await asyncio.sleep(PAGE_DELAY)
+                result = await fetch_and_index_clan(clan_name)
 
-            except httpx.HTTPStatusError as e:
-                msg = f"HTTP {e.response.status_code} on page {page}"
-                logger.warning(msg)
-                index_errors.append(msg)
-                break
+                if result.get("error"):
+                    failed += 1
+                    await db.seedjob.update(
+                        where={"id": job_id},
+                        data={
+                            "clansFailed": failed,
+                            "lastError": f"{clan_name}: {result['error']}"[:500],
+                        },
+                    )
+                    logger.info("Failed to index '%s': %s", clan_name, result["error"])
+                else:
+                    indexed += 1
+                    await db.seedjob.update(
+                        where={"id": job_id},
+                        data={"clansIndexed": indexed},
+                    )
+                    logger.info("Indexed '%s' — %d members", clan_name, result.get("member_count", 0))
+
             except Exception as e:
-                msg = f"Page {page} fetch error: {e}"
-                logger.warning(msg)
-                index_errors.append(msg)
-                break
-
-    # Phase 2: Index each discovered clan via existing members_lite.ws flow
-    for clan_name in names_discovered:
-        try:
-            result = await fetch_and_index_clan(clan_name)
-            if result.get("error"):
-                index_errors.append(f"{clan_name}: {result['error']}")
-            else:
-                clans_indexed += 1
-                logger.info(
-                    "Indexed clan '%s' — %d members",
-                    clan_name, result.get("member_count", 0),
+                failed += 1
+                error_msg = f"{clan_name}: {e}"
+                logger.warning("Seed job index error: %s", error_msg)
+                await db.seedjob.update(
+                    where={"id": job_id},
+                    data={
+                        "clansFailed": failed,
+                        "lastError": error_msg[:500],
+                    },
                 )
-        except Exception as e:
-            msg = f"{clan_name}: {e}"
-            logger.warning("Failed to index clan: %s", msg)
-            index_errors.append(msg)
 
-        await asyncio.sleep(INDEX_DELAY)
+            await asyncio.sleep(INDEX_DELAY)
 
-    return {
-        "pagesScanned": pages_fetched,
-        "namesDiscovered": len(names_discovered),
-        "clansIndexed": clans_indexed,
-        "errors": index_errors[:50],  # cap error list
-        "startPage": start_page,
-    }
+        # Mark job complete
+        await db.seedjob.update(
+            where={"id": job_id},
+            data={
+                "status": "completed",
+                "completedAt": datetime.now(timezone.utc),
+                "currentClan": None,
+                "currentPage": None,
+            },
+        )
+        logger.info(
+            "Seed job %s completed: %d discovered, %d indexed, %d failed",
+            job_id, len(all_names), indexed, failed,
+        )
+
+    except Exception as e:
+        logger.exception("Seed job %s crashed: %s", job_id, e)
+        try:
+            await db.seedjob.update(
+                where={"id": job_id},
+                data={
+                    "status": "failed",
+                    "lastError": str(e)[:500],
+                    "completedAt": datetime.now(timezone.utc),
+                },
+            )
+        except Exception:
+            pass

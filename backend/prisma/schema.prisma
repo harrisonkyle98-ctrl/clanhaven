@@ -250,6 +250,30 @@ model AltAccountRequest {
   @@map("alt_account_requests")
 }
 
+// ─── Seed Jobs (background clan discovery) ───
+
+model SeedJob {
+  id              String   @id @default(cuid())
+  status          String   @default("pending")  // pending, running, completed, failed
+  startPage       Int      @default(1) @map("start_page")
+  pageCount       Int      @default(5) @map("page_count")
+  pagesProcessed  Int      @default(0) @map("pages_processed")
+  clansDiscovered Int      @default(0) @map("clans_discovered")
+  clansIndexed    Int      @default(0) @map("clans_indexed")
+  clansFailed     Int      @default(0) @map("clans_failed")
+  currentPage     Int?     @map("current_page")
+  currentClan     String?  @map("current_clan")
+  lastError       String?  @map("last_error")
+  startedAt       DateTime? @map("started_at")
+  completedAt     DateTime? @map("completed_at")
+  createdByUserId String   @map("created_by_user_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@map("seed_jobs")
+}
+
 // ─── Enums ───
 
 enum GameType {
