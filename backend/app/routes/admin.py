@@ -12,7 +12,7 @@ from app.core.auth import get_current_user
 from app.core.config import settings
 from app.core.database import db
 from app.services.clan_indexer import fetch_and_index_clan, lookup_clan_for_rsn
-from app.services.clan_hiscores_crawler import crawl_clan_hiscores
+from app.services.clan_hiscores_crawler import seed_clans_from_hiscores
 
 # ─── Moderation request models ───
 
@@ -70,20 +70,20 @@ async def admin_lookup_clan(rsn: str):
     return {"rsn": rsn, "clan": clan_name}
 
 
-class CrawlHiscoresRequest(BaseModel):
+class SeedClansRequest(BaseModel):
     startPage: int = 1
-    maxPages: int = 100
+    maxPages: int = 5
 
 
-@router.post("/crawl-clan-hiscores")
-async def admin_crawl_clan_hiscores(
-    body: CrawlHiscoresRequest,
+@router.post("/seed-clans")
+async def admin_seed_clans(
+    body: SeedClansRequest,
     _admin: dict = Depends(require_admin),
 ):
-    """Crawl RS3 Clan HiScores ranking pages. Admin only."""
-    if body.maxPages > 500:
-        raise HTTPException(status_code=400, detail="maxPages cannot exceed 500")
-    result = await crawl_clan_hiscores(
+    """Discover clan names from RS3 Clan HiScores and index via members_lite.ws. Admin only."""
+    if body.maxPages > 50:
+        raise HTTPException(status_code=400, detail="maxPages cannot exceed 50 per batch")
+    result = await seed_clans_from_hiscores(
         start_page=body.startPage,
         max_pages=body.maxPages,
     )

@@ -85,30 +85,38 @@ export default function AdminPanel() {
 }
 
 function AdminHomeTab({ username }: { username: string }) {
-  const [crawling, setCrawling] = useState(false)
-  const [crawlResult, setCrawlResult] = useState<string | null>(null)
-  const [crawlPages, setCrawlPages] = useState(100)
+  const [seeding, setSeeding] = useState(false)
+  const [seedResult, setSeedResult] = useState<string | null>(null)
+  const [seedError, setSeedError] = useState<string | null>(null)
+  const [seedPages, setSeedPages] = useState(5)
+  const [seedStartPage, setSeedStartPage] = useState(1)
 
-  const handleCrawl = async () => {
-    setCrawling(true)
-    setCrawlResult(null)
+  const handleSeed = async () => {
+    setSeeding(true)
+    setSeedResult(null)
+    setSeedError(null)
     try {
       const result = await apiFetch<{
-        pagesIndexed: number
+        pagesScanned: number
+        namesDiscovered: number
         clansIndexed: number
         errors: string[]
-      }>("/api/admin/crawl-clan-hiscores", {
+        startPage: number
+      }>("/api/admin/seed-clans", {
         method: "POST",
-        body: JSON.stringify({ startPage: 1, maxPages: crawlPages }),
+        body: JSON.stringify({ startPage: seedStartPage, maxPages: seedPages }),
       })
-      setCrawlResult(
-        `Indexed ${result.clansIndexed} clans from ${result.pagesIndexed} pages.` +
-          (result.errors.length > 0 ? ` Errors: ${result.errors.join(", ")}` : "")
+      setSeedResult(
+        `Discovered ${result.namesDiscovered} clan names from ${result.pagesScanned} pages. ` +
+        `Successfully indexed ${result.clansIndexed}/${result.namesDiscovered} clans via members_lite.ws.`
       )
+      if (result.errors.length > 0) {
+        setSeedError(`${result.errors.length} error(s): ${result.errors.slice(0, 5).join(" | ")}${result.errors.length > 5 ? " ..." : ""}`)
+      }
     } catch (err) {
-      setCrawlResult(`Error: ${err instanceof Error ? err.message : String(err)}`)
+      setSeedError(`Request failed: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
-      setCrawling(false)
+      setSeeding(false)
     }
   }
 
@@ -148,19 +156,35 @@ function AdminHomeTab({ username }: { username: string }) {
           </div>
         </CollapsiblePanel>
 
-        <CollapsiblePanel variant="purple" title="Clan HiScores Crawler">
+        <CollapsiblePanel variant="purple" title="Clan Discovery Seeder">
           <div className="ch-admin-section">
             <p style={{ color: "var(--color-text-muted)", fontSize: "0.8125rem", marginBottom: "0.75rem" }}>
-              Crawl RS3 Clan HiScores ranking pages to index clans for Clan Discovery.
+              Discover clan names from official RS3 Clan HiScores ranking pages, then index each clan
+              via <code style={{ color: "var(--color-text-warm)" }}>members_lite.ws</code> to populate members and stats.
             </p>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+              <label style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Start Page:</label>
+              <input
+                type="number"
+                value={seedStartPage}
+                onChange={(e) => setSeedStartPage(Math.max(1, Number(e.target.value)))}
+                style={{
+                  width: "70px",
+                  background: "rgba(22, 19, 14, 0.8)",
+                  border: "none",
+                  boxShadow: "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6)",
+                  color: "var(--color-text-warm)",
+                  padding: "0.4rem 0.5rem",
+                  fontSize: "0.8125rem",
+                }}
+              />
               <label style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Pages:</label>
               <input
                 type="number"
-                value={crawlPages}
-                onChange={(e) => setCrawlPages(Math.max(1, Math.min(500, Number(e.target.value))))}
+                value={seedPages}
+                onChange={(e) => setSeedPages(Math.max(1, Math.min(50, Number(e.target.value))))}
                 style={{
-                  width: "80px",
+                  width: "70px",
                   background: "rgba(22, 19, 14, 0.8)",
                   border: "none",
                   boxShadow: "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6)",
@@ -170,20 +194,25 @@ function AdminHomeTab({ username }: { username: string }) {
                 }}
               />
               <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
-                (25 clans/page, max 500)
+                (~20 clans/page, max 50 pages)
               </span>
             </div>
             <button
-              onClick={handleCrawl}
-              disabled={crawling}
+              onClick={handleSeed}
+              disabled={seeding}
               className="ch-admin-btn"
-              style={{ opacity: crawling ? 0.6 : 1 }}
+              style={{ opacity: seeding ? 0.6 : 1 }}
             >
-              {crawling ? "Crawling..." : "Start Crawl"}
+              {seeding ? "Seeding..." : "Start Seed"}
             </button>
-            {crawlResult && (
+            {seedResult && (
               <p style={{ color: "var(--color-xp-green)", fontSize: "0.8125rem", marginTop: "0.75rem" }}>
-                {crawlResult}
+                {seedResult}
+              </p>
+            )}
+            {seedError && (
+              <p style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.5rem" }}>
+                {seedError}
               </p>
             )}
           </div>
