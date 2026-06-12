@@ -108,7 +108,7 @@ async def lifespan(app: FastAPI):
     # Backfill: generate slugs for indexed_clans that don't have one
     try:
         import re as _re
-        clans_no_slug = await db.indexedclan.find_many(where={"slug": None})
+        clans_no_slug = await db.indexedclan.find_many(where={"slug": None}, take=500)
         for c in clans_no_slug:
             slug = c.nameLower.replace("\xa0", " ").strip()
             slug = _re.sub(r"[^a-z0-9\s-]", "", slug)
@@ -116,37 +116,51 @@ async def lifespan(app: FastAPI):
             try:
                 await db.indexedclan.update(where={"id": c.id}, data={"slug": slug})
             except Exception:
-                pass  # slug conflict — skip
-    except Exception:
-        pass
-    # Backfill: create rs3_players from existing indexed_clan_members + link player_id
-    try:
-        unlinked = await db.indexedclanmember.find_many(
-            where={"playerId": None},
-            include={"clan": True},
-        )
-        for m in unlinked:
-            try:
-                player = await db.rs3player.upsert(
-                    where={"normalizedRsn": m.rsnLower},
-                    data={
-                        "create": {
-                            "rsn": m.rsn,
-                            "normalizedRsn": m.rsnLower,
-                            "currentClanId": m.clanId,
-                            "currentClanName": m.clan.name if m.clan else None,
-                        },
-                        "update": {},
-                    },
-                )
-                await db.indexedclanmember.update(
-                    where={"id": m.id},
-                    data={"playerId": player.id},
-                )
-            except Exception:
                 pass
     except Exception:
         pass
+    # Backfill: rs3_players + player_id linking runs as a background task
+    # (too many rows to block startup)
+    import asyncio as _asyncio
+
+    async def _backfill_players():
+        try:
+            batch_size = 200
+            offset = 0
+            while True:
+                unlinked = await db.indexedclanmember.find_many(
+                    where={"playerId": None},
+                    include={"clan": True},
+                    take=batch_size,
+                    skip=offset,
+                )
+                if not unlinked:
+                    break
+                for m in unlinked:
+                    try:
+                        player = await db.rs3player.upsert(
+                            where={"normalizedRsn": m.rsnLower},
+                            data={
+                                "create": {
+                                    "rsn": m.rsn,
+                                    "normalizedRsn": m.rsnLower,
+                                    "currentClanId": m.clanId,
+                                    "currentClanName": m.clan.name if m.clan else None,
+                                },
+                                "update": {},
+                            },
+                        )
+                        await db.indexedclanmember.update(
+                            where={"id": m.id},
+                            data={"playerId": player.id},
+                        )
+                    except Exception:
+                        offset += 1
+                await _asyncio.sleep(0.1)
+        except Exception:
+            pass
+
+    _asyncio.create_task(_backfill_players())
     yield
     await disconnect_db()
 
