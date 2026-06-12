@@ -115,10 +115,13 @@ async def run_seed_job(job_id: str) -> None:
 
         for clan_name in all_names:
             try:
-                await db.seedjob.update(
-                    where={"id": job_id},
-                    data={"currentClan": clan_name, "currentPage": None},
-                )
+                try:
+                    await db.seedjob.update(
+                        where={"id": job_id},
+                        data={"currentClan": clan_name, "currentPage": None},
+                    )
+                except Exception:
+                    pass
 
                 result = await asyncio.wait_for(
                     fetch_and_index_clan(clan_name),
@@ -127,45 +130,35 @@ async def run_seed_job(job_id: str) -> None:
 
                 if result.get("error"):
                     failed += 1
-                    await db.seedjob.update(
-                        where={"id": job_id},
-                        data={
-                            "clansFailed": failed,
-                            "lastError": f"{clan_name}: {result['error']}"[:500],
-                        },
-                    )
+                    error_msg = f"{clan_name}: {result['error']}"[:500]
                     logger.info("Failed to index '%s': %s", clan_name, result["error"])
                 else:
                     indexed += 1
-                    await db.seedjob.update(
-                        where={"id": job_id},
-                        data={"clansIndexed": indexed},
-                    )
                     logger.info("Indexed '%s' — %d members", clan_name, result.get("member_count", 0))
+                    error_msg = None
 
             except asyncio.TimeoutError:
                 failed += 1
                 error_msg = f"{clan_name}: timed out after {CLAN_INDEX_TIMEOUT}s"
                 logger.warning("Seed job timeout: %s", error_msg)
-                await db.seedjob.update(
-                    where={"id": job_id},
-                    data={
-                        "clansFailed": failed,
-                        "lastError": error_msg[:500],
-                    },
-                )
 
             except Exception as e:
                 failed += 1
                 error_msg = f"{clan_name}: {e}"
-                logger.warning("Seed job index error: %s", error_msg)
-                await db.seedjob.update(
-                    where={"id": job_id},
-                    data={
-                        "clansFailed": failed,
-                        "lastError": error_msg[:500],
-                    },
-                )
+                logger.exception("Seed job index error for '%s'", clan_name)
+
+            # Update progress — wrapped in its own try/except so a DB error
+            # here doesn't kill the entire job
+            try:
+                update_data: dict = {
+                    "clansIndexed": indexed,
+                    "clansFailed": failed,
+                }
+                if error_msg:
+                    update_data["lastError"] = error_msg[:500]
+                await db.seedjob.update(where={"id": job_id}, data=update_data)
+            except Exception as ue:
+                logger.warning("Failed to update seed job progress: %s", ue)
 
             await asyncio.sleep(INDEX_DELAY)
 

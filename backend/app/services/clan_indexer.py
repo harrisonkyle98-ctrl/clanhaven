@@ -91,6 +91,14 @@ async def fetch_and_index_clan(clan_name: str) -> dict:
     )
 
     # Batch replace members: delete old + bulk create new (much faster than 500 individual upserts)
+    # Deduplicate by rsnLower to avoid unique constraint violations
+    seen_rsns: set[str] = set()
+    unique_members = []
+    for m in members:
+        if m["rsnLower"] not in seen_rsns:
+            seen_rsns.add(m["rsnLower"])
+            unique_members.append(m)
+
     await db.indexedclanmember.delete_many(where={"clanId": indexed_clan.id})
     await db.indexedclanmember.create_many(
         data=[
@@ -103,8 +111,9 @@ async def fetch_and_index_clan(clan_name: str) -> dict:
                 "kills": m["kills"],
                 "lastSeenAt": now,
             }
-            for m in members
-        ]
+            for m in unique_members
+        ],
+        skip_duplicates=True,
     )
 
     logger.info("Indexed %d members for clan '%s'", len(members), clan_name)
