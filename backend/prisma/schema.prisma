@@ -95,43 +95,239 @@ model ClanMember {
 // ─── Indexed Clans (from RS3 Clan Hiscores) ───
 
 model IndexedClan {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  nameLower   String   @unique @map("name_lower")
-  gameType    GameType @default(RS3) @map("game_type")
-  memberCount Int      @default(0) @map("member_count")
-  rank        Int?
-  totalXp     BigInt   @default(0) @map("total_xp")
-  source      String   @default("player_lookup")
-  lastIndexedAt DateTime? @map("last_indexed_at")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(cuid())
+  name           String   @unique
+  nameLower      String   @unique @map("name_lower")
+  slug           String?  @unique
+  gameType       GameType @default(RS3) @map("game_type")
+  memberCount    Int      @default(0) @map("member_count")
+  rank           Int?
+  totalXp        BigInt   @default(0) @map("total_xp")
+  motifUrl       String?  @map("motif_url")
+  source         String   @default("player_lookup")
+  lastIndexedAt  DateTime? @map("last_indexed_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
-  members IndexedClanMember[]
+  members   IndexedClanMember[]
+  snapshots ClanSnapshot[]
 
   @@index([rank])
   @@index([memberCount(sort: Desc)])
   @@index([totalXp(sort: Desc)])
+  @@index([slug])
   @@map("indexed_clans")
 }
 
 model IndexedClanMember {
-  id        String   @id @default(cuid())
-  clanId    String   @map("clan_id")
-  rsn       String
-  rsnLower  String   @map("rsn_lower")
-  clanRank  String?  @map("clan_rank")
-  clanXp    BigInt   @default(0) @map("clan_xp")
-  kills     Int      @default(0)
-  lastSeenAt DateTime @default(now()) @map("last_seen_at")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id                    String   @id @default(cuid())
+  clanId                String   @map("clan_id")
+  playerId              String?  @map("player_id")
+  rsn                   String
+  rsnLower              String   @map("rsn_lower")
+  clanRank              String?  @map("clan_rank")
+  clanXp                BigInt   @default(0) @map("clan_xp")
+  kills                 Int      @default(0)
+  isCurrent             Boolean  @default(true) @map("is_current")
+  firstSeenAt           DateTime @default(now()) @map("first_seen_at")
+  lastSeenAt            DateTime @default(now()) @map("last_seen_at")
+  leftSeenAt            DateTime? @map("left_seen_at")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
 
-  clan IndexedClan @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  clan   IndexedClan @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  player Rs3Player?  @relation(fields: [playerId], references: [id], onDelete: SetNull)
 
   @@unique([clanId, rsnLower])
   @@index([rsnLower])
+  @@index([playerId])
+  @@index([isCurrent])
   @@map("indexed_clan_members")
+}
+
+// ─── RS3 Players (current player profile data) ───
+
+model Rs3Player {
+  id                        String    @id @default(cuid())
+  rsn                       String
+  normalizedRsn             String    @unique @map("normalized_rsn")
+  accountType               String    @default("normal") @map("account_type")
+  accountTypeSource          String?   @map("account_type_source")
+  accountTypeVerifiedAt      DateTime? @map("account_type_verified_at")
+  currentClanId             String?   @map("current_clan_id")
+  currentClanName           String?   @map("current_clan_name")
+  totalLevel                Int       @default(0) @map("total_level")
+  totalXp                   BigInt    @default(0) @map("total_xp")
+  combatLevel               Int       @default(0) @map("combat_level")
+
+  // ─── 29 RS3 Skills (level + xp pairs) ───
+  attackLevel               Int       @default(0) @map("attack_level")
+  attackXp                  BigInt    @default(0) @map("attack_xp")
+  strengthLevel             Int       @default(0) @map("strength_level")
+  strengthXp                BigInt    @default(0) @map("strength_xp")
+  defenceLevel              Int       @default(0) @map("defence_level")
+  defenceXp                 BigInt    @default(0) @map("defence_xp")
+  constitutionLevel         Int       @default(0) @map("constitution_level")
+  constitutionXp            BigInt    @default(0) @map("constitution_xp")
+  rangedLevel               Int       @default(0) @map("ranged_level")
+  rangedXp                  BigInt    @default(0) @map("ranged_xp")
+  prayerLevel               Int       @default(0) @map("prayer_level")
+  prayerXp                  BigInt    @default(0) @map("prayer_xp")
+  magicLevel                Int       @default(0) @map("magic_level")
+  magicXp                   BigInt    @default(0) @map("magic_xp")
+  cookingLevel              Int       @default(0) @map("cooking_level")
+  cookingXp                 BigInt    @default(0) @map("cooking_xp")
+  woodcuttingLevel          Int       @default(0) @map("woodcutting_level")
+  woodcuttingXp             BigInt    @default(0) @map("woodcutting_xp")
+  fletchingLevel            Int       @default(0) @map("fletching_level")
+  fletchingXp               BigInt    @default(0) @map("fletching_xp")
+  fishingLevel              Int       @default(0) @map("fishing_level")
+  fishingXp                 BigInt    @default(0) @map("fishing_xp")
+  firemakingLevel           Int       @default(0) @map("firemaking_level")
+  firemakingXp              BigInt    @default(0) @map("firemaking_xp")
+  craftingLevel             Int       @default(0) @map("crafting_level")
+  craftingXp                BigInt    @default(0) @map("crafting_xp")
+  smithingLevel             Int       @default(0) @map("smithing_level")
+  smithingXp                BigInt    @default(0) @map("smithing_xp")
+  miningLevel               Int       @default(0) @map("mining_level")
+  miningXp                  BigInt    @default(0) @map("mining_xp")
+  herbloreLevel             Int       @default(0) @map("herblore_level")
+  herbloreXp                BigInt    @default(0) @map("herblore_xp")
+  agilityLevel              Int       @default(0) @map("agility_level")
+  agilityXp                 BigInt    @default(0) @map("agility_xp")
+  thievingLevel             Int       @default(0) @map("thieving_level")
+  thievingXp                BigInt    @default(0) @map("thieving_xp")
+  slayerLevel               Int       @default(0) @map("slayer_level")
+  slayerXp                  BigInt    @default(0) @map("slayer_xp")
+  farmingLevel              Int       @default(0) @map("farming_level")
+  farmingXp                 BigInt    @default(0) @map("farming_xp")
+  runecraftingLevel         Int       @default(0) @map("runecrafting_level")
+  runecraftingXp            BigInt    @default(0) @map("runecrafting_xp")
+  hunterLevel               Int       @default(0) @map("hunter_level")
+  hunterXp                  BigInt    @default(0) @map("hunter_xp")
+  constructionLevel         Int       @default(0) @map("construction_level")
+  constructionXp            BigInt    @default(0) @map("construction_xp")
+  summoningLevel            Int       @default(0) @map("summoning_level")
+  summoningXp               BigInt    @default(0) @map("summoning_xp")
+  dungeoneeringLevel        Int       @default(0) @map("dungeoneering_level")
+  dungeoneeringXp           BigInt    @default(0) @map("dungeoneering_xp")
+  divinationLevel           Int       @default(0) @map("divination_level")
+  divinationXp              BigInt    @default(0) @map("divination_xp")
+  inventionLevel            Int       @default(0) @map("invention_level")
+  inventionXp               BigInt    @default(0) @map("invention_xp")
+  archaeologyLevel          Int       @default(0) @map("archaeology_level")
+  archaeologyXp             BigInt    @default(0) @map("archaeology_xp")
+  necromancyLevel           Int       @default(0) @map("necromancy_level")
+  necromancyXp              BigInt    @default(0) @map("necromancy_xp")
+
+  // ─── Refresh timestamps ───
+  lastHiscoresRefreshAt     DateTime? @map("last_hiscores_refresh_at")
+  lastPlayerDetailsRefreshAt DateTime? @map("last_player_details_refresh_at")
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+
+  clanMemberships  IndexedClanMember[]
+  skillSnapshots   Rs3PlayerSkillSnapshot[]
+
+  @@index([currentClanId])
+  @@index([totalXp(sort: Desc)])
+  @@index([totalLevel(sort: Desc)])
+  @@index([updatedAt])
+  @@map("rs3_players")
+}
+
+// ─── Clan Snapshots (historical clan state) ───
+
+model ClanSnapshot {
+  id                     String   @id @default(cuid())
+  clanId                 String   @map("clan_id")
+  clanRank               Int?     @map("clan_rank")
+  memberCount            Int      @default(0) @map("member_count")
+  totalXp                BigInt   @default(0) @map("total_xp")
+  membersJoinedSinceLast Int      @default(0) @map("members_joined_since_last")
+  membersLeftSinceLast   Int      @default(0) @map("members_left_since_last")
+  snapshotAt             DateTime @default(now()) @map("snapshot_at")
+
+  clan IndexedClan @relation(fields: [clanId], references: [id], onDelete: Cascade)
+
+  @@index([clanId, snapshotAt(sort: Desc)])
+  @@map("clan_snapshots")
+}
+
+// ─── RS3 Player Skill Snapshots (historical) ───
+
+model Rs3PlayerSkillSnapshot {
+  id                        String   @id @default(cuid())
+  playerId                  String   @map("player_id")
+  totalLevel                Int      @default(0) @map("total_level")
+  totalXp                   BigInt   @default(0) @map("total_xp")
+  combatLevel               Int      @default(0) @map("combat_level")
+
+  attackLevel               Int       @default(0) @map("attack_level")
+  attackXp                  BigInt    @default(0) @map("attack_xp")
+  strengthLevel             Int       @default(0) @map("strength_level")
+  strengthXp                BigInt    @default(0) @map("strength_xp")
+  defenceLevel              Int       @default(0) @map("defence_level")
+  defenceXp                 BigInt    @default(0) @map("defence_xp")
+  constitutionLevel         Int       @default(0) @map("constitution_level")
+  constitutionXp            BigInt    @default(0) @map("constitution_xp")
+  rangedLevel               Int       @default(0) @map("ranged_level")
+  rangedXp                  BigInt    @default(0) @map("ranged_xp")
+  prayerLevel               Int       @default(0) @map("prayer_level")
+  prayerXp                  BigInt    @default(0) @map("prayer_xp")
+  magicLevel                Int       @default(0) @map("magic_level")
+  magicXp                   BigInt    @default(0) @map("magic_xp")
+  cookingLevel              Int       @default(0) @map("cooking_level")
+  cookingXp                 BigInt    @default(0) @map("cooking_xp")
+  woodcuttingLevel          Int       @default(0) @map("woodcutting_level")
+  woodcuttingXp             BigInt    @default(0) @map("woodcutting_xp")
+  fletchingLevel            Int       @default(0) @map("fletching_level")
+  fletchingXp               BigInt    @default(0) @map("fletching_xp")
+  fishingLevel              Int       @default(0) @map("fishing_level")
+  fishingXp                 BigInt    @default(0) @map("fishing_xp")
+  firemakingLevel           Int       @default(0) @map("firemaking_level")
+  firemakingXp              BigInt    @default(0) @map("firemaking_xp")
+  craftingLevel             Int       @default(0) @map("crafting_level")
+  craftingXp                BigInt    @default(0) @map("crafting_xp")
+  smithingLevel             Int       @default(0) @map("smithing_level")
+  smithingXp                BigInt    @default(0) @map("smithing_xp")
+  miningLevel               Int       @default(0) @map("mining_level")
+  miningXp                  BigInt    @default(0) @map("mining_xp")
+  herbloreLevel             Int       @default(0) @map("herblore_level")
+  herbloreXp                BigInt    @default(0) @map("herblore_xp")
+  agilityLevel              Int       @default(0) @map("agility_level")
+  agilityXp                 BigInt    @default(0) @map("agility_xp")
+  thievingLevel             Int       @default(0) @map("thieving_level")
+  thievingXp                BigInt    @default(0) @map("thieving_xp")
+  slayerLevel               Int       @default(0) @map("slayer_level")
+  slayerXp                  BigInt    @default(0) @map("slayer_xp")
+  farmingLevel              Int       @default(0) @map("farming_level")
+  farmingXp                 BigInt    @default(0) @map("farming_xp")
+  runecraftingLevel         Int       @default(0) @map("runecrafting_level")
+  runecraftingXp            BigInt    @default(0) @map("runecrafting_xp")
+  hunterLevel               Int       @default(0) @map("hunter_level")
+  hunterXp                  BigInt    @default(0) @map("hunter_xp")
+  constructionLevel         Int       @default(0) @map("construction_level")
+  constructionXp            BigInt    @default(0) @map("construction_xp")
+  summoningLevel            Int       @default(0) @map("summoning_level")
+  summoningXp               BigInt    @default(0) @map("summoning_xp")
+  dungeoneeringLevel        Int       @default(0) @map("dungeoneering_level")
+  dungeoneeringXp           BigInt    @default(0) @map("dungeoneering_xp")
+  divinationLevel           Int       @default(0) @map("divination_level")
+  divinationXp              BigInt    @default(0) @map("divination_xp")
+  inventionLevel            Int       @default(0) @map("invention_level")
+  inventionXp               BigInt    @default(0) @map("invention_xp")
+  archaeologyLevel          Int       @default(0) @map("archaeology_level")
+  archaeologyXp             BigInt    @default(0) @map("archaeology_xp")
+  necromancyLevel           Int       @default(0) @map("necromancy_level")
+  necromancyXp              BigInt    @default(0) @map("necromancy_xp")
+
+  snapshotAt                DateTime  @default(now()) @map("snapshot_at")
+
+  player Rs3Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@index([playerId, snapshotAt(sort: Desc)])
+  @@map("rs3_player_skill_snapshots")
 }
 
 // ─── News Posts ───

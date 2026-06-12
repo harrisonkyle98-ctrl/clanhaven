@@ -46,10 +46,12 @@ async def clan_discovery(
             {
                 "id": c.id,
                 "name": c.name,
+                "slug": c.slug,
                 "gameType": c.gameType,
                 "memberCount": c.memberCount,
                 "rank": c.rank,
                 "totalXp": c.totalXp,
+                "motifUrl": c.motifUrl,
                 "source": c.source,
                 "lastIndexedAt": c.lastIndexedAt.isoformat() if c.lastIndexedAt else None,
             }

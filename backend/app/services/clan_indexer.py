@@ -1,6 +1,15 @@
-"""Service to fetch and index RS3 clan members from the Jagex Clan Hiscores."""
+"""Service to fetch and index RS3 clan members from the Jagex Clan Hiscores.
+
+Flow:
+  1. Fetch clan roster from members_lite.ws
+  2. Upsert indexed_clans with clan metadata + slug
+  3. Upsert each member into rs3_players (player profile)
+  4. Update indexed_clan_members with player_id links + membership tracking
+  5. Create a clan_snapshot for historical tracking
+"""
 
 import logging
+import re
 from datetime import datetime, timezone
 
 import httpx
@@ -17,10 +26,28 @@ def _normalize_rsn(name: str) -> str:
     return name.replace("\xa0", " ").strip().lower()
 
 
-async def fetch_and_index_clan(clan_name: str) -> dict:
-    """Fetch clan members from RS3 Clan Hiscores and store them in the database.
+def _slugify(name: str) -> str:
+    """Generate a URL-safe slug from a clan name."""
+    slug = name.replace("\xa0", " ").strip().lower()
+    slug = re.sub(r"[^a-z0-9\s-]", "", slug)
+    slug = re.sub(r"[\s-]+", "-", slug).strip("-")
+    return slug
 
-    Returns a summary dict with member_count and any errors.
+
+async def fetch_and_index_clan(
+    clan_name: str,
+    *,
+    seed_rank: int | None = None,
+    seed_total_xp: int | None = None,
+    seed_motif_url: str | None = None,
+) -> dict:
+    """Fetch clan members from RS3 Clan Hiscores and store them.
+
+    Upserts indexed_clans, rs3_players, indexed_clan_members, and creates
+    a clan_snapshot. Returns a summary dict.
+
+    Optional seed_* params allow the caller (e.g. the HiScores seeder) to
+    pass additional clan metadata obtained from the ranking page.
     """
     url = CLAN_MEMBERS_URL.format(clan_name)
 
@@ -31,16 +58,14 @@ async def fetch_and_index_clan(clan_name: str) -> dict:
         logger.warning("Clan Hiscores returned %s for clan '%s'", resp.status_code, clan_name)
         return {"error": f"Clan Hiscores returned status {resp.status_code}", "member_count": 0}
 
-    # Clan Hiscores uses \xa0 (non-breaking space) in names; decode as latin-1
-    # to preserve it, since httpx's default UTF-8 decoding replaces it with \ufffd
     text = resp.content.decode("latin-1").strip()
     lines = text.split("\n")
 
     if len(lines) < 2:
         return {"error": "No member data returned", "member_count": 0}
 
-    # Skip header: "Clanmate, Clan Rank, Total XP, Kills"
-    members = []
+    # Parse CSV: "Clanmate, Clan Rank, Total XP, Kills"
+    members: list[dict] = []
     for line in lines[1:]:
         parts = line.strip().split(",")
         if len(parts) < 4:
@@ -67,48 +92,121 @@ async def fetch_and_index_clan(clan_name: str) -> dict:
     if not members:
         return {"error": "No members parsed from response", "member_count": 0}
 
-    now = datetime.now(timezone.utc)
-    clan_name_clean = members[0]["rsn"]  # Use the actual name casing from the data
-    # But keep the original clan_name for the clan record
-    clan_name_lower = clan_name.strip().lower()
-
-    # Upsert the indexed clan
-    indexed_clan = await db.indexedclan.upsert(
-        where={"nameLower": clan_name_lower},
-        data={
-            "create": {
-                "name": clan_name,
-                "nameLower": clan_name_lower,
-                "gameType": "RS3",
-                "memberCount": len(members),
-                "lastIndexedAt": now,
-            },
-            "update": {
-                "memberCount": len(members),
-                "lastIndexedAt": now,
-            },
-        },
-    )
-
-    # Batch replace members: delete old + bulk create new (much faster than 500 individual upserts)
-    # Deduplicate by rsnLower to avoid unique constraint violations
+    # Deduplicate by normalized RSN
     seen_rsns: set[str] = set()
-    unique_members = []
+    unique_members: list[dict] = []
     for m in members:
         if m["rsnLower"] not in seen_rsns:
             seen_rsns.add(m["rsnLower"])
             unique_members.append(m)
 
-    await db.indexedclanmember.delete_many(where={"clanId": indexed_clan.id})
+    now = datetime.now(timezone.utc)
+    clan_name_lower = clan_name.strip().lower()
+    slug = _slugify(clan_name)
+
+    # ── Step 1: Upsert indexed_clans ──
+    create_data: dict = {
+        "name": clan_name,
+        "nameLower": clan_name_lower,
+        "slug": slug,
+        "gameType": "RS3",
+        "memberCount": len(unique_members),
+        "lastIndexedAt": now,
+    }
+    update_data: dict = {
+        "memberCount": len(unique_members),
+        "lastIndexedAt": now,
+    }
+
+    if seed_rank is not None:
+        create_data["rank"] = seed_rank
+        update_data["rank"] = seed_rank
+    if seed_total_xp is not None:
+        create_data["totalXp"] = seed_total_xp
+        update_data["totalXp"] = seed_total_xp
+    if seed_motif_url:
+        create_data["motifUrl"] = seed_motif_url
+        update_data["motifUrl"] = seed_motif_url
+
+    # Calculate total clan XP from member roster as fallback
+    roster_total_xp = sum(m["clanXp"] for m in unique_members)
+    if seed_total_xp is None and roster_total_xp > 0:
+        create_data["totalXp"] = roster_total_xp
+        update_data["totalXp"] = roster_total_xp
+
+    # Set slug on create; don't overwrite if already set
+    if "slug" not in update_data:
+        update_data["slug"] = slug
+
+    indexed_clan = await db.indexedclan.upsert(
+        where={"nameLower": clan_name_lower},
+        data={
+            "create": create_data,
+            "update": update_data,
+        },
+    )
+
+    # ── Step 2: Upsert each member into rs3_players ──
+    player_id_map: dict[str, str] = {}  # rsnLower -> player_id
+    for m in unique_members:
+        player = await db.rs3player.upsert(
+            where={"normalizedRsn": m["rsnLower"]},
+            data={
+                "create": {
+                    "rsn": m["rsn"],
+                    "normalizedRsn": m["rsnLower"],
+                    "currentClanId": indexed_clan.id,
+                    "currentClanName": clan_name,
+                },
+                "update": {
+                    "rsn": m["rsn"],
+                    "currentClanId": indexed_clan.id,
+                    "currentClanName": clan_name,
+                },
+            },
+        )
+        player_id_map[m["rsnLower"]] = player.id
+
+    # ── Step 3: Get previous members for membership tracking ──
+    previous_members = await db.indexedclanmember.find_many(
+        where={"clanId": indexed_clan.id, "isCurrent": True},
+    )
+    previous_rsns = {pm.rsnLower for pm in previous_members}
+    current_rsns = {m["rsnLower"] for m in unique_members}
+
+    joined_rsns = current_rsns - previous_rsns
+    left_rsns = previous_rsns - current_rsns
+
+    # Mark members who left as not current
+    if left_rsns:
+        await db.indexedclanmember.update_many(
+            where={
+                "clanId": indexed_clan.id,
+                "rsnLower": {"in": list(left_rsns)},
+                "isCurrent": True,
+            },
+            data={
+                "isCurrent": False,
+                "leftSeenAt": now,
+            },
+        )
+
+    # ── Step 4: Delete current members and re-create (batch) ──
+    await db.indexedclanmember.delete_many(
+        where={"clanId": indexed_clan.id, "isCurrent": True},
+    )
     await db.indexedclanmember.create_many(
         data=[
             {
                 "clanId": indexed_clan.id,
+                "playerId": player_id_map.get(m["rsnLower"]),
                 "rsn": m["rsn"],
                 "rsnLower": m["rsnLower"],
                 "clanRank": m["clanRank"],
                 "clanXp": m["clanXp"],
                 "kills": m["kills"],
+                "isCurrent": True,
+                "firstSeenAt": now,
                 "lastSeenAt": now,
             }
             for m in unique_members
@@ -116,15 +214,38 @@ async def fetch_and_index_clan(clan_name: str) -> dict:
         skip_duplicates=True,
     )
 
-    logger.info("Indexed %d members for clan '%s'", len(members), clan_name)
-    return {"clan_name": clan_name, "member_count": len(members), "clan_id": indexed_clan.id}
+    # ── Step 5: Create a clan snapshot ──
+    await db.clansnapshot.create(
+        data={
+            "clanId": indexed_clan.id,
+            "clanRank": indexed_clan.rank,
+            "memberCount": len(unique_members),
+            "totalXp": indexed_clan.totalXp,
+            "membersJoinedSinceLast": len(joined_rsns),
+            "membersLeftSinceLast": len(left_rsns),
+            "snapshotAt": now,
+        }
+    )
+
+    logger.info(
+        "Indexed %d members for clan '%s' (joined=%d, left=%d)",
+        len(unique_members), clan_name, len(joined_rsns), len(left_rsns),
+    )
+    return {
+        "clan_name": clan_name,
+        "member_count": len(unique_members),
+        "clan_id": indexed_clan.id,
+        "players_upserted": len(player_id_map),
+        "members_joined": len(joined_rsns),
+        "members_left": len(left_rsns),
+    }
 
 
 async def lookup_clan_for_rsn(rsn: str) -> str | None:
     """Look up which indexed clan an RSN belongs to. Returns clan name or None."""
     rsn_lower = _normalize_rsn(rsn)
     member = await db.indexedclanmember.find_first(
-        where={"rsnLower": rsn_lower},
+        where={"rsnLower": rsn_lower, "isCurrent": True},
         include={"clan": True},
     )
     if member and member.clan:
