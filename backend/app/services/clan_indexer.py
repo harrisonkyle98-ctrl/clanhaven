@@ -38,13 +38,15 @@ async def fetch_and_index_clan(
     clan_name: str,
     *,
     seed_rank: int | None = None,
-    seed_total_xp: int | None = None,
     seed_motif_url: str | None = None,
 ) -> dict:
     """Fetch clan members from RS3 Clan Hiscores and store them.
 
     Upserts indexed_clans, rs3_players, indexed_clan_members, and creates
     a clan_snapshot. Returns a summary dict.
+
+    Total clan XP is always calculated from the members_lite.ws roster
+    (sum of all member clan_xp).
 
     Optional seed_* params allow the caller (e.g. the HiScores seeder) to
     pass additional clan metadata obtained from the ranking page.
@@ -121,16 +123,13 @@ async def fetch_and_index_clan(
     if seed_rank is not None:
         create_data["rank"] = seed_rank
         update_data["rank"] = seed_rank
-    if seed_total_xp is not None:
-        create_data["totalXp"] = seed_total_xp
-        update_data["totalXp"] = seed_total_xp
     if seed_motif_url:
         create_data["motifUrl"] = seed_motif_url
         update_data["motifUrl"] = seed_motif_url
 
-    # Calculate total clan XP from member roster as fallback
+    # Total clan XP from member roster (sum of all member clan_xp)
     roster_total_xp = sum(m["clanXp"] for m in unique_members)
-    if seed_total_xp is None and roster_total_xp > 0:
+    if roster_total_xp > 0:
         create_data["totalXp"] = roster_total_xp
         update_data["totalXp"] = roster_total_xp
 
