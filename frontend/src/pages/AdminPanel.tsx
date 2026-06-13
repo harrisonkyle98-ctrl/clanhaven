@@ -89,6 +89,7 @@ interface SeedJobStatus {
   status: string
   startPage: number
   pageCount: number
+  concurrency: number
   pagesProcessed: number
   clansDiscovered: number
   clansIndexed: number
@@ -104,6 +105,7 @@ interface SeedJobStatus {
 function AdminHomeTab({ username }: { username: string }) {
   const [seedPages, setSeedPages] = useState(5)
   const [seedStartPage, setSeedStartPage] = useState(1)
+  const [seedConcurrency, setSeedConcurrency] = useState(1)
   const [starting, setStarting] = useState(false)
   const [startError, setStartError] = useState<string | null>(null)
   const [job, setJob] = useState<SeedJobStatus | null>(null)
@@ -141,7 +143,7 @@ function AdminHomeTab({ username }: { username: string }) {
     try {
       await apiFetch<{ jobId: string; status: string }>("/api/admin/seed-clans", {
         method: "POST",
-        body: JSON.stringify({ startPage: seedStartPage, pageCount: seedPages }),
+        body: JSON.stringify({ startPage: seedStartPage, pageCount: seedPages, concurrency: seedConcurrency }),
       })
       await fetchLatestJob()
       startPolling()
@@ -239,6 +241,34 @@ function AdminHomeTab({ username }: { username: string }) {
                 (~20 clans/page, max 50)
               </span>
             </div>
+
+            {/* Concurrency control */}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+              <label style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Workers:</label>
+              <input
+                type="number"
+                value={seedConcurrency}
+                onChange={(e) => setSeedConcurrency(Math.max(1, Math.min(5, Number(e.target.value))))}
+                style={{
+                  width: "55px",
+                  background: "rgba(22, 19, 14, 0.8)",
+                  border: "none",
+                  boxShadow: "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6)",
+                  color: "var(--color-text-warm)",
+                  padding: "0.4rem 0.5rem",
+                  fontSize: "0.8125rem",
+                }}
+                disabled={job?.status === "running"}
+              />
+              <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
+                (1–5, each fully indexes one clan at a time)
+              </span>
+            </div>
+            {seedConcurrency > 1 && (
+              <p style={{ color: "#f59e0b", fontSize: "0.6875rem", marginBottom: "0.5rem" }}>
+                ⚠ Higher concurrency increases load on Jagex endpoints. Use cautiously to avoid rate limiting.
+              </p>
+            )}
             <button
               onClick={handleSeed}
               disabled={starting || job?.status === "running"}
@@ -279,6 +309,9 @@ function AdminHomeTab({ username }: { username: string }) {
                   <div style={{ color: "var(--color-text-muted)" }}>Clans failed:</div>
                   <div style={{ color: job.clansFailed > 0 ? "#ef4444" : "var(--color-text-warm)" }}>{job.clansFailed}</div>
 
+                  <div style={{ color: "var(--color-text-muted)" }}>Workers:</div>
+                  <div style={{ color: "var(--color-text-warm)" }}>{job.concurrency}</div>
+
                   {job.currentPage && (
                     <>
                       <div style={{ color: "var(--color-text-muted)" }}>Current page:</div>
@@ -288,7 +321,7 @@ function AdminHomeTab({ username }: { username: string }) {
 
                   {job.currentClan && (
                     <>
-                      <div style={{ color: "var(--color-text-muted)" }}>Current clan:</div>
+                      <div style={{ color: "var(--color-text-muted)" }}>Indexing:</div>
                       <div style={{ color: "var(--color-text-warm)" }}>{job.currentClan}</div>
                     </>
                   )}

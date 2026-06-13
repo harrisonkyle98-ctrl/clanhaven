@@ -73,6 +73,7 @@ async def admin_lookup_clan(rsn: str):
 class SeedClansRequest(BaseModel):
     startPage: int = 1
     pageCount: int = 5
+    concurrency: int = 1
 
 
 @router.post("/seed-clans")
@@ -83,6 +84,8 @@ async def admin_seed_clans(
     """Start a background clan discovery seed job. Admin only."""
     if body.pageCount > 50:
         raise HTTPException(status_code=400, detail="pageCount cannot exceed 50 per batch")
+    if body.concurrency < 1 or body.concurrency > 5:
+        raise HTTPException(status_code=400, detail="concurrency must be between 1 and 5")
 
     # Check for already running jobs
     running = await db.seedjob.find_first(where={"status": "running"})
@@ -96,6 +99,7 @@ async def admin_seed_clans(
             "status": "pending",
             "startPage": body.startPage,
             "pageCount": body.pageCount,
+            "concurrency": body.concurrency,
             "createdByUserId": _admin["sub"],
         }
     )
@@ -126,6 +130,7 @@ async def admin_get_latest_seed_job(
             "clansFailed": job.clansFailed,
             "currentPage": job.currentPage,
             "currentClan": job.currentClan,
+            "concurrency": job.concurrency,
             "lastError": job.lastError,
             "startedAt": job.startedAt.isoformat() if job.startedAt else None,
             "completedAt": job.completedAt.isoformat() if job.completedAt else None,

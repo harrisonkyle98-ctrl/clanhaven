@@ -453,6 +453,7 @@ model SeedJob {
   status          String   @default("pending")  // pending, running, completed, failed
   startPage       Int      @default(1) @map("start_page")
   pageCount       Int      @default(5) @map("page_count")
+  concurrency     Int      @default(1)
   pagesProcessed  Int      @default(0) @map("pages_processed")
   clansDiscovered Int      @default(0) @map("clans_discovered")
   clansIndexed    Int      @default(0) @map("clans_indexed")
