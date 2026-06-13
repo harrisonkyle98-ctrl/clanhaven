@@ -154,6 +154,21 @@ function AdminHomeTab({ username }: { username: string }) {
     }
   }
 
+  const [stopping, setStopping] = useState(false)
+
+  const handleStop = async () => {
+    if (!job) return
+    setStopping(true)
+    try {
+      await apiFetch(`/api/admin/seed-jobs/${job.id}/stop`, { method: "POST" })
+      await fetchLatestJob()
+    } catch (err) {
+      setStartError(`Failed to stop: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setStopping(false)
+    }
+  }
+
   useEffect(() => {
     if (job && (job.status === "running" || job.status === "pending")) {
       startPolling()
@@ -269,14 +284,31 @@ function AdminHomeTab({ username }: { username: string }) {
                 ⚠ Higher concurrency increases load on Jagex endpoints. Use cautiously to avoid rate limiting.
               </p>
             )}
-            <button
-              onClick={handleSeed}
-              disabled={starting || job?.status === "running"}
-              className="ch-admin-btn"
-              style={{ opacity: (starting || job?.status === "running") ? 0.6 : 1 }}
-            >
-              {starting ? "Starting..." : job?.status === "running" ? "Job Running..." : "Start Seed"}
-            </button>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button
+                onClick={handleSeed}
+                disabled={starting || job?.status === "running"}
+                className="ch-admin-btn"
+                style={{ opacity: (starting || job?.status === "running") ? 0.6 : 1 }}
+              >
+                {starting ? "Starting..." : job?.status === "running" ? "Job Running..." : "Start Seed"}
+              </button>
+              {(job?.status === "running" || job?.status === "pending") && (
+                <button
+                  onClick={handleStop}
+                  disabled={stopping}
+                  className="ch-admin-btn"
+                  style={{
+                    background: "rgba(239, 68, 68, 0.15)",
+                    boxShadow: "inset 0 0 0 1px rgba(239, 68, 68, 0.4)",
+                    color: "#ef4444",
+                    opacity: stopping ? 0.6 : 1,
+                  }}
+                >
+                  {stopping ? "Stopping..." : "Stop Job"}
+                </button>
+              )}
+            </div>
             {startError && (
               <p style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.5rem" }}>{startError}</p>
             )}

@@ -33,6 +33,37 @@ CLAN_INDEX_TIMEOUT = 120  # max seconds per individual clan indexing
 BACKOFF_BASE = 5.0        # base backoff on rate-limit/server errors
 BACKOFF_MAX = 60.0        # max backoff seconds
 
+# Cancellation tracking
+_cancelled_jobs: set[str] = set()
+_running_tasks: dict[str, asyncio.Task] = {}
+
+
+async def cancel_seed_job(job_id: str) -> bool:
+    """Request cancellation of a running seed job. Returns True if cancelled."""
+    _cancelled_jobs.add(job_id)
+    task = _running_tasks.get(job_id)
+    if task and not task.done():
+        task.cancel()
+    try:
+        await db.seedjob.update(
+            where={"id": job_id},
+            data={
+                "status": "failed",
+                "lastError": "Stopped by admin",
+                "completedAt": datetime.now(timezone.utc),
+                "currentClan": None,
+                "currentPage": None,
+            },
+        )
+    except Exception:
+        pass
+    logger.info("Seed job %s cancelled by admin", job_id)
+    return True
+
+
+def _is_cancelled(job_id: str) -> bool:
+    return job_id in _cancelled_jobs
+
 
 def _extract_clans_with_metadata(html: str) -> list[dict]:
     """Extract clan names + metadata from an RS3 Clan HiScores ranking HTML page."""
@@ -127,6 +158,7 @@ class _JobProgress:
 
 async def _index_worker(
     worker_id: int,
+    job_id: str,
     queue: deque[dict],
     queue_lock: asyncio.Lock,
     progress: _JobProgress,
@@ -134,6 +166,8 @@ async def _index_worker(
 ) -> None:
     """Worker that pulls clans from the queue and indexes them one at a time."""
     while True:
+        if _is_cancelled(job_id):
+            return
         async with queue_lock:
             if not queue:
                 return
@@ -208,6 +242,10 @@ async def run_seed_job(job_id: str) -> None:
 
         async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
             for page_num in range(start_page, start_page + page_count):
+                if _is_cancelled(job_id):
+                    logger.info("Seed job %s cancelled during page discovery", job_id)
+                    return
+
                 try:
                     await db.seedjob.update(
                         where={"id": job_id},
@@ -293,27 +331,33 @@ async def run_seed_job(job_id: str) -> None:
 
         workers = [
             asyncio.create_task(
-                _index_worker(i, clan_queue, queue_lock, progress, rate_sem)
+                _index_worker(i, job_id, clan_queue, queue_lock, progress, rate_sem)
             )
             for i in range(concurrency)
         ]
 
         await asyncio.gather(*workers, return_exceptions=True)
 
-        # Mark job complete
-        await db.seedjob.update(
-            where={"id": job_id},
-            data={
-                "status": "completed",
-                "completedAt": datetime.now(timezone.utc),
-                "currentClan": None,
-                "currentPage": None,
-            },
-        )
+        # Only mark complete if not cancelled
+        if not _is_cancelled(job_id):
+            await db.seedjob.update(
+                where={"id": job_id},
+                data={
+                    "status": "completed",
+                    "completedAt": datetime.now(timezone.utc),
+                    "currentClan": None,
+                    "currentPage": None,
+                },
+            )
         logger.info(
-            "Seed job %s completed: %d indexed, %d failed (concurrency=%d)",
-            job_id, progress.indexed, progress.failed, concurrency,
+            "Seed job %s %s: %d indexed, %d failed (concurrency=%d)",
+            job_id,
+            "cancelled" if _is_cancelled(job_id) else "completed",
+            progress.indexed, progress.failed, concurrency,
         )
+
+    except asyncio.CancelledError:
+        logger.info("Seed job %s cancelled", job_id)
 
     except Exception as e:
         logger.exception("Seed job %s crashed: %s", job_id, e)
@@ -328,3 +372,7 @@ async def run_seed_job(job_id: str) -> None:
             )
         except Exception:
             pass
+
+    finally:
+        _cancelled_jobs.discard(job_id)
+        _running_tasks.pop(job_id, None)

@@ -12,7 +12,7 @@ from app.core.auth import get_current_user
 from app.core.config import settings
 from app.core.database import db
 from app.services.clan_indexer import fetch_and_index_clan, lookup_clan_for_rsn
-from app.services.clan_hiscores_crawler import run_seed_job
+from app.services.clan_hiscores_crawler import run_seed_job, cancel_seed_job, _running_tasks
 
 # ─── Moderation request models ───
 
@@ -104,10 +104,27 @@ async def admin_seed_clans(
         }
     )
 
-    # Fire off background task
-    asyncio.create_task(run_seed_job(job.id))
+    # Fire off background task and track it for cancellation
+    task = asyncio.create_task(run_seed_job(job.id))
+    _running_tasks[job.id] = task
 
     return {"jobId": job.id, "status": "pending"}
+
+
+@router.post("/seed-jobs/{job_id}/stop")
+async def admin_stop_seed_job(
+    job_id: str,
+    _admin: dict = Depends(require_admin),
+):
+    """Stop a running seed job. Admin only."""
+    job = await db.seedjob.find_unique(where={"id": job_id})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    if job.status not in ("running", "pending"):
+        raise HTTPException(status_code=400, detail="Job is not running")
+
+    await cancel_seed_job(job_id)
+    return {"status": "stopped", "jobId": job_id}
 
 
 @router.get("/seed-jobs/latest")
