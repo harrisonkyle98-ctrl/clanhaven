@@ -145,26 +145,39 @@ async def fetch_and_index_clan(
         },
     )
 
-    # ── Step 2: Upsert each member into rs3_players ──
-    player_id_map: dict[str, str] = {}  # rsnLower -> player_id
-    for m in unique_members:
-        player = await db.rs3player.upsert(
-            where={"normalizedRsn": m["rsnLower"]},
-            data={
-                "create": {
-                    "rsn": m["rsn"],
-                    "normalizedRsn": m["rsnLower"],
-                    "currentClanId": indexed_clan.id,
-                    "currentClanName": clan_name,
-                },
-                "update": {
-                    "rsn": m["rsn"],
-                    "currentClanId": indexed_clan.id,
-                    "currentClanName": clan_name,
-                },
-            },
-        )
-        player_id_map[m["rsnLower"]] = player.id
+    # ── Step 2: Upsert members into rs3_players (batched) ──
+    member_rsns = [m["rsnLower"] for m in unique_members]
+
+    # Create any players that don't exist yet
+    await db.rs3player.create_many(
+        data=[
+            {
+                "rsn": m["rsn"],
+                "normalizedRsn": m["rsnLower"],
+                "currentClanId": indexed_clan.id,
+                "currentClanName": clan_name,
+            }
+            for m in unique_members
+        ],
+        skip_duplicates=True,
+    )
+
+    # Update existing players' current clan reference
+    await db.rs3player.update_many(
+        where={"normalizedRsn": {"in": member_rsns}},
+        data={
+            "currentClanId": indexed_clan.id,
+            "currentClanName": clan_name,
+        },
+    )
+
+    # Fetch player IDs for linking
+    existing_players = await db.rs3player.find_many(
+        where={"normalizedRsn": {"in": member_rsns}},
+    )
+    player_id_map: dict[str, str] = {
+        p.normalizedRsn: p.id for p in existing_players
+    }
 
     # ── Step 3: Get previous members for membership tracking ──
     previous_members = await db.indexedclanmember.find_many(
