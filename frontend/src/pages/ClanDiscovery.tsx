@@ -33,7 +33,7 @@ export default function ClanDiscovery() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
   const [total, setTotal] = useState(0)
-  const [sort, setSort] = useState("rank")
+  const [sort, setSort] = useState("xp")
   const [searchInput, setSearchInput] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [loading, setLoading] = useState(true)
@@ -102,9 +102,8 @@ export default function ClanDiscovery() {
             value={sort}
             onChange={(e) => { setSort(e.target.value); setPage(1) }}
           >
-            <option value="rank">Rank</option>
-            <option value="members">Members</option>
             <option value="xp">Total XP</option>
+            <option value="members">Members</option>
           </select>
           <span className="ch-discovery-count">{total.toLocaleString()} clans indexed</span>
         </div>
