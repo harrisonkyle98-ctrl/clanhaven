@@ -27,11 +27,17 @@ export function MiniClanVexillum({
         <filter id="vex-shadow" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="1" stdDeviation="1.2" floodColor="#000" floodOpacity="0.45" />
         </filter>
+        <linearGradient id="crossbar-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.25" />
+          <stop offset="50%" stopColor="#fff" stopOpacity="0.05" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.2" />
+        </linearGradient>
       </defs>
 
       <g filter="url(#vex-shadow)">
-        {/* Horizontal crossbar */}
+        {/* Horizontal crossbar with gradient */}
         <rect x="6" y="4" width="24" height="3" rx="1" fill={accentColor} opacity="0.7" />
+        <rect x="6" y="4" width="24" height="3" rx="1" fill="url(#crossbar-grad)" />
 
         {/* Left banner — flat bottom (1px gap before pole, 1px gap below crossbar) */}
         <rect x="7" y="8" width="9" height="20" fill={primaryColor} />
