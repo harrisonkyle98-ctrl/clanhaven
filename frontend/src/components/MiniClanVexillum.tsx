@@ -10,7 +10,7 @@ export function MiniClanVexillum({
   primaryColor = "#2f3f7f",
   secondaryColor = "#7d5a24",
   accentColor = "#c9a24a",
-  size = 72,
+  size = 36,
   className,
 }: MiniClanVexillumProps) {
   return (
@@ -18,45 +18,49 @@ export function MiniClanVexillum({
       className={className}
       width={size}
       height={size}
-      viewBox="0 0 72 72"
+      viewBox="0 0 36 36"
       role="img"
       aria-label="Clan vexillum"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Staff pole */}
-      <rect x="34" y="4" width="4" height="64" rx="1.5" fill={secondaryColor} />
-      <rect x="35" y="4" width="1.5" height="64" rx="0.75" fill={accentColor} opacity="0.3" />
+      {/* Horizontal crossbar */}
+      <rect x="2" y="4" width="32" height="3" rx="1" fill={accentColor} />
+      <rect x="3" y="5" width="30" height="1" rx="0.5" fill={accentColor} opacity="0.5" />
 
-      {/* Pole cap — ornamental finial */}
-      <circle cx="36" cy="6" r="4" fill={accentColor} />
-      <circle cx="36" cy="6" r="2" fill={secondaryColor} />
+      {/* Center finial knob */}
+      <circle cx="18" cy="4" r="2.5" fill={accentColor} />
+      <circle cx="18" cy="4" r="1.2" fill={secondaryColor} />
 
-      {/* Banner flag — pointed pennant shape */}
+      {/* Left banner panel — forked bottom */}
       <polygon
-        points="12,12 34,12 34,44 12,36"
+        points="3,7 16,7 16,28 12,24 3,28"
         fill={primaryColor}
       />
-      {/* Diagonal accent stripe on banner */}
+      {/* Left banner horizontal accent band */}
       <polygon
-        points="12,12 34,12 34,20 12,20"
+        points="3,14 16,14 16,17 3,17"
         fill={accentColor}
-        opacity="0.5"
+        opacity="0.4"
       />
-      {/* Center horizontal band */}
+
+      {/* Right banner panel — forked bottom */}
       <polygon
-        points="12,25 34,25 34,31 12,28.5"
+        points="20,7 33,7 33,28 24,24 20,28"
         fill={secondaryColor}
-        opacity="0.6"
+      />
+      {/* Right banner horizontal accent band */}
+      <polygon
+        points="20,14 33,14 33,17 20,17"
+        fill={accentColor}
+        opacity="0.4"
       />
 
-      {/* Accent trim along top edge of banner */}
-      <line x1="12" y1="12" x2="34" y2="12" stroke={accentColor} strokeWidth="1.5" />
-      {/* Accent trim along staff-side edge */}
-      <line x1="34" y1="12" x2="34" y2="44" stroke={accentColor} strokeWidth="1" opacity="0.6" />
+      {/* Center connector between banners */}
+      <rect x="16" y="7" width="4" height="25" fill={accentColor} opacity="0.2" />
+      <line x1="18" y1="7" x2="18" y2="32" stroke={accentColor} strokeWidth="1.5" opacity="0.6" />
 
-      {/* Small crossbar on staff below banner */}
-      <rect x="30" y="46" width="12" height="2" rx="1" fill={secondaryColor} />
-      <rect x="31" y="46.5" width="10" height="1" rx="0.5" fill={accentColor} opacity="0.4" />
+      {/* Bottom finial */}
+      <circle cx="18" cy="33" r="1.5" fill={accentColor} opacity="0.7" />
     </svg>
   )
 }
