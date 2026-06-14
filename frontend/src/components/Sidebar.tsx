@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { ChevronDown, ChevronLeft } from "lucide-react"
 import SidebarAccountModule from "@/components/SidebarAccountModule"
+import { useAuth } from "@/hooks/useAuth"
 
 const mainNavItems = [
   { label: "Home", to: "/" },
@@ -25,8 +26,14 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
   const [mainOpen, setMainOpen] = useState(true)
   const [clansOpen, setClansOpen] = useState(true)
   const location = useLocation()
+  const { user, login } = useAuth()
 
   const ribbonClass = "ch-sidebar-ribbon"
+
+  // Determine "My Clan" link behavior
+  const myClanSlug = user?.clanSlug
+  const myClanName = user?.activeClanName || user?.rsnClanName
+  const hasRsn = !!user?.rsn
 
   return (
     <aside
@@ -88,6 +95,40 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </button>
         <div className={`ch-sidebar-section ${clansOpen ? "ch-sidebar-section-open" : ""}`}>
           <div className="px-2.5 space-y-1.5 shrink-0">
+            {/* My Clan — dynamic based on auth state */}
+            {user ? (
+              myClanSlug ? (
+                <Link
+                  to={`/${myClanSlug}`}
+                  className={`ch-sidebar-btn ${location.pathname === `/${myClanSlug}` ? "ch-sidebar-btn-active" : ""}`}
+                >
+                  <span>My Clan</span>
+                  <span className="ch-sidebar-clan-name">{myClanName}</span>
+                </Link>
+              ) : hasRsn ? (
+                <div className="ch-sidebar-btn ch-sidebar-btn-disabled">
+                  <span>My Clan</span>
+                  <span className="ch-sidebar-clan-hint">No clan detected</span>
+                </div>
+              ) : (
+                <Link
+                  to="/settings"
+                  className={`ch-sidebar-btn ${location.pathname === "/settings" ? "ch-sidebar-btn-active" : ""}`}
+                >
+                  <span>My Clan</span>
+                  <span className="ch-sidebar-clan-hint">Link RSN first</span>
+                </Link>
+              )
+            ) : (
+              <button
+                onClick={() => { void login() }}
+                className="ch-sidebar-btn"
+              >
+                <span>My Clan</span>
+                <span className="ch-sidebar-clan-hint">Log in</span>
+              </button>
+            )}
+
             {clansNavItems.map((item) => {
               const isActive = location.pathname === item.to
               return (

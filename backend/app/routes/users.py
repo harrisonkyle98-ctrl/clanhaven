@@ -138,6 +138,16 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         order={"rsn": "asc"},
     )
 
+    # Resolve clan slug for "My Clan" sidebar link
+    effective_clan_name = active_clan_name or rsn_clan_name
+    clan_slug = None
+    if effective_clan_name:
+        indexed = await db.indexedclan.find_first(
+            where={"nameLower": effective_clan_name.strip().lower()},
+        )
+        if indexed and indexed.slug:
+            clan_slug = indexed.slug
+
     return {
         "id": user.id,
         "discordId": user.discordId,
@@ -153,6 +163,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         "activeGameType": active_game_type,
         "activeAccountType": active_account_type,
         "activeClanName": active_clan_name,
+        "clanSlug": clan_slug,
         "rsnLinkedAt": user.rsnLinkedAt.isoformat() if user.rsnLinkedAt else None,
         "privileges": user.privileges,
         "lastOnline": user.lastOnline.isoformat() if user.lastOnline else None,

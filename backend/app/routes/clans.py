@@ -74,7 +74,8 @@ async def _get_user_authority(user_id: str, clan_id: str) -> dict:
     if not membership:
         return {"isManager": False, "rank": None, "matchedRsn": None}
 
-    is_manager = membership.clanRank in MANAGER_RANKS
+    rank_normalized = (membership.clanRank or "").strip()
+    is_manager = rank_normalized.lower() in {r.lower() for r in MANAGER_RANKS}
     return {
         "isManager": is_manager,
         "rank": membership.clanRank,
