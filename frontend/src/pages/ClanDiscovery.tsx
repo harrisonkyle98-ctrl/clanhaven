@@ -70,7 +70,7 @@ export default function ClanDiscovery() {
     debounceRef.current = setTimeout(() => {
       setDebouncedSearch(value)
       setPage(1)
-    }, 300)
+    }, 150)
   }
 
   return (
