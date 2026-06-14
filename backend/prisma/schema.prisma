@@ -112,10 +112,14 @@ model IndexedClan {
   verifiedAt       DateTime? @map("verified_at")
   verifiedByUserId String?   @map("verified_by_user_id")
 
-  // ─── Clan colors (vexillum / branding) ───
-  primaryColor   String?  @map("primary_color")
-  secondaryColor String?  @map("secondary_color")
-  accentColor    String?  @map("accent_color")
+  // ─── Clan colors (vexillum / branding — auto-detected from motif) ───
+  primaryColor            String?   @map("primary_color")
+  secondaryColor          String?   @map("secondary_color")
+  accentColor             String?   @map("accent_color")
+  colorsDetectedAt        DateTime? @map("colors_detected_at")
+  colorDetectionStatus    String?   @map("color_detection_status")
+  colorDetectionError     String?   @map("color_detection_error")
+  colorDetectionSourceUrl String?   @map("color_detection_source_url")
 
   // ─── Generated site (future) ───
   hasPublishedSite Boolean   @default(false) @map("has_published_site")

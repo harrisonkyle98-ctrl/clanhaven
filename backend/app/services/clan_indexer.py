@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 import httpx
 
 from app.core.database import db
+from app.services.color_detector import detect_clan_colors
 
 logger = logging.getLogger(__name__)
 
@@ -144,6 +145,17 @@ async def fetch_and_index_clan(
             "update": update_data,
         },
     )
+
+    # ── Step 1b: Detect clan colors from motif if available ──
+    motif = indexed_clan.motifUrl
+    if motif and (
+        indexed_clan.colorDetectionStatus != "success"
+        or indexed_clan.colorDetectionSourceUrl != motif
+    ):
+        try:
+            await detect_clan_colors(indexed_clan.id, motif)
+        except Exception as e:
+            logger.warning("Color detection skipped for '%s': %s", clan_name, e)
 
     # ── Step 2: Upsert members into rs3_players (batched) ──
     member_rsns = [m["rsnLower"] for m in unique_members]

@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.core.database import db
 from app.services.clan_indexer import fetch_and_index_clan, lookup_clan_for_rsn
 from app.services.clan_hiscores_crawler import run_seed_job, cancel_seed_job, _running_tasks
+from app.services.color_detector import detect_clan_colors
 
 # ─── Moderation request models ───
 
@@ -744,3 +745,45 @@ async def remove_ip_ban(ban_id: str, _admin: dict = Depends(require_admin)):
         data={"active": False},
     )
     return {"success": True, "active": updated.active}
+
+
+# ─── Color Detection Backfill ───
+
+
+@router.post("/color-backfill")
+async def backfill_clan_colors(
+    limit: int = 50,
+    force: bool = False,
+    _admin: dict = Depends(require_admin),
+):
+    """Backfill clan colors from motif images for existing indexed clans.
+
+    Processes clans that have a motif_url but no detected colors yet.
+    Set force=true to re-detect even for clans with existing colors.
+    """
+    where: dict = {"motifUrl": {"not": None}}
+    if not force:
+        where["OR"] = [
+            {"colorDetectionStatus": None},
+            {"colorDetectionStatus": "failed"},
+        ]
+
+    clans = await db.indexedclan.find_many(
+        where=where,
+        take=limit,
+        order={"rank": "asc"},
+    )
+
+    results = {"total": len(clans), "success": 0, "failed": 0, "errors": []}
+
+    for clan in clans:
+        if not clan.motifUrl:
+            continue
+        result = await detect_clan_colors(clan.id, clan.motifUrl)
+        if result["status"] == "success":
+            results["success"] += 1
+        else:
+            results["failed"] += 1
+            results["errors"].append({"clan": clan.name, "error": result.get("error", "unknown")})
+
+    return results
