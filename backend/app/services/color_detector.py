@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 # ── Thresholds ──
 MIN_SATURATION = 0.08
-MIN_LIGHTNESS = 0.06
+MIN_LIGHTNESS = 0.04
 MAX_LIGHTNESS = 0.94
 HUE_BUCKET_SIZE = 30          # degrees
 MIN_HUE_DISTANCE = 25         # degrees — secondary must differ from primary
@@ -211,9 +211,9 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
         }
         logger.info("  Dark/black family: %d pixels (%.0f%% of opaque)", len(dark_pixels), 100 * len(dark_pixels) / opaque_count)
 
-    # If light/white pixels represent >= 20% of opaque pixels, treat as intentional color
+    # If light/white pixels represent >= 15% of opaque pixels, treat as intentional color
     LIGHT_BUCKET = -2  # sentinel bucket for white/light family
-    if opaque_count > 0 and len(light_pixels) / opaque_count >= 0.20:
+    if opaque_count > 0 and len(light_pixels) / opaque_count >= 0.15:
         light_ratio = len(light_pixels) / opaque_count
         # Check if light family is larger than the biggest colored hue family
         max_colored_count = max(
@@ -299,6 +299,13 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
 
         if total_count < min_family_size:
             continue  # Skip tiny artifact clusters
+
+        # For light/dark families as secondary: only use if they represent
+        # a meaningful portion of the image, not just anti-aliasing artifacts
+        if bucket in (DARK_BUCKET, LIGHT_BUCKET):
+            family_ratio = total_count / max(1, total_classified)
+            if family_ratio < 0.20:
+                continue
 
         # Prefer this family if it has meaningful edge presence
         if edge_count > 0 or total_count >= 10:
