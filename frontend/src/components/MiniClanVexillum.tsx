@@ -31,7 +31,7 @@ export function MiniClanVexillum({
 
       <g filter="url(#vex-shadow)">
         {/* Horizontal crossbar */}
-        <rect x="6" y="4" width="24" height="3" rx="1" fill={accentColor} />
+        <rect x="6" y="4" width="24" height="3" rx="1" fill={accentColor} opacity="0.7" />
 
         {/* Left banner — flat bottom (1px gap before pole, 1px gap below crossbar) */}
         <rect x="7" y="8" width="9" height="20" fill={primaryColor} />
