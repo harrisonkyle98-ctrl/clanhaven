@@ -45,8 +45,8 @@ export function MiniClanVexillum({
         {/* Right banner — flat bottom (1px gap after pole, 1px gap below crossbar) */}
         <rect x="20" y="8" width="9" height="20" fill={secondaryColor} />
 
-        {/* Vertical pole between banners, extending past the flags */}
-        <rect x="17" y="8" width="2" height="24" rx="0.5" fill={accentColor} opacity="0.7" />
+        {/* Vertical pole between banners, connecting to crossbar, extending past flags */}
+        <rect x="17" y="7" width="2" height="25" rx="0.5" fill={accentColor} opacity="0.7" />
       </g>
     </svg>
   )
