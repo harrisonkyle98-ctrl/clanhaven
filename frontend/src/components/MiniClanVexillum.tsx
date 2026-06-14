@@ -32,6 +32,11 @@ export function MiniClanVexillum({
           <stop offset="50%" stopColor="#fff" stopOpacity="0.05" />
           <stop offset="100%" stopColor="#000" stopOpacity="0.2" />
         </linearGradient>
+        <linearGradient id="banner-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#000" stopOpacity="0.2" />
+          <stop offset="50%" stopColor="#fff" stopOpacity="0.05" />
+          <stop offset="100%" stopColor="#fff" stopOpacity="0.25" />
+        </linearGradient>
       </defs>
 
       <g filter="url(#vex-shadow)">
@@ -41,9 +46,11 @@ export function MiniClanVexillum({
 
         {/* Left banner — flat bottom (1px gap before pole, 1px gap below crossbar) */}
         <rect x="7" y="8" width="9" height="20" fill={primaryColor} />
+        <rect x="7" y="8" width="9" height="20" fill="url(#banner-grad)" />
 
         {/* Right banner — flat bottom (1px gap after pole, 1px gap below crossbar) */}
         <rect x="20" y="8" width="9" height="20" fill={secondaryColor} />
+        <rect x="20" y="8" width="9" height="20" fill="url(#banner-grad)" />
 
         {/* Vertical pole between banners, connecting to crossbar, extending past flags */}
         <rect x="17" y="7" width="2" height="25" rx="0.5" fill={accentColor} opacity="0.7" />
