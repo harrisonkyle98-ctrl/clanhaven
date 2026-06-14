@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -5,6 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.auth import get_current_user, get_optional_user
 from app.core.database import db
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -43,6 +46,7 @@ async def _get_user_authority(user_id: str, clan_id: str) -> dict:
     """
     user = await db.user.find_unique(where={"id": user_id})
     if not user:
+        logger.info("[authority] user_id=%s not found", user_id)
         return {"isManager": False, "rank": None, "matchedRsn": None}
 
     # Collect all RSNs the user might be known by
@@ -59,6 +63,8 @@ async def _get_user_authority(user_id: str, clan_id: str) -> dict:
     for alt in alts:
         rsns.append(alt.rsnLower)
 
+    logger.info("[authority] user_id=%s rsn=%r activeRsn=%r normalized_rsns=%r", user_id, user.rsn, user.activeRsn, rsns)
+
     if not rsns:
         return {"isManager": False, "rank": None, "matchedRsn": None}
 
@@ -72,10 +78,12 @@ async def _get_user_authority(user_id: str, clan_id: str) -> dict:
     )
 
     if not membership:
+        logger.info("[authority] No membership found for rsns=%r in clan_id=%s", rsns, clan_id)
         return {"isManager": False, "rank": None, "matchedRsn": None}
 
     rank_normalized = (membership.clanRank or "").strip()
     is_manager = rank_normalized.lower() in {r.lower() for r in MANAGER_RANKS}
+    logger.info("[authority] Found membership rsn=%r rank=%r is_manager=%s", membership.rsn, membership.clanRank, is_manager)
     return {
         "isManager": is_manager,
         "rank": membership.clanRank,
