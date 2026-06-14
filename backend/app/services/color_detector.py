@@ -72,6 +72,20 @@ def _pixel_quality_score(s: float, l: float) -> float:
     return s * l_score
 
 
+def _light_representative(pixels: list[tuple[int, int, int]]) -> tuple[int, int, int]:
+    """Pick a representative color for the white/light family.
+
+    Uses a high-percentile pixel by luminance to get a clean, bright white
+    rather than a shadow-darkened gray.
+    """
+    if not pixels:
+        return (255, 255, 255)
+    sorted_by_lum = sorted(pixels, key=lambda p: 0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2])
+    # Pick 95th percentile — bright representative of the white family
+    idx = min(len(sorted_by_lum) - 1, int(len(sorted_by_lum) * 0.95))
+    return sorted_by_lum[idx]
+
+
 def _dark_representative(pixels: list[tuple[int, int, int]]) -> tuple[int, int, int]:
     """Pick a representative color for the dark/black family.
 
@@ -126,11 +140,11 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
         "edge_quality": 0.0,
     })
 
-    # Track dark/black and white pixels separately — they may be intentional
+    # Track dark/black and light/white pixels separately — they may be intentional
     dark_pixels: list[tuple[int, int, int]] = []
     dark_edge_pixels: list[tuple[int, int, int]] = []
-    white_pixels: list[tuple[int, int, int]] = []
-    white_edge_pixels: list[tuple[int, int, int]] = []
+    light_pixels: list[tuple[int, int, int]] = []
+    light_edge_pixels: list[tuple[int, int, int]] = []
     opaque_count = 0
 
     for i, (r, g, b, a) in enumerate(raw_pixels):
@@ -152,14 +166,15 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
                 dark_edge_pixels.append((r, g, b))
             continue
 
-        # Collect white pixels
-        if l_val > MAX_LIGHTNESS:
-            white_pixels.append((r, g, b))
+        # Collect light/white pixels (low-sat, medium-to-high lightness)
+        # This catches white banners even with shadow gradients darkening them
+        if s_val < 0.12 and l_val > 0.40:
+            light_pixels.append((r, g, b))
             if is_edge:
-                white_edge_pixels.append((r, g, b))
+                light_edge_pixels.append((r, g, b))
             continue
 
-        # Filter low-saturation grays (not dark/white — just muddy)
+        # Filter low-saturation grays (not dark/white — just muddy mid-tones)
         if s_val < MIN_SATURATION:
             continue
         if l_val < MIN_LIGHTNESS:
@@ -196,6 +211,27 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
         }
         logger.info("  Dark/black family: %d pixels (%.0f%% of opaque)", len(dark_pixels), 100 * len(dark_pixels) / opaque_count)
 
+    # If light/white pixels represent >= 20% of opaque pixels, treat as intentional color
+    LIGHT_BUCKET = -2  # sentinel bucket for white/light family
+    if opaque_count > 0 and len(light_pixels) / opaque_count >= 0.20:
+        light_ratio = len(light_pixels) / opaque_count
+        # Check if light family is larger than the biggest colored hue family
+        max_colored_count = max(
+            (len(f["all_pixels"]) for f in hue_families.values()), default=0
+        )
+        light_is_dominant = len(light_pixels) > max_colored_count * 1.4
+        # High quality when light is truly the dominant family (more than any single color)
+        per_pixel_q = 0.45 if light_is_dominant else 0.06
+        light_quality = len(light_pixels) * per_pixel_q
+        hue_families[LIGHT_BUCKET] = {
+            "all_pixels": light_pixels,
+            "edge_pixels": light_edge_pixels,
+            "center_pixels": [p for p in light_pixels if p not in light_edge_pixels],
+            "total_quality": light_quality,
+            "edge_quality": light_quality * (len(light_edge_pixels) / max(1, len(light_pixels))),
+        }
+        logger.info("  Light/white family: %d pixels (%.0f%% of opaque)", len(light_pixels), 100 * len(light_pixels) / opaque_count)
+
     if not hue_families:
         raise ValueError("No usable saturated pixels found in image")
 
@@ -211,7 +247,12 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
         family_scores.append((bucket, score, fam))
         rep = _best_representative(fam["all_pixels"])
         rep_hex = _rgb_to_hex(*rep)
-        label = "DARK" if bucket < 0 else f"Hue {bucket}-{bucket + HUE_BUCKET_SIZE}"
+        if bucket == DARK_BUCKET:
+            label = "DARK"
+        elif bucket == LIGHT_BUCKET:
+            label = "LIGHT"
+        else:
+            label = f"Hue {bucket}-{bucket + HUE_BUCKET_SIZE}"
         logger.info(
             "  %s: count=%d edge=%d center=%d score=%.1f rep=%s",
             label, count,
@@ -223,11 +264,12 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
 
     primary_bucket = family_scores[0][0]
     primary_fam = family_scores[0][2]
-    primary_rep = (
-        _dark_representative(primary_fam["all_pixels"])
-        if primary_bucket == DARK_BUCKET
-        else _best_representative(primary_fam["all_pixels"])
-    )
+    if primary_bucket == DARK_BUCKET:
+        primary_rep = _dark_representative(primary_fam["all_pixels"])
+    elif primary_bucket == LIGHT_BUCKET:
+        primary_rep = _light_representative(primary_fam["all_pixels"])
+    else:
+        primary_rep = _best_representative(primary_fam["all_pixels"])
     primary_hex = _rgb_to_hex(*primary_rep)
 
     logger.info("Selected PRIMARY: hue %d, color %s", primary_bucket, primary_hex)
@@ -239,7 +281,7 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
     secondary_reason = "none"
 
     for bucket, _score, fam in family_scores[1:]:
-        # Dark family is always distinct from any colored family (and vice versa)
+        # Dark/light families are always distinct from colored families (and each other)
         if bucket >= 0 and primary_bucket >= 0 and _hue_distance(
             bucket + HUE_BUCKET_SIZE / 2,
             primary_bucket + HUE_BUCKET_SIZE / 2,
@@ -262,11 +304,12 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
         if edge_count > 0 or total_count >= 10:
             # Use all pixels for representative color (best saturation/brightness)
             # Edge weighting is for family selection, not color representation
-            rep = (
-                _dark_representative(fam["all_pixels"])
-                if bucket == DARK_BUCKET
-                else _best_representative(fam["all_pixels"])
-            )
+            if bucket == DARK_BUCKET:
+                rep = _dark_representative(fam["all_pixels"])
+            elif bucket == LIGHT_BUCKET:
+                rep = _light_representative(fam["all_pixels"])
+            else:
+                rep = _best_representative(fam["all_pixels"])
             secondary_hex = _rgb_to_hex(*rep)
             secondary_reason = (
                 f"hue {bucket}, edge={edge_count}, center={center_count}, "
