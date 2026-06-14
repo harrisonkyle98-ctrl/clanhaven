@@ -15,6 +15,7 @@ Strategy:
 
 import colorsys
 import logging
+import re
 from collections import defaultdict
 from datetime import datetime, timezone
 from io import BytesIO
@@ -31,10 +32,26 @@ MIN_SATURATION = 0.08
 MIN_LIGHTNESS = 0.06
 MAX_LIGHTNESS = 0.94
 HUE_BUCKET_SIZE = 30          # degrees
-MIN_HUE_DISTANCE = 40         # degrees — secondary must differ from primary
+MIN_HUE_DISTANCE = 25         # degrees — secondary must differ from primary
 EDGE_WEIGHT = 2.5             # border pixels count this many times more for secondary
 EDGE_MARGIN_X = 3             # pixels from left/right edge
 EDGE_MARGIN_Y = 2             # pixels from top/bottom edge
+# Regex to strip size query params from motif URLs so we get full-size images
+_SIZE_PARAM_RE = re.compile(r"[?&](w|h)=\d+", re.IGNORECASE)
+
+
+def _full_size_motif_url(url: str) -> str:
+    """Strip w= and h= query params from motif URLs to get the full-size image."""
+    # Normalize HTML entities first
+    cleaned = url.replace("&amp;", "&")
+    # Remove w= and h= params
+    cleaned = _SIZE_PARAM_RE.sub("", cleaned)
+    # Clean up resulting URL artifacts (double &&, trailing ?&, etc.)
+    cleaned = cleaned.replace("&&", "&").rstrip("?&")
+    # If only ? remains after stripping, remove it
+    if cleaned.endswith("?"):
+        cleaned = cleaned[:-1]
+    return cleaned
 
 
 def _rgb_to_hex(r: int, g: int, b: int) -> str:
@@ -53,6 +70,18 @@ def _pixel_quality_score(s: float, l: float) -> float:
     l_score = 1.0 - abs(l - 0.45) * 1.5   # peaks at L=0.45
     l_score = max(0.0, l_score)
     return s * l_score
+
+
+def _dark_representative(pixels: list[tuple[int, int, int]]) -> tuple[int, int, int]:
+    """Pick a representative color for the dark/black family.
+
+    Uses the median pixel by luminance to get a clean, typical dark color
+    rather than an outlier with color tint.
+    """
+    if not pixels:
+        return (0, 0, 0)
+    sorted_by_lum = sorted(pixels, key=lambda p: 0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2])
+    return sorted_by_lum[len(sorted_by_lum) // 2]
 
 
 def _best_representative(pixels: list[tuple[int, int, int]]) -> tuple[int, int, int]:
@@ -84,6 +113,10 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
 
     logger.info("Color detection: image %dx%d, %d total pixels", w, h, len(raw_pixels))
 
+    # Scale edge margins proportionally to image size
+    edge_x = max(EDGE_MARGIN_X, int(w * 0.08))
+    edge_y = max(EDGE_MARGIN_Y, int(h * 0.12))
+
     # ── Step 1: Classify pixels by position and extract HSL ──
     hue_families: dict[int, dict] = defaultdict(lambda: {
         "all_pixels": [],
@@ -93,26 +126,48 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
         "edge_quality": 0.0,
     })
 
+    # Track dark/black and white pixels separately — they may be intentional
+    dark_pixels: list[tuple[int, int, int]] = []
+    dark_edge_pixels: list[tuple[int, int, int]] = []
+    white_pixels: list[tuple[int, int, int]] = []
+    white_edge_pixels: list[tuple[int, int, int]] = []
+    opaque_count = 0
+
     for i, (r, g, b, a) in enumerate(raw_pixels):
         if a < 128:
             continue
+        opaque_count += 1
+
+        x = i % w
+        y = i // w
+        is_edge = (x < edge_x or x >= w - edge_x or
+                   y < edge_y or y >= h - edge_y)
 
         h_val, l_val, s_val = colorsys.rgb_to_hls(r / 255, g / 255, b / 255)
 
-        # Filter uninteresting pixels
+        # Collect dark pixels (near-black, low-sat darks)
+        if l_val < 0.15 and s_val < 0.3:
+            dark_pixels.append((r, g, b))
+            if is_edge:
+                dark_edge_pixels.append((r, g, b))
+            continue
+
+        # Collect white pixels
+        if l_val > MAX_LIGHTNESS:
+            white_pixels.append((r, g, b))
+            if is_edge:
+                white_edge_pixels.append((r, g, b))
+            continue
+
+        # Filter low-saturation grays (not dark/white — just muddy)
         if s_val < MIN_SATURATION:
             continue
-        if l_val < MIN_LIGHTNESS or l_val > MAX_LIGHTNESS:
+        if l_val < MIN_LIGHTNESS:
             continue
 
         hue_deg = h_val * 360
         bucket = int(hue_deg // HUE_BUCKET_SIZE) * HUE_BUCKET_SIZE
         quality = _pixel_quality_score(s_val, l_val)
-
-        x = i % w
-        y = i // w
-        is_edge = (x < EDGE_MARGIN_X or x >= w - EDGE_MARGIN_X or
-                   y < EDGE_MARGIN_Y or y >= h - EDGE_MARGIN_Y)
 
         fam = hue_families[bucket]
         fam["all_pixels"].append((r, g, b))
@@ -124,8 +179,28 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
         else:
             fam["center_pixels"].append((r, g, b))
 
+    # If dark pixels represent >= 15% of opaque pixels, treat as intentional color
+    DARK_BUCKET = -1  # sentinel bucket for dark/black family
+    if opaque_count > 0 and len(dark_pixels) / opaque_count >= 0.15:
+        dark_ratio = len(dark_pixels) / opaque_count
+        # If dark dominates (>=55%), it's the main banner fill → high quality so it wins primary
+        # If dark is present but not dominant, it's likely just border/outline → lower quality
+        per_pixel_q = 0.45 if dark_ratio >= 0.55 else 0.06
+        dark_quality = len(dark_pixels) * per_pixel_q
+        hue_families[DARK_BUCKET] = {
+            "all_pixels": dark_pixels,
+            "edge_pixels": dark_edge_pixels,
+            "center_pixels": [p for p in dark_pixels if p not in dark_edge_pixels],
+            "total_quality": dark_quality,
+            "edge_quality": dark_quality * (len(dark_edge_pixels) / max(1, len(dark_pixels))),
+        }
+        logger.info("  Dark/black family: %d pixels (%.0f%% of opaque)", len(dark_pixels), 100 * len(dark_pixels) / opaque_count)
+
     if not hue_families:
         raise ValueError("No usable saturated pixels found in image")
+
+    total_classified = sum(len(f["all_pixels"]) for f in hue_families.values())
+    min_family_size = max(30, int(total_classified * 0.01))  # at least 1% of pixels or 30
 
     # ── Step 2: Score each hue family for primary selection ──
     # Primary = main banner fill, scored by total pixel count * quality
@@ -136,9 +211,10 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
         family_scores.append((bucket, score, fam))
         rep = _best_representative(fam["all_pixels"])
         rep_hex = _rgb_to_hex(*rep)
+        label = "DARK" if bucket < 0 else f"Hue {bucket}-{bucket + HUE_BUCKET_SIZE}"
         logger.info(
-            "  Hue %d-%d: count=%d edge=%d center=%d score=%.1f rep=%s",
-            bucket, bucket + HUE_BUCKET_SIZE, count,
+            "  %s: count=%d edge=%d center=%d score=%.1f rep=%s",
+            label, count,
             len(fam["edge_pixels"]), len(fam["center_pixels"]),
             score, rep_hex,
         )
@@ -147,7 +223,11 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
 
     primary_bucket = family_scores[0][0]
     primary_fam = family_scores[0][2]
-    primary_rep = _best_representative(primary_fam["all_pixels"])
+    primary_rep = (
+        _dark_representative(primary_fam["all_pixels"])
+        if primary_bucket == DARK_BUCKET
+        else _best_representative(primary_fam["all_pixels"])
+    )
     primary_hex = _rgb_to_hex(*primary_rep)
 
     logger.info("Selected PRIMARY: hue %d, color %s", primary_bucket, primary_hex)
@@ -159,8 +239,11 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
     secondary_reason = "none"
 
     for bucket, _score, fam in family_scores[1:]:
-        if _hue_distance(bucket + HUE_BUCKET_SIZE / 2,
-                         primary_bucket + HUE_BUCKET_SIZE / 2) < MIN_HUE_DISTANCE:
+        # Dark family is always distinct from any colored family (and vice versa)
+        if bucket >= 0 and primary_bucket >= 0 and _hue_distance(
+            bucket + HUE_BUCKET_SIZE / 2,
+            primary_bucket + HUE_BUCKET_SIZE / 2,
+        ) < MIN_HUE_DISTANCE:
             continue
 
         edge_count = len(fam["edge_pixels"])
@@ -172,13 +255,17 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
             fam["edge_quality"] * EDGE_WEIGHT + fam["total_quality"]
         )
 
-        if total_count < 3:
+        if total_count < min_family_size:
             continue  # Skip tiny artifact clusters
 
         # Prefer this family if it has meaningful edge presence
         if edge_count > 0 or total_count >= 10:
-            rep = _best_representative(
-                fam["edge_pixels"] if edge_count >= 3 else fam["all_pixels"]
+            # Use all pixels for representative color (best saturation/brightness)
+            # Edge weighting is for family selection, not color representation
+            rep = (
+                _dark_representative(fam["all_pixels"])
+                if bucket == DARK_BUCKET
+                else _best_representative(fam["all_pixels"])
             )
             secondary_hex = _rgb_to_hex(*rep)
             secondary_reason = (
@@ -208,10 +295,12 @@ async def detect_clan_colors(clan_id: str, motif_url: str) -> dict:
     Returns a summary dict with status and detected colors.
     """
     now = datetime.now(timezone.utc)
+    full_url = _full_size_motif_url(motif_url)
+    logger.info("Color detection for clan %s: %s → %s", clan_id, motif_url, full_url)
 
     try:
         async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
-            resp = await client.get(motif_url)
+            resp = await client.get(full_url)
 
         if resp.status_code != 200:
             error_msg = f"Failed to download motif: HTTP {resp.status_code}"
