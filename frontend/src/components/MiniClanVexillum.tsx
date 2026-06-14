@@ -33,9 +33,9 @@ export function MiniClanVexillum({
           <stop offset="100%" stopColor="#000" stopOpacity="0.2" />
         </linearGradient>
         <linearGradient id="banner-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fff" stopOpacity="0.25" />
+          <stop offset="0%" stopColor="#000" stopOpacity="0.2" />
           <stop offset="50%" stopColor="#fff" stopOpacity="0.05" />
-          <stop offset="100%" stopColor="#000" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#fff" stopOpacity="0.25" />
         </linearGradient>
       </defs>
 
