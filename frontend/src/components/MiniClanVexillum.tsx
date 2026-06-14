@@ -26,20 +26,20 @@ export function MiniClanVexillum({
       {/* Horizontal crossbar */}
       <rect x="2" y="4" width="32" height="3" rx="1" fill={accentColor} />
 
-      {/* Left banner panel — centered notch */}
+      {/* Left banner — angled bottom toward pole */}
       <polygon
-        points="3,7 16,7 16,28 18,22 3,28"
+        points="3,7 17,7 17,22 3,28"
         fill={primaryColor}
       />
 
-      {/* Right banner panel — centered notch */}
+      {/* Right banner — angled bottom toward pole */}
       <polygon
-        points="20,7 33,7 33,28 18,22 20,28"
+        points="19,7 33,7 33,28 19,22"
         fill={secondaryColor}
       />
 
-      {/* Vertical center line between banner halves */}
-      <line x1="18" y1="7" x2="18" y2="22" stroke={accentColor} strokeWidth="1.5" opacity="0.6" />
+      {/* Vertical pole between banners, extending past the flags */}
+      <rect x="17" y="7" width="2" height="27" rx="0.5" fill={accentColor} opacity="0.7" />
     </svg>
   )
 }
