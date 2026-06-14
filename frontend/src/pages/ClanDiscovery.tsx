@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { apiFetch } from "@/lib/api"
 
 interface IndexedClan {
@@ -35,8 +35,9 @@ export default function ClanDiscovery() {
   const [total, setTotal] = useState(0)
   const [sort, setSort] = useState("rank")
   const [searchInput, setSearchInput] = useState("")
-  const [search, setSearch] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
   const [loading, setLoading] = useState(true)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const fetchClans = useCallback(async () => {
     setLoading(true)
@@ -46,7 +47,7 @@ export default function ClanDiscovery() {
         pageSize: "24",
         sort,
       })
-      if (search) params.set("search", search)
+      if (debouncedSearch) params.set("search", debouncedSearch)
       const data = await apiFetch<DiscoveryResponse>(`/api/clans/discovery?${params}`)
       setClans(data.clans)
       setTotalPages(data.totalPages)
@@ -56,17 +57,20 @@ export default function ClanDiscovery() {
     } finally {
       setLoading(false)
     }
-  }, [page, sort, search])
+  }, [page, sort, debouncedSearch])
 
   useEffect(() => {
     fetchClans()
   }, [fetchClans])
 
-  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchInput(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(value)
       setPage(1)
-      setSearch(searchInput)
-    }
+    }, 300)
   }
 
   return (
@@ -91,8 +95,7 @@ export default function ClanDiscovery() {
             className="ch-discovery-search"
             placeholder="Search clan name..."
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
+            onChange={handleSearchChange}
           />
           <select
             className="ch-discovery-sort"
