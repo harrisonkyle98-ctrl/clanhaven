@@ -46,57 +46,35 @@ async def _get_user_authority(user_id: str, clan_id: str) -> dict:
     """
     user = await db.user.find_unique(where={"id": user_id})
     if not user:
-        logger.warning("[authority] user_id=%s not found", user_id)
         return {"isManager": False, "rank": None, "matchedRsn": None}
 
-    # Collect all RSNs the user might be known by
-    rsns: list[str] = []
-    if user.rsn:
-        rsns.append(user.rsn.replace("\xa0", " ").strip().lower())
+    # Use only the active identity's RSN — not all RSNs at once
+    active_rsn: str | None = None
     if user.activeRsn:
-        rsns.append(user.activeRsn.replace("\xa0", " ").strip().lower())
+        active_rsn = user.activeRsn.replace("\xa0", " ").strip().lower()
+    elif user.rsn:
+        active_rsn = user.rsn.replace("\xa0", " ").strip().lower()
 
-    # Also check approved alt accounts
-    alts = await db.altaccountrequest.find_many(
-        where={"userId": user_id, "status": "approved"},
-    )
-    for alt in alts:
-        rsns.append(alt.rsnLower)
-
-    logger.warning("[authority] user_id=%s rsn=%r activeRsn=%r normalized_rsns=%r", user_id, user.rsn, user.activeRsn, rsns)
-
-    if not rsns:
+    if not active_rsn:
         return {"isManager": False, "rank": None, "matchedRsn": None}
 
-    # Find ALL current memberships in the clan for any of the user's RSNs
-    memberships = await db.indexedclanmember.find_many(
+    membership = await db.indexedclanmember.find_first(
         where={
             "clanId": clan_id,
-            "rsnLower": {"in": rsns},
+            "rsnLower": active_rsn,
             "isCurrent": True,
         },
     )
 
-    if not memberships:
-        logger.warning("[authority] No membership found for rsns=%r in clan_id=%s", rsns, clan_id)
+    if not membership:
         return {"isManager": False, "rank": None, "matchedRsn": None}
 
-    # Check all memberships — pick the highest-authority one
-    manager_ranks_lower = {r.lower() for r in MANAGER_RANKS}
-    best = memberships[0]
-    for m in memberships:
-        rank_norm = (m.clanRank or "").strip().lower()
-        if rank_norm in manager_ranks_lower:
-            best = m
-            break
-
-    rank_normalized = (best.clanRank or "").strip()
-    is_manager = rank_normalized.lower() in manager_ranks_lower
-    logger.warning("[authority] Found %d memberships, best rsn=%r rank=%r is_manager=%s", len(memberships), best.rsn, best.clanRank, is_manager)
+    rank_normalized = (membership.clanRank or "").strip().lower()
+    is_manager = rank_normalized in {r.lower() for r in MANAGER_RANKS}
     return {
         "isManager": is_manager,
-        "rank": best.clanRank,
-        "matchedRsn": best.rsn,
+        "rank": membership.clanRank,
+        "matchedRsn": membership.rsn,
     }
 
 
