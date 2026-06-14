@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { useParams, Link } from "react-router-dom"
 import { apiFetch } from "@/lib/api"
-import { useAuth } from "@/hooks/useAuth"
+
 
 interface ClanData {
   id: string
@@ -61,7 +61,6 @@ type Tab = "overview" | "management"
 
 export default function ClanPage() {
   const { slug } = useParams<{ slug: string }>()
-  const { user } = useAuth()
   const [data, setData] = useState<ClanPageResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
