@@ -3144,54 +3144,17 @@ body {
    CLAN DIRECTORY PAGE
    =========================================== */
 
-.ch-discovery-header {
-  margin-bottom: 1.5rem;
-}
-
-.ch-discovery-title-row {
+.ch-discovery-controls {
   display: flex;
+  gap: 0.75rem;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.ch-btn-back {
-  background: rgba(22, 19, 14, 0.8);
-  color: var(--color-text-muted);
-  border: none;
-  box-shadow:
-    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
-    inset 0 0 0 2px rgba(52, 45, 34, 0.6);
-  padding: 0.4rem 0.75rem;
-  font-size: 0.75rem;
-  text-decoration: none;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.ch-btn-back:hover {
-  background: rgba(28, 24, 18, 0.85);
-  color: var(--color-text-highlight);
-}
-
-/* Title removed — using ch-page-banner-title instead */
-.ch-discovery-title {
-  display: none;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-text-highlight);
-  margin: 0;
 }
 
 .ch-discovery-count {
   font-size: 0.75rem;
   color: var(--color-text-muted);
   margin-left: auto;
-}
-
-.ch-discovery-controls {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
+  white-space: nowrap;
 }
 
 .ch-discovery-search {

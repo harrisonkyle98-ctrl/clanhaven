@@ -22,11 +22,10 @@ export default function App() {
             <Route path="/faq" element={<Clans />} />
             <Route path="/features" element={<Clans />} />
             <Route path="/clans" element={<Clans />} />
-            <Route path="/clan-discovery" element={<ClanDiscovery />} />
+            <Route path="/clan-directory" element={<ClanDiscovery />} />
             <Route path="/competitions" element={<Clans />} />
             <Route path="/clan-tools" element={<Clans />} />
-            <Route path="/verify-ownership" element={<Clans />} />
-            <Route path="/clan-management" element={<Clans />} />
+
             <Route path="/players" element={<Clans />} />
 
             {/* Authenticated routes */}

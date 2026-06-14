@@ -11,7 +11,7 @@ const mainNavItems = [
 ]
 
 const clansNavItems = [
-  { label: "Clan Directory", to: "/clan-discovery" },
+  { label: "Clan Directory", to: "/clan-directory" },
   { label: "CvC Competitions", to: "/competitions" },
   { label: "Clan Tools", to: "/clan-tools" },
 ]

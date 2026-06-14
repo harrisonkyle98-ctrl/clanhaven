@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react"
-import { Link } from "react-router-dom"
 import { apiFetch } from "@/lib/api"
 
 interface IndexedClan {
@@ -86,32 +85,27 @@ export default function ClanDiscovery() {
 
       <div className="ch-page-content p-4 lg:p-6 space-y-4">
         {/* Controls row */}
-        <div className="ch-discovery-header">
-          <div className="ch-discovery-title-row">
-            <Link to="/" className="ch-btn-back">← Back</Link>
-            <span className="ch-discovery-count">{total.toLocaleString()} clans indexed</span>
-          </div>
-          <div className="ch-discovery-controls">
-            <input
-              type="text"
-              className="ch-discovery-search"
-              placeholder="Search clan name..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-            />
-            <select
-              className="ch-discovery-sort"
-              value={sort}
-              onChange={(e) => { setSort(e.target.value); setPage(1) }}
-            >
-              <option value="rank">Rank</option>
-              <option value="members">Members</option>
-              <option value="xp">Total XP</option>
-              <option value="name">Name</option>
-              <option value="recent">Recently Indexed</option>
-            </select>
-          </div>
+        <div className="ch-discovery-controls">
+          <input
+            type="text"
+            className="ch-discovery-search"
+            placeholder="Search clan name..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+          />
+          <select
+            className="ch-discovery-sort"
+            value={sort}
+            onChange={(e) => { setSort(e.target.value); setPage(1) }}
+          >
+            <option value="rank">Rank</option>
+            <option value="members">Members</option>
+            <option value="xp">Total XP</option>
+            <option value="name">Name</option>
+            <option value="recent">Recently Indexed</option>
+          </select>
+          <span className="ch-discovery-count">{total.toLocaleString()} clans indexed</span>
         </div>
 
         {loading ? (
