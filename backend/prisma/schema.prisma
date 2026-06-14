@@ -112,6 +112,11 @@ model IndexedClan {
   verifiedAt       DateTime? @map("verified_at")
   verifiedByUserId String?   @map("verified_by_user_id")
 
+  // ─── Clan colors (vexillum / branding) ───
+  primaryColor   String?  @map("primary_color")
+  secondaryColor String?  @map("secondary_color")
+  accentColor    String?  @map("accent_color")
+
   // ─── Generated site (future) ───
   hasPublishedSite Boolean   @default(false) @map("has_published_site")
   siteConfig       Json?     @map("site_config")

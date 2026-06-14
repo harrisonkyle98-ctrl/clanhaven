@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react"
 import { Link } from "react-router-dom"
 import { apiFetch } from "@/lib/api"
+import { MiniClanVexillum } from "@/components/MiniClanVexillum"
 
 interface IndexedClan {
   id: string
@@ -10,6 +11,9 @@ interface IndexedClan {
   memberCount: number
   rank: number | null
   totalXp: number | null
+  primaryColor: string | null
+  secondaryColor: string | null
+  accentColor: string | null
   source: string
   lastIndexedAt: string | null
 }
@@ -121,9 +125,12 @@ export default function ClanDiscovery() {
                 <div className="relative z-1 flex flex-col flex-1">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="ch-discovery-card-icon">
-                        <span>{clan.name[0]}</span>
-                      </div>
+                      <MiniClanVexillum
+                        primaryColor={clan.primaryColor ?? undefined}
+                        secondaryColor={clan.secondaryColor ?? undefined}
+                        accentColor={clan.accentColor ?? undefined}
+                        size={36}
+                      />
                       <div>
                         <div className="ch-discovery-card-name">{clan.name}</div>
                         {clan.rank && (
