@@ -23,17 +23,25 @@ export function MiniClanVexillum({
       aria-label="Clan vexillum"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Horizontal crossbar */}
-      <rect x="2" y="4" width="32" height="3" rx="1" fill={accentColor} />
+      <defs>
+        <filter id="vex-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="1" stdDeviation="1.2" floodColor="#000" floodOpacity="0.45" />
+        </filter>
+      </defs>
 
-      {/* Left banner — flat bottom */}
-      <rect x="3" y="7" width="14" height="21" fill={primaryColor} />
+      <g filter="url(#vex-shadow)">
+        {/* Horizontal crossbar */}
+        <rect x="6" y="4" width="24" height="3" rx="1" fill={accentColor} />
 
-      {/* Right banner — flat bottom */}
-      <rect x="19" y="7" width="14" height="21" fill={secondaryColor} />
+        {/* Left banner — flat bottom */}
+        <rect x="7" y="7" width="10" height="21" fill={primaryColor} />
 
-      {/* Vertical pole between banners, extending slightly past the flags */}
-      <rect x="17" y="7" width="2" height="22" rx="0.5" fill={accentColor} opacity="0.7" />
+        {/* Right banner — flat bottom */}
+        <rect x="19" y="7" width="10" height="21" fill={secondaryColor} />
+
+        {/* Vertical pole between banners, extending past the flags */}
+        <rect x="17" y="7" width="2" height="25" rx="0.5" fill={accentColor} opacity="0.7" />
+      </g>
     </svg>
   )
 }
