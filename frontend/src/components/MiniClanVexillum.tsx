@@ -33,27 +33,27 @@ export function MiniClanVexillum({
           <stop offset="100%" stopColor="#000" stopOpacity="0.2" />
         </linearGradient>
         <linearGradient id="banner-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#000" stopOpacity="0.2" />
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.25" />
           <stop offset="50%" stopColor="#fff" stopOpacity="0.05" />
-          <stop offset="100%" stopColor="#fff" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.2" />
         </linearGradient>
       </defs>
 
       <g filter="url(#vex-shadow)">
         {/* Horizontal crossbar with gradient */}
-        <rect x="6" y="4" width="24" height="3" rx="1" fill={accentColor} opacity="0.7" />
-        <rect x="6" y="4" width="24" height="3" rx="1" fill="url(#crossbar-grad)" />
+        <rect x="6" y="4" width="24" height="2" rx="0.5" fill={accentColor} opacity="0.7" />
+        <rect x="6" y="4" width="24" height="2" rx="0.5" fill="url(#crossbar-grad)" />
 
         {/* Left banner — flat bottom (1px gap before pole, 1px gap below crossbar) */}
-        <rect x="7" y="8" width="9" height="20" fill={primaryColor} />
-        <rect x="7" y="8" width="9" height="20" fill="url(#banner-grad)" />
+        <rect x="7" y="7" width="9" height="21" fill={primaryColor} />
+        <rect x="7" y="7" width="9" height="21" fill="url(#banner-grad)" />
 
         {/* Right banner — flat bottom (1px gap after pole, 1px gap below crossbar) */}
-        <rect x="20" y="8" width="9" height="20" fill={secondaryColor} />
-        <rect x="20" y="8" width="9" height="20" fill="url(#banner-grad)" />
+        <rect x="20" y="7" width="9" height="21" fill={secondaryColor} />
+        <rect x="20" y="7" width="9" height="21" fill="url(#banner-grad)" />
 
         {/* Vertical pole between banners, connecting to crossbar, extending past flags */}
-        <rect x="17" y="7" width="2" height="25" rx="0.5" fill={accentColor} opacity="0.7" />
+        <rect x="17" y="6" width="2" height="26" rx="0.5" fill={accentColor} opacity="0.7" />
       </g>
     </svg>
   )
