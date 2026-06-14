@@ -71,110 +71,124 @@ export default function ClanDiscovery() {
   }
 
   return (
-    <div className="ch-discovery-page">
-      <div className="ch-discovery-header">
-        <div className="ch-discovery-title-row">
-          <Link to="/" className="ch-btn-back">← Back</Link>
-          <h1 className="ch-discovery-title">Clan Discovery</h1>
-          <span className="ch-discovery-count">{total.toLocaleString()} clans indexed</span>
-        </div>
-        <div className="ch-discovery-controls">
-          <input
-            type="text"
-            className="ch-discovery-search"
-            placeholder="Search clan name..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-          />
-          <select
-            className="ch-discovery-sort"
-            value={sort}
-            onChange={(e) => { setSort(e.target.value); setPage(1) }}
-          >
-            <option value="rank">Rank</option>
-            <option value="members">Members</option>
-            <option value="xp">Total XP</option>
-            <option value="name">Name</option>
-            <option value="recent">Recently Indexed</option>
-          </select>
+    <div>
+      {/* Page banner — matches homepage pattern */}
+      <div className="ch-page-banner">
+        <img
+          src="/images/home-banner.jpg"
+          alt="Clan Directory banner"
+          className="ch-page-banner-img"
+        />
+        <div className="ch-page-banner-content">
+          <h1 className="ch-page-banner-title">Clan Directory</h1>
         </div>
       </div>
 
-      {loading ? (
-        <div className="ch-discovery-loading">Loading clans...</div>
-      ) : clans.length === 0 ? (
-        <div className="ch-discovery-empty">No clans found. Try a different search or check back later.</div>
-      ) : (
-        <div className="ch-discovery-grid">
-          {clans.map((clan) => (
-            <div key={clan.id} className="ch-stat-cell ch-discovery-card">
-              <div className="relative z-1 flex flex-col flex-1">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="ch-discovery-card-icon">
-                      <span>{clan.name[0]}</span>
+      <div className="ch-page-content p-4 lg:p-6 space-y-4">
+        {/* Controls row */}
+        <div className="ch-discovery-header">
+          <div className="ch-discovery-title-row">
+            <Link to="/" className="ch-btn-back">← Back</Link>
+            <span className="ch-discovery-count">{total.toLocaleString()} clans indexed</span>
+          </div>
+          <div className="ch-discovery-controls">
+            <input
+              type="text"
+              className="ch-discovery-search"
+              placeholder="Search clan name..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+            />
+            <select
+              className="ch-discovery-sort"
+              value={sort}
+              onChange={(e) => { setSort(e.target.value); setPage(1) }}
+            >
+              <option value="rank">Rank</option>
+              <option value="members">Members</option>
+              <option value="xp">Total XP</option>
+              <option value="name">Name</option>
+              <option value="recent">Recently Indexed</option>
+            </select>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="ch-discovery-loading">Loading clans...</div>
+        ) : clans.length === 0 ? (
+          <div className="ch-discovery-empty">No clans found. Try a different search or check back later.</div>
+        ) : (
+          <div className="ch-discovery-grid">
+            {clans.map((clan) => (
+              <div key={clan.id} className="ch-stat-cell ch-discovery-card">
+                <div className="relative z-1 flex flex-col flex-1">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="ch-discovery-card-icon">
+                        <span>{clan.name[0]}</span>
+                      </div>
+                      <div>
+                        <div className="ch-discovery-card-name">{clan.name}</div>
+                        {clan.rank && (
+                          <div className="ch-discovery-card-rank">Rank #{clan.rank.toLocaleString()}</div>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <div className="ch-discovery-card-name">{clan.name}</div>
-                      {clan.rank && (
-                        <div className="ch-discovery-card-rank">Rank #{clan.rank.toLocaleString()}</div>
-                      )}
-                    </div>
+                    <span className="badge-rs3">RS3</span>
                   </div>
-                  <span className="badge-rs3">RS3</span>
-                </div>
-                <div className="ch-discovery-card-stats">
-                  <span className="ch-discovery-stat">
-                    <span className="ch-discovery-stat-label">Members</span>
-                    <span className="ch-discovery-stat-value">{clan.memberCount}</span>
-                  </span>
-                  <span className="ch-discovery-stat">
-                    <span className="ch-discovery-stat-label">Total XP</span>
-                    <span className="ch-discovery-stat-value ch-xp-green">{formatXp(clan.totalXp)}</span>
-                  </span>
+                  <div className="ch-discovery-card-stats">
+                    <span className="ch-discovery-stat">
+                      <span className="ch-discovery-stat-label">Members</span>
+                      <span className="ch-discovery-stat-value">{clan.memberCount}</span>
+                    </span>
+                    <span className="ch-discovery-stat">
+                      <span className="ch-discovery-stat-label">Total XP</span>
+                      <span className="ch-discovery-stat-value ch-xp-green">{formatXp(clan.totalXp)}</span>
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
 
-      {totalPages > 1 && (
-        <div className="ch-discovery-pagination">
-          <button
-            className="ch-discovery-page-btn"
-            onClick={() => setPage(1)}
-            disabled={page === 1}
-          >
-            ««
-          </button>
-          <button
-            className="ch-discovery-page-btn"
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-          >
-            «
-          </button>
-          <span className="ch-discovery-page-info">
-            Page {page} of {totalPages.toLocaleString()}
-          </span>
-          <button
-            className="ch-discovery-page-btn"
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-          >
-            »
-          </button>
-          <button
-            className="ch-discovery-page-btn"
-            onClick={() => setPage(totalPages)}
-            disabled={page === totalPages}
-          >
-            »»
-          </button>
-        </div>
-      )}
+        {totalPages > 1 && (
+          <div className="ch-discovery-pagination">
+            <button
+              className="ch-discovery-page-btn"
+              onClick={() => setPage(1)}
+              disabled={page === 1}
+            >
+              ««
+            </button>
+            <button
+              className="ch-discovery-page-btn"
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              «
+            </button>
+            <span className="ch-discovery-page-info">
+              Page {page} of {totalPages.toLocaleString()}
+            </span>
+            <button
+              className="ch-discovery-page-btn"
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              »
+            </button>
+            <button
+              className="ch-discovery-page-btn"
+              onClick={() => setPage(totalPages)}
+              disabled={page === totalPages}
+            >
+              »»
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

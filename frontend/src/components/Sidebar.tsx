@@ -11,11 +11,9 @@ const mainNavItems = [
 ]
 
 const clansNavItems = [
-  { label: "Clan Discovery", to: "/clan-discovery" },
+  { label: "Clan Directory", to: "/clan-discovery" },
   { label: "CvC Competitions", to: "/competitions" },
   { label: "Clan Tools", to: "/clan-tools" },
-  { label: "Verify Ownership", to: "/verify-ownership" },
-  { label: "Clan Management", to: "/clan-management" },
 ]
 
 interface SidebarProps {

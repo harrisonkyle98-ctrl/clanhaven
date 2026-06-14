@@ -12,7 +12,7 @@ interface Highlight {
 
 const fallbackHighlights: Highlight[] = [
   {
-    title: "Clan Discovery",
+    title: "Clan Directory",
     description: "Browse hundreds of active clans across RS3 and OSRS. Find your perfect community based on playstyle, size, and goals.",
     image: "/images/highlight-1.jpg",
     buttonText: "Explore",

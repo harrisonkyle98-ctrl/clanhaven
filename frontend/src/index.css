@@ -3141,13 +3141,8 @@ body {
 }
 
 /* ===========================================
-   CLAN DISCOVERY PAGE
+   CLAN DIRECTORY PAGE
    =========================================== */
-.ch-discovery-page {
-  padding: 1.5rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
 
 .ch-discovery-header {
   margin-bottom: 1.5rem;
@@ -3178,7 +3173,9 @@ body {
   color: var(--color-text-highlight);
 }
 
+/* Title removed — using ch-page-banner-title instead */
 .ch-discovery-title {
+  display: none;
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--color-text-highlight);
