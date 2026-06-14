@@ -38,8 +38,8 @@ export function MiniClanVexillum({
         fill={secondaryColor}
       />
 
-      {/* Vertical pole between banners, extending past the flags */}
-      <rect x="17" y="7" width="2" height="27" rx="0.5" fill={accentColor} opacity="0.7" />
+      {/* Vertical pole between banners, extending slightly past the flags */}
+      <rect x="17" y="7" width="2" height="22" rx="0.5" fill={accentColor} opacity="0.7" />
     </svg>
   )
 }
