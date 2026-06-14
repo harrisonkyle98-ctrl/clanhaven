@@ -106,6 +106,16 @@ model IndexedClan {
   motifUrl       String?  @map("motif_url")
   source         String   @default("player_lookup")
   lastIndexedAt  DateTime? @map("last_indexed_at")
+
+  // ─── Verification ───
+  isVerified       Boolean   @default(false) @map("is_verified")
+  verifiedAt       DateTime? @map("verified_at")
+  verifiedByUserId String?   @map("verified_by_user_id")
+
+  // ─── Generated site (future) ───
+  hasPublishedSite Boolean   @default(false) @map("has_published_site")
+  siteConfig       Json?     @map("site_config")
+
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
@@ -116,6 +126,7 @@ model IndexedClan {
   @@index([memberCount(sort: Desc)])
   @@index([totalXp(sort: Desc)])
   @@index([slug])
+  @@index([isVerified])
   @@map("indexed_clans")
 }
 

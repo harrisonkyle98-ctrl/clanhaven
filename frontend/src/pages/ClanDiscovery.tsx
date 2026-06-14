@@ -1,9 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from "react"
+import { Link } from "react-router-dom"
 import { apiFetch } from "@/lib/api"
 
 interface IndexedClan {
   id: string
   name: string
+  slug: string | null
   gameType: string
   memberCount: number
   rank: number | null
@@ -115,7 +117,7 @@ export default function ClanDiscovery() {
         ) : (
           <div className="ch-discovery-grid">
             {clans.map((clan) => (
-              <div key={clan.id} className="ch-stat-cell ch-discovery-card">
+              <Link key={clan.id} to={`/${clan.slug || clan.id}`} className="ch-stat-cell ch-discovery-card" style={{ textDecoration: "none" }}>
                 <div className="relative z-1 flex flex-col flex-1">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
@@ -142,7 +144,7 @@ export default function ClanDiscovery() {
                     </span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

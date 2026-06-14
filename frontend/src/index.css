@@ -3344,3 +3344,276 @@ body {
   font-size: 0.875rem;
 }
 
+
+/* ===========================================
+   CLAN PAGE
+   =========================================== */
+
+.ch-clan-loading,
+.ch-clan-error {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.ch-clan-back-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--color-gold);
+  text-decoration: none;
+  font-size: 0.8125rem;
+}
+
+.ch-clan-back-link:hover {
+  color: var(--color-text-highlight);
+}
+
+/* Verified badge */
+.ch-clan-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  font-size: 0.875rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+/* Tabs */
+.ch-clan-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(52, 45, 34, 0.5);
+}
+
+.ch-clan-tab {
+  background: none;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.ch-clan-tab:hover {
+  color: var(--color-text-warm);
+}
+
+.ch-clan-tab--active {
+  color: var(--color-gold);
+  border-bottom-color: var(--color-gold);
+}
+
+/* Stats row */
+.ch-clan-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .ch-clan-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Roster */
+.ch-clan-roster-wrapper {
+  background: rgba(16, 14, 10, 0.4);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.5);
+  padding: 1rem;
+}
+
+.ch-clan-roster-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.ch-clan-roster-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-highlight);
+  margin: 0;
+}
+
+.ch-clan-roster-count {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+}
+
+.ch-clan-roster-table-wrap {
+  overflow-x: auto;
+}
+
+.ch-clan-roster-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.ch-roster-th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid rgba(52, 45, 34, 0.4);
+}
+
+.ch-roster-right {
+  text-align: right;
+}
+
+.ch-roster-row {
+  transition: background 0.15s ease;
+}
+
+.ch-roster-row:hover {
+  background: rgba(22, 19, 14, 0.5);
+}
+
+.ch-roster-td {
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid rgba(52, 45, 34, 0.2);
+  color: var(--color-text-warm);
+}
+
+.ch-roster-rsn {
+  font-weight: 600;
+  color: var(--color-text-highlight);
+}
+
+.ch-roster-rank {
+  color: var(--color-text-muted);
+}
+
+/* ── Clan Management ── */
+
+.ch-clan-management {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ch-clan-mgmt-section {
+  background: rgba(16, 14, 10, 0.4);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.5);
+  padding: 1rem 1.25rem;
+}
+
+.ch-clan-mgmt-heading {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-text-highlight);
+  margin: 0 0 0.75rem 0;
+}
+
+.ch-clan-mgmt-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ch-clan-mgmt-status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ch-clan-mgmt-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  min-width: 7rem;
+}
+
+.ch-clan-mgmt-value {
+  font-size: 0.75rem;
+  color: var(--color-text-warm);
+}
+
+.ch-clan-mgmt-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+}
+
+.ch-clan-mgmt-badge--verified {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.3);
+}
+
+.ch-clan-mgmt-badge--unverified {
+  background: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+  box-shadow: inset 0 0 0 1px rgba(234, 179, 8, 0.25);
+}
+
+.ch-clan-mgmt-verify {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(52, 45, 34, 0.3);
+}
+
+.ch-clan-mgmt-verify-text {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0 0 0.5rem 0;
+}
+
+.ch-clan-mgmt-verify-btn {
+  background: rgba(34, 197, 94, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ch-clan-mgmt-verify-btn:hover {
+  background: rgba(34, 197, 94, 0.25);
+}
+
+.ch-clan-mgmt-verify-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ch-clan-mgmt-error {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #ef4444;
+}
+
+.ch-clan-mgmt-placeholder {
+  opacity: 0.5;
+}
+
+.ch-clan-mgmt-coming {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0;
+  font-style: italic;
+}
+
