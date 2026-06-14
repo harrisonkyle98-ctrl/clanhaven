@@ -856,25 +856,6 @@ body {
     inset 0 -1px 4px rgba(0, 0, 0, 0.12);
 }
 
-.ch-sidebar-btn-disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.ch-sidebar-clan-name {
-  font-size: 0.5625rem;
-  color: var(--color-gold);
-  margin-left: auto;
-  opacity: 0.8;
-}
-
-.ch-sidebar-clan-hint {
-  font-size: 0.5625rem;
-  color: var(--color-text-muted);
-  margin-left: auto;
-  font-style: italic;
-}
-
 /* ===========================================
    SIDEBAR OPEN BUTTON - Themed reopen trigger
    Visible when sidebar is fully hidden

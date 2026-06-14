@@ -270,7 +270,23 @@ export default function SidebarAccountModule() {
             <button className="ch-sidebar-account-action">
               <span>My Profile</span>
             </button>
-            <button className="ch-sidebar-account-action">
+            <button
+              onClick={() => {
+                if (user.clanSlug) {
+                  navigate(`/${user.clanSlug}`)
+                } else if (!user.rsn) {
+                  navigate("/settings")
+                }
+              }}
+              className="ch-sidebar-account-action"
+              title={
+                user.clanSlug
+                  ? user.activeClanName ?? user.rsnClanName ?? "My Clan"
+                  : !user.rsn
+                    ? "Link your RSN first"
+                    : "No clan detected"
+              }
+            >
               <span>My Clan</span>
             </button>
             <button
