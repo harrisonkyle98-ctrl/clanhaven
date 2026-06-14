@@ -105,8 +105,6 @@ export default function ClanDiscovery() {
             <option value="rank">Rank</option>
             <option value="members">Members</option>
             <option value="xp">Total XP</option>
-            <option value="name">Name</option>
-            <option value="recent">Recently Indexed</option>
           </select>
           <span className="ch-discovery-count">{total.toLocaleString()} clans indexed</span>
         </div>
