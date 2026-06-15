@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react"
 import { useParams, Link } from "react-router-dom"
 import { apiFetch } from "@/lib/api"
 import { MiniClanVexillum } from "@/components/MiniClanVexillum"
+import CollapsiblePanel from "@/components/CollapsiblePanel"
 
 
 interface ClanData {
@@ -218,62 +219,60 @@ export default function ClanPage() {
 
             {/* Right: Roster */}
             <div className="ch-clanpage-roster-col">
-              {(() => {
-                const totalRosterPages = Math.ceil(roster.length / ROSTER_PAGE_SIZE)
-                const start = (rosterPage - 1) * ROSTER_PAGE_SIZE
-                const pageMembers = roster.slice(start, start + ROSTER_PAGE_SIZE)
-                return (
-                  <div className="ch-clan-roster-wrapper">
-                    <div className="ch-clan-roster-header">
-                      <h2 className="ch-clan-roster-title">Clan Roster</h2>
-                      <span className="ch-clan-roster-count">{roster.length} members</span>
-                    </div>
-                    <div className="ch-clan-roster-table-wrap">
-                      <table className="ch-clan-roster-table">
-                        <thead>
-                          <tr>
-                            <th className="ch-roster-th">RSN</th>
-                            <th className="ch-roster-th">Rank</th>
-                            <th className="ch-roster-th ch-roster-right">Clan XP</th>
-                            <th className="ch-roster-th ch-roster-right">Kills</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {pageMembers.map((m) => (
-                            <tr key={m.id} className="ch-roster-row">
-                              <td className="ch-roster-td ch-roster-rsn">{m.rsn}</td>
-                              <td className="ch-roster-td ch-roster-rank">{m.clanRank || "—"}</td>
-                              <td className="ch-roster-td ch-roster-right">{formatXp(m.clanXp)}</td>
-                              <td className="ch-roster-td ch-roster-right">{m.kills.toLocaleString()}</td>
+              <CollapsiblePanel variant="blue" title="Clan Roster" headerRight={<span className="ch-clan-roster-count">{roster.length} members</span>}>
+                {(() => {
+                  const totalRosterPages = Math.ceil(roster.length / ROSTER_PAGE_SIZE)
+                  const start = (rosterPage - 1) * ROSTER_PAGE_SIZE
+                  const pageMembers = roster.slice(start, start + ROSTER_PAGE_SIZE)
+                  return (
+                    <>
+                      <div className="ch-clan-roster-table-wrap">
+                        <table className="ch-clan-roster-table">
+                          <thead>
+                            <tr>
+                              <th className="ch-roster-th">RSN</th>
+                              <th className="ch-roster-th">Rank</th>
+                              <th className="ch-roster-th ch-roster-right">Clan XP</th>
+                              <th className="ch-roster-th ch-roster-right">Kills</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    {totalRosterPages > 1 && (
-                      <div className="ch-roster-pagination">
-                        <button
-                          className="ch-roster-page-btn"
-                          onClick={() => setRosterPage((p) => Math.max(1, p - 1))}
-                          disabled={rosterPage === 1}
-                        >
-                          Previous
-                        </button>
-                        <span className="ch-roster-page-info">
-                          Page {rosterPage} of {totalRosterPages}
-                        </span>
-                        <button
-                          className="ch-roster-page-btn"
-                          onClick={() => setRosterPage((p) => Math.min(totalRosterPages, p + 1))}
-                          disabled={rosterPage === totalRosterPages}
-                        >
-                          Next
-                        </button>
+                          </thead>
+                          <tbody>
+                            {pageMembers.map((m) => (
+                              <tr key={m.id} className="ch-roster-row">
+                                <td className="ch-roster-td ch-roster-rsn">{m.rsn}</td>
+                                <td className="ch-roster-td ch-roster-rank">{m.clanRank || "—"}</td>
+                                <td className="ch-roster-td ch-roster-right">{formatXp(m.clanXp)}</td>
+                                <td className="ch-roster-td ch-roster-right">{m.kills.toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                    )}
-                  </div>
-                )
-              })()}
+                      {totalRosterPages > 1 && (
+                        <div className="ch-roster-pagination">
+                          <button
+                            className="ch-roster-page-btn"
+                            onClick={() => setRosterPage((p) => Math.max(1, p - 1))}
+                            disabled={rosterPage === 1}
+                          >
+                            Previous
+                          </button>
+                          <span className="ch-roster-page-info">
+                            Page {rosterPage} of {totalRosterPages}
+                          </span>
+                          <button
+                            className="ch-roster-page-btn"
+                            onClick={() => setRosterPage((p) => Math.min(totalRosterPages, p + 1))}
+                            disabled={rosterPage === totalRosterPages}
+                          >
+                            Next
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )
+                })()}
+              </CollapsiblePanel>
             </div>
           </div>
         )}
