@@ -68,18 +68,18 @@ export function MiniClanVexillum({
 
         {/* Two small top banners — secondary border, primary fill */}
         {/* Left small banner — border */}
-        <rect x="3.5" y="7" width="7" height="9" fill={secondaryColor} />
+        <rect x="3.5" y="7" width="8.5" height="9" fill={secondaryColor} />
         {/* Left small banner — primary fill inset */}
-        <rect x="4.5" y="8" width="5" height="7" fill={primaryColor} />
-        <rect x="4.5" y="8" width="5" height="7" fill="url(#banner-grad)" />
-        <rect x="4.5" y="8" width="5" height="7" fill="url(#cloth-sheen)" />
+        <rect x="4.5" y="8" width="6.5" height="7" fill={primaryColor} />
+        <rect x="4.5" y="8" width="6.5" height="7" fill="url(#banner-grad)" />
+        <rect x="4.5" y="8" width="6.5" height="7" fill="url(#cloth-sheen)" />
 
         {/* Right small banner — border */}
-        <rect x="13.5" y="7" width="7" height="9" fill={secondaryColor} />
+        <rect x="12" y="7" width="8.5" height="9" fill={secondaryColor} />
         {/* Right small banner — primary fill inset */}
-        <rect x="14.5" y="8" width="5" height="7" fill={primaryColor} />
-        <rect x="14.5" y="8" width="5" height="7" fill="url(#banner-grad)" />
-        <rect x="14.5" y="8" width="5" height="7" fill="url(#cloth-sheen)" />
+        <rect x="13" y="8" width="6.5" height="7" fill={primaryColor} />
+        <rect x="13" y="8" width="6.5" height="7" fill="url(#banner-grad)" />
+        <rect x="13" y="8" width="6.5" height="7" fill="url(#cloth-sheen)" />
 
         {/* Large main banner — secondary border, primary fill */}
         <rect x="3.5" y="17" width="17" height="22" fill={secondaryColor} />
