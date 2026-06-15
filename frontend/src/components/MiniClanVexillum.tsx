@@ -41,6 +41,16 @@ export function MiniClanVexillum({
           <stop offset="0%" stopColor="#000" stopOpacity="0.18" />
           <stop offset="100%" stopColor="#fff" stopOpacity="0.2" />
         </linearGradient>
+        {/* Cloth texture — fine horizontal weave lines */}
+        <pattern id="cloth-texture" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="1" x2="4" y2="1" stroke="#fff" strokeWidth="0.5" opacity="0.06" />
+          <line x1="0" y1="3" x2="4" y2="3" stroke="#000" strokeWidth="0.5" opacity="0.08" />
+        </pattern>
+        {/* Cloth sheen — radial highlight like ribbon ambient glow */}
+        <radialGradient id="cloth-sheen" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.1" />
+          <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+        </radialGradient>
       </defs>
 
       <g filter="url(#vex-shadow)">
@@ -51,10 +61,14 @@ export function MiniClanVexillum({
         {/* Left banner — flat bottom (1px gap before pole, 1px gap below crossbar) */}
         <rect x="7" y="7" width="9" height="21" fill={primaryColor} />
         <rect x="7" y="7" width="9" height="21" fill="url(#banner-grad)" />
+        <rect x="7" y="7" width="9" height="21" fill="url(#cloth-texture)" />
+        <rect x="7" y="7" width="9" height="21" fill="url(#cloth-sheen)" />
 
         {/* Right banner — flat bottom (1px gap after pole, 1px gap below crossbar) */}
         <rect x="20" y="7" width="9" height="21" fill={secondaryColor} />
         <rect x="20" y="7" width="9" height="21" fill="url(#banner-grad)" />
+        <rect x="20" y="7" width="9" height="21" fill="url(#cloth-texture)" />
+        <rect x="20" y="7" width="9" height="21" fill="url(#cloth-sheen)" />
 
         {/* Vertical pole between banners, connecting to crossbar, extending past flags */}
         <rect x="17" y="6" width="2" height="26" rx="0.5" fill={accentColor} opacity="0.7" />
