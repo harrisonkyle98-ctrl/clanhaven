@@ -140,16 +140,18 @@ export default function ClanDiscovery() {
                   <img src="/images/clancardbg.png" alt="" className="ch-discovery-card-header-bg" />
                   <div className="ch-discovery-card-header-overlay" />
                   <div className="ch-discovery-card-header-content">
-                    <MiniClanVexillum
-                      primaryColor={clan.primaryColor ?? undefined}
-                      secondaryColor={clan.secondaryColor ?? undefined}
-                      accentColor={clan.accentColor ?? undefined}
-                      size={36}
-                    />
                     <div className="ch-discovery-card-header-center">
                       <div className="ch-discovery-card-name">{clan.name}</div>
                     </div>
                     <span className="badge-rs3">RS3</span>
+                  </div>
+                  <div className="ch-discovery-card-vexillum">
+                    <MiniClanVexillum
+                      primaryColor={clan.primaryColor ?? undefined}
+                      secondaryColor={clan.secondaryColor ?? undefined}
+                      accentColor={clan.accentColor ?? undefined}
+                      size={48}
+                    />
                   </div>
                 </div>
                 {/* Stats below the header image */}
