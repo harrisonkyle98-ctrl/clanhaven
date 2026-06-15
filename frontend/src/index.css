@@ -3379,7 +3379,11 @@ body {
 .ch-discovery-stat {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 0.1rem;
+  flex: 1;
+  padding: 0.4rem 0.5rem;
 }
 
 .ch-discovery-stat-label {

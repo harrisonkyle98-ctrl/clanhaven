@@ -154,15 +154,15 @@ export default function ClanDiscovery() {
                 </div>
                 {/* Stats below the header image */}
                 <div className="ch-discovery-card-stats">
-                  <span className="ch-discovery-stat">
+                  <span className="ch-discovery-stat ch-stat-cell">
                     <span className="ch-discovery-stat-label">Rank</span>
                     <span className="ch-discovery-stat-value">{clan.rank ? `#${clan.rank.toLocaleString()}` : "—"}</span>
                   </span>
-                  <span className="ch-discovery-stat">
+                  <span className="ch-discovery-stat ch-stat-cell">
                     <span className="ch-discovery-stat-label">Members</span>
                     <span className="ch-discovery-stat-value">{clan.memberCount}</span>
                   </span>
-                  <span className="ch-discovery-stat">
+                  <span className="ch-discovery-stat ch-stat-cell">
                     <span className="ch-discovery-stat-label">Total XP</span>
                     <span className="ch-discovery-stat-value ch-xp-green">{formatXp(clan.totalXp)}</span>
                   </span>
