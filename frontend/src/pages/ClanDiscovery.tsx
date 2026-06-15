@@ -204,7 +204,7 @@ export default function ClanDiscovery() {
                 onKeyDown={handlePageInputKeyDown}
                 onBlur={() => setPageInput(String(page))}
                 style={{
-                  width: `${Math.max(2, String(totalPages).length)}ch`,
+                  width: `${Math.max(3, String(totalPages).length + 1)}ch`,
                   background: "rgba(22, 19, 14, 0.8)",
                   border: "none",
                   boxShadow: "inset 0 0 0 1px rgba(52, 45, 34, 0.6)",
