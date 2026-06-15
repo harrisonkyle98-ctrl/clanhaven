@@ -3344,7 +3344,7 @@ body {
 
 .ch-discovery-card-vexillum {
   position: absolute;
-  bottom: -8px;
+  bottom: -2px;
   left: 0.5rem;
   z-index: 3;
 }

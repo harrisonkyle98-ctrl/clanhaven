@@ -10,71 +10,83 @@ export function MiniClanVexillum({
   primaryColor = "#2f3f7f",
   secondaryColor = "#7d5a24",
   accentColor = "#c9a24a",
-  size = 36,
+  size = 72,
   className,
 }: MiniClanVexillumProps) {
+  const width = Math.round(size * 0.5)
+
   return (
     <svg
       className={className}
-      width={size}
+      width={width}
       height={size}
-      viewBox="0 0 36 36"
+      viewBox="0 0 24 48"
       role="img"
       aria-label="Clan vexillum"
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
         <filter id="vex-shadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="1" stdDeviation="1.2" floodColor="#000" floodOpacity="0.45" />
+          <feDropShadow dx="0" dy="0.5" stdDeviation="0.6" floodColor="#000" floodOpacity="0.5" />
         </filter>
+        <linearGradient id="pole-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.15" />
+          <stop offset="30%" stopColor="#fff" stopOpacity="0.03" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.3" />
+        </linearGradient>
         <linearGradient id="crossbar-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fff" stopOpacity="0.25" />
-          <stop offset="50%" stopColor="#fff" stopOpacity="0.05" />
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.2" />
+          <stop offset="50%" stopColor="#fff" stopOpacity="0.03" />
           <stop offset="100%" stopColor="#000" stopOpacity="0.2" />
         </linearGradient>
-        <linearGradient id="pole-grad" x1="0" y1="4" x2="0" y2="32" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#fff" stopOpacity="0.1" />
-          <stop offset="20%" stopColor="#000" stopOpacity="0.05" />
-          <stop offset="100%" stopColor="#000" stopOpacity="0.25" />
-        </linearGradient>
         <linearGradient id="banner-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#000" stopOpacity="0.18" />
-          <stop offset="100%" stopColor="#fff" stopOpacity="0.2" />
+          <stop offset="0%" stopColor="#000" stopOpacity="0.1" />
+          <stop offset="50%" stopColor="#000" stopOpacity="0" />
+          <stop offset="100%" stopColor="#fff" stopOpacity="0.12" />
         </linearGradient>
-        {/* Cloth top highlight — thin bright edge like ribbon */}
-        <linearGradient id="cloth-highlight" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fff" stopOpacity="0.12" />
-          <stop offset="6%" stopColor="#fff" stopOpacity="0.04" />
-          <stop offset="15%" stopColor="#fff" stopOpacity="0" />
-          <stop offset="100%" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        {/* Cloth sheen — radial highlight like ribbon ambient glow */}
-        <radialGradient id="cloth-sheen" cx="50%" cy="35%" r="55%">
+        <radialGradient id="cloth-sheen" cx="50%" cy="30%" r="60%">
           <stop offset="0%" stopColor="#fff" stopOpacity="0.1" />
           <stop offset="100%" stopColor="#fff" stopOpacity="0" />
         </radialGradient>
       </defs>
 
       <g filter="url(#vex-shadow)">
-        {/* Horizontal crossbar with gradient */}
-        <rect x="6" y="4" width="24" height="2" rx="0.5" fill={accentColor} opacity="0.7" />
-        <rect x="6" y="4" width="24" height="2" rx="0.5" fill="url(#crossbar-grad)" />
+        {/* Pole — runs full height behind everything */}
+        <rect x="11" y="3" width="2" height="43" rx="0.5" fill={accentColor} opacity="0.75" />
+        <rect x="11" y="3" width="2" height="43" rx="0.5" fill="url(#pole-grad)" />
 
-        {/* Left banner — flat bottom (1px gap before pole, 1px gap below crossbar) */}
-        <rect x="7" y="7" width="9" height="21" fill={primaryColor} />
-        <rect x="7" y="7" width="9" height="21" fill="url(#banner-grad)" />
-        <rect x="7" y="7" width="9" height="21" fill="url(#cloth-highlight)" />
-        <rect x="7" y="7" width="9" height="21" fill="url(#cloth-sheen)" />
+        {/* Finial/spear point at top */}
+        <polygon points="12,0.5 13.5,3 10.5,3" fill={accentColor} opacity="0.85" />
+        <polygon points="12,1.5 13,3 11,3" fill="#fff" opacity="0.1" />
 
-        {/* Right banner — flat bottom (1px gap after pole, 1px gap below crossbar) */}
-        <rect x="20" y="7" width="9" height="21" fill={secondaryColor} />
-        <rect x="20" y="7" width="9" height="21" fill="url(#banner-grad)" />
-        <rect x="20" y="7" width="9" height="21" fill="url(#cloth-highlight)" />
-        <rect x="20" y="7" width="9" height="21" fill="url(#cloth-sheen)" />
+        {/* Horizontal crossbar */}
+        <rect x="3" y="5" width="18" height="1.5" rx="0.4" fill={accentColor} opacity="0.75" />
+        <rect x="3" y="5" width="18" height="1.5" rx="0.4" fill="url(#crossbar-grad)" />
+        {/* Crossbar end caps */}
+        <circle cx="3.5" cy="5.75" r="1" fill={accentColor} opacity="0.8" />
+        <circle cx="20.5" cy="5.75" r="1" fill={accentColor} opacity="0.8" />
 
-        {/* Vertical pole between banners, connecting to crossbar, extending past flags */}
-        <rect x="17" y="6" width="2" height="26" rx="0.5" fill={accentColor} opacity="0.7" />
-        <rect x="17" y="6" width="2" height="26" rx="0.5" fill="url(#pole-grad)" />
+        {/* Two small top banners — secondary border, primary fill */}
+        {/* Left small banner — border */}
+        <rect x="3.5" y="7" width="7" height="9" fill={secondaryColor} />
+        {/* Left small banner — primary fill inset */}
+        <rect x="4.5" y="8" width="5" height="7" fill={primaryColor} />
+        <rect x="4.5" y="8" width="5" height="7" fill="url(#banner-grad)" />
+        <rect x="4.5" y="8" width="5" height="7" fill="url(#cloth-sheen)" />
+
+        {/* Right small banner — border */}
+        <rect x="13.5" y="7" width="7" height="9" fill={secondaryColor} />
+        {/* Right small banner — primary fill inset */}
+        <rect x="14.5" y="8" width="5" height="7" fill={primaryColor} />
+        <rect x="14.5" y="8" width="5" height="7" fill="url(#banner-grad)" />
+        <rect x="14.5" y="8" width="5" height="7" fill="url(#cloth-sheen)" />
+
+        {/* Large main banner — secondary border, primary fill */}
+        <rect x="3.5" y="17" width="17" height="22" fill={secondaryColor} />
+        {/* Main banner — primary fill inset */}
+        <rect x="4.5" y="18" width="15" height="20" fill={primaryColor} />
+        <rect x="4.5" y="18" width="15" height="20" fill="url(#banner-grad)" />
+        <rect x="4.5" y="18" width="15" height="20" fill="url(#cloth-sheen)" />
       </g>
     </svg>
   )
