@@ -159,32 +159,66 @@ function AdminHomeTab({ username }: { username: string }) {
   const [backfillForce, setBackfillForce] = useState(false)
   const [backfillRunning, setBackfillRunning] = useState(false)
   const [backfillError, setBackfillError] = useState<string | null>(null)
+  const [backfillProgress, setBackfillProgress] = useState<{ processed: number; target: number } | null>(null)
   const [backfillResult, setBackfillResult] = useState<{
     total: number
     success: number
     failed: number
     errors: { clan: string; error: string }[]
   } | null>(null)
+  const backfillStopRef = useRef(false)
+
+  const BATCH_SIZE = 10
 
   const handleBackfill = async () => {
     setBackfillRunning(true)
     setBackfillError(null)
     setBackfillResult(null)
+    setBackfillProgress({ processed: 0, target: backfillLimit })
+    backfillStopRef.current = false
+
+    const accumulated = { total: 0, success: 0, failed: 0, errors: [] as { clan: string; error: string }[] }
+    let remaining = backfillLimit
+
     try {
-      const params = new URLSearchParams({ limit: String(backfillLimit) })
-      if (backfillForce) params.set("force", "true")
-      const data = await apiFetch<{
-        total: number
-        success: number
-        failed: number
-        errors: { clan: string; error: string }[]
-      }>(`/api/admin/color-backfill?${params}`, { method: "POST" })
-      setBackfillResult(data)
+      while (remaining > 0 && !backfillStopRef.current) {
+        const batchSize = Math.min(BATCH_SIZE, remaining)
+        const params = new URLSearchParams({ limit: String(batchSize) })
+        if (backfillForce) params.set("force", "true")
+
+        const data = await apiFetch<{
+          total: number
+          success: number
+          failed: number
+          errors: { clan: string; error: string }[]
+        }>(`/api/admin/color-backfill?${params}`, { method: "POST" })
+
+        accumulated.total += data.total
+        accumulated.success += data.success
+        accumulated.failed += data.failed
+        accumulated.errors.push(...data.errors)
+
+        remaining -= batchSize
+        setBackfillProgress({ processed: accumulated.total, target: backfillLimit })
+        setBackfillResult({ ...accumulated })
+
+        // If the batch returned fewer than requested, no more clans to process
+        if (data.total < batchSize) break
+      }
+
+      if (backfillStopRef.current) {
+        setBackfillError("Stopped by user")
+      }
     } catch (err) {
       setBackfillError(`Failed: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
       setBackfillRunning(false)
+      setBackfillProgress(null)
     }
+  }
+
+  const handleBackfillStop = () => {
+    backfillStopRef.current = true
   }
 
   const [stopping, setStopping] = useState(false)
@@ -446,14 +480,47 @@ function AdminHomeTab({ username }: { username: string }) {
             </label>
           </div>
 
-          <button
-            onClick={handleBackfill}
-            disabled={backfillRunning}
-            className="ch-admin-btn"
-            style={{ opacity: backfillRunning ? 0.6 : 1 }}
-          >
-            {backfillRunning ? "Running..." : "Start Backfill"}
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <button
+              onClick={handleBackfill}
+              disabled={backfillRunning}
+              className="ch-admin-btn"
+              style={{ opacity: backfillRunning ? 0.6 : 1 }}
+            >
+              {backfillRunning ? "Running..." : "Start Backfill"}
+            </button>
+            {backfillRunning && (
+              <button
+                onClick={handleBackfillStop}
+                className="ch-admin-btn"
+                style={{ background: "rgba(239, 68, 68, 0.2)", borderColor: "#ef4444" }}
+              >
+                Stop
+              </button>
+            )}
+          </div>
+
+          {backfillProgress && (
+            <div style={{ marginTop: "0.75rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
+                <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
+                  Processing clans...
+                </span>
+                <span style={{ color: "var(--color-text-warm)", fontSize: "0.6875rem" }}>
+                  {backfillProgress.processed} / {backfillProgress.target}
+                </span>
+              </div>
+              <div style={{ height: "6px", background: "rgba(10, 8, 5, 0.6)", borderRadius: "3px", overflow: "hidden" }}>
+                <div style={{
+                  height: "100%",
+                  width: `${Math.min(100, (backfillProgress.processed / backfillProgress.target) * 100)}%`,
+                  background: "linear-gradient(90deg, #c9a24a, #e8c96d)",
+                  borderRadius: "3px",
+                  transition: "width 0.3s ease",
+                }} />
+              </div>
+            </div>
+          )}
 
           {backfillError && (
             <p style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.5rem" }}>{backfillError}</p>
