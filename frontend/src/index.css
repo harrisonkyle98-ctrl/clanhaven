@@ -3301,7 +3301,7 @@ body {
 }
 
 .ch-discovery-card.ch-stat-cell::before {
-  z-index: 3;
+  z-index: 10;
 }
 
 .ch-discovery-card.ch-stat-cell {
