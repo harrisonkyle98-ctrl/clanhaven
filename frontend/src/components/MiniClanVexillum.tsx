@@ -57,8 +57,8 @@ export function MiniClanVexillum({
 
       <g filter="url(#vex-shadow)">
         {/* Pole — runs full height behind everything */}
-        <rect x="11" y="3" width="2" height="43" rx="0.5" fill={accentColor} opacity="0.75" />
-        <rect x="11" y="3" width="2" height="43" rx="0.5" fill="url(#pole-grad)" />
+        <rect x="11.33" y="3" width="1.34" height="43" rx="0.4" fill={accentColor} opacity="0.75" />
+        <rect x="11.33" y="3" width="1.34" height="43" rx="0.4" fill="url(#pole-grad)" />
 
         {/* Finial/spear point at top of pole */}
         <polygon points="12,0.5 13.5,3 10.5,3" fill={accentColor} opacity="0.85" />
