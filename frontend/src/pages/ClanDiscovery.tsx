@@ -143,7 +143,6 @@ export default function ClanDiscovery() {
                     <div className="ch-discovery-card-header-center">
                       <div className="ch-discovery-card-name">{clan.name}</div>
                     </div>
-                    <span className="badge-rs3">RS3</span>
                   </div>
                   <div className="ch-discovery-card-vexillum">
                     <MiniClanVexillum
