@@ -3493,6 +3493,43 @@ body {
    CLAN PAGE
    =========================================== */
 
+.ch-clanpage-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.ch-clanpage-card-col {
+  width: 30%;
+  min-width: 220px;
+  flex-shrink: 0;
+}
+
+.ch-clanpage-card.ch-discovery-card {
+  height: 160px;
+  cursor: default;
+}
+
+.ch-clanpage-card.ch-discovery-card:hover .ch-discovery-card-name {
+  color: var(--color-text-highlight);
+}
+
+.ch-clanpage-roster-col {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .ch-clanpage-layout {
+    flex-direction: column;
+  }
+
+  .ch-clanpage-card-col {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
 .ch-clan-loading,
 .ch-clan-error {
   text-align: center;
