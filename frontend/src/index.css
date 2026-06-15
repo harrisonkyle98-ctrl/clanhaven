@@ -1601,7 +1601,7 @@ body {
 }
 
 .ch-news-thumbnail {
-  width: 80px;
+  width: 110px;
   object-fit: cover;
   flex-shrink: 0;
   border: none;
