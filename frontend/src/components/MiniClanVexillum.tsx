@@ -41,16 +41,16 @@ export function MiniClanVexillum({
           <stop offset="0%" stopColor="#000" stopOpacity="0.18" />
           <stop offset="100%" stopColor="#fff" stopOpacity="0.2" />
         </linearGradient>
-        {/* Cloth texture — subtle noise-like grain using offset micro-rects */}
-        <filter id="cloth-noise" x="0" y="0" width="100%" height="100%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="2" result="noise" />
-          <feColorMatrix type="saturate" values="0" in="noise" result="gray" />
-          <feBlend in="SourceGraphic" in2="gray" mode="overlay" result="blended" />
-          <feComposite in="blended" in2="SourceGraphic" operator="in" />
-        </filter>
+        {/* Cloth top highlight — thin bright edge like ribbon */}
+        <linearGradient id="cloth-highlight" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.12" />
+          <stop offset="6%" stopColor="#fff" stopOpacity="0.04" />
+          <stop offset="15%" stopColor="#fff" stopOpacity="0" />
+          <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+        </linearGradient>
         {/* Cloth sheen — radial highlight like ribbon ambient glow */}
-        <radialGradient id="cloth-sheen" cx="50%" cy="40%" r="60%">
-          <stop offset="0%" stopColor="#fff" stopOpacity="0.08" />
+        <radialGradient id="cloth-sheen" cx="50%" cy="35%" r="55%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.1" />
           <stop offset="100%" stopColor="#fff" stopOpacity="0" />
         </radialGradient>
       </defs>
@@ -61,17 +61,15 @@ export function MiniClanVexillum({
         <rect x="6" y="4" width="24" height="2" rx="0.5" fill="url(#crossbar-grad)" />
 
         {/* Left banner — flat bottom (1px gap before pole, 1px gap below crossbar) */}
-        <g filter="url(#cloth-noise)">
-          <rect x="7" y="7" width="9" height="21" fill={primaryColor} />
-        </g>
+        <rect x="7" y="7" width="9" height="21" fill={primaryColor} />
         <rect x="7" y="7" width="9" height="21" fill="url(#banner-grad)" />
+        <rect x="7" y="7" width="9" height="21" fill="url(#cloth-highlight)" />
         <rect x="7" y="7" width="9" height="21" fill="url(#cloth-sheen)" />
 
         {/* Right banner — flat bottom (1px gap after pole, 1px gap below crossbar) */}
-        <g filter="url(#cloth-noise)">
-          <rect x="20" y="7" width="9" height="21" fill={secondaryColor} />
-        </g>
+        <rect x="20" y="7" width="9" height="21" fill={secondaryColor} />
         <rect x="20" y="7" width="9" height="21" fill="url(#banner-grad)" />
+        <rect x="20" y="7" width="9" height="21" fill="url(#cloth-highlight)" />
         <rect x="20" y="7" width="9" height="21" fill="url(#cloth-sheen)" />
 
         {/* Vertical pole between banners, connecting to crossbar, extending past flags */}
