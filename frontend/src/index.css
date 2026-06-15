@@ -3280,6 +3280,17 @@ body {
   height: 160px;
 }
 
+.ch-discovery-card.ch-stat-cell::before {
+  display: none;
+}
+
+.ch-discovery-card.ch-stat-cell {
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+
 .ch-discovery-card-header {
   position: relative;
   overflow: hidden;
@@ -3344,6 +3355,9 @@ body {
   height: 50%;
   padding: 0.6rem 0.75rem;
   position: relative;
+  box-shadow:
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4);
 }
 
 .ch-discovery-card-stats::before {
