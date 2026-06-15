@@ -1598,21 +1598,21 @@ body {
 
 .ch-news-row-with-thumb {
   padding: 0;
-  padding-left: 113px;
+  padding-left: 112px;
   position: relative;
 }
 
 .ch-news-thumbnail {
   width: 110px;
+  height: calc(100% - 4px);
   object-fit: cover;
   flex-shrink: 0;
   border: none;
   border-right: 1px solid rgba(60, 50, 35, 0.4);
   display: block;
   position: absolute;
-  top: 3px;
-  bottom: 3px;
-  left: 3px;
+  top: 2px;
+  left: 2px;
   border-radius: 1px 0 0 1px;
 }
 
