@@ -93,13 +93,13 @@ export function MiniClanVexillum({
         <rect x="4" y="16" width="16" height="1.5" rx="0.4" fill={accentColor} />
         <rect x="4" y="16" width="16" height="1.5" rx="0.4" fill="url(#crossbar-grad)" />
 
-        {/* Large main banner — sits between upper and lower crossbars */}
-        <rect x="5" y="17.5" width="14" height="20" fill={secondaryColor} />
-        <rect x="5" y="17.5" width="14" height="20" fill="url(#border-grad)" />
+        {/* Large main banner — overlaps crossbars by 0.5px to prevent gaps */}
+        <rect x="5" y="17" width="14" height="21" fill={secondaryColor} />
+        <rect x="5" y="17" width="14" height="21" fill="url(#border-grad)" />
         {/* Main banner — primary fill inset */}
-        <rect x="6" y="18.5" width="12" height="18" fill={primaryColor} />
-        <rect x="6" y="18.5" width="12" height="18" fill="url(#banner-grad)" />
-        <rect x="6" y="18.5" width="12" height="18" fill="url(#cloth-sheen)" />
+        <rect x="6" y="18" width="12" height="19" fill={primaryColor} />
+        <rect x="6" y="18" width="12" height="19" fill="url(#banner-grad)" />
+        <rect x="6" y="18" width="12" height="19" fill="url(#cloth-sheen)" />
 
         {/* Lower crossbar for large banner — no spear points, sits below banner */}
         <rect x="4" y="37.5" width="16" height="1.5" rx="0.4" fill={accentColor} />
