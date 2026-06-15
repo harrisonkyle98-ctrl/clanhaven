@@ -150,7 +150,7 @@ export default function ClanDiscovery() {
                       primaryColor={clan.primaryColor ?? undefined}
                       secondaryColor={clan.secondaryColor ?? undefined}
                       accentColor={clan.accentColor ?? undefined}
-                      size={64}
+                      size={72}
                     />
                   </div>
                 </div>

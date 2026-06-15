@@ -3344,7 +3344,7 @@ body {
 
 .ch-discovery-card-vexillum {
   position: absolute;
-  bottom: -2px;
+  bottom: -8px;
   left: 0.5rem;
   z-index: 3;
 }
@@ -3355,7 +3355,7 @@ body {
   display: flex;
   align-items: center;
   padding: 0.5rem 0.6rem;
-  padding-left: 4.5rem;
+  padding-left: 5rem;
 }
 
 .ch-discovery-card-header-center {
