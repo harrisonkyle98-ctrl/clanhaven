@@ -98,8 +98,8 @@ export function MiniClanVexillum({
         <rect x="13.5" y="5.5" width="8" height="9" fill="url(#cloth-sheen)" />
 
         {/* Upper crossbar for large banner — no spear points, banner sits below */}
-        <rect x="4" y="16" width="16" height="1.5" rx="0.4" fill={accentColor} />
-        <rect x="4" y="16" width="16" height="1.5" rx="0.4" fill="url(#crossbar-grad)" />
+        <rect x="4" y="17" width="16" height="0.5" rx="0.2" fill={accentColor} />
+        <rect x="4" y="17" width="16" height="0.5" rx="0.2" fill="url(#crossbar-grad)" />
 
         {/* Large main banner — sits between upper and lower crossbars */}
         <rect x="5" y="17.5" width="14" height="20" fill={secondaryColor} />
@@ -110,8 +110,8 @@ export function MiniClanVexillum({
         <rect x="6" y="18.5" width="12" height="18" fill="url(#cloth-sheen)" />
 
         {/* Lower crossbar for large banner — no spear points, sits below banner */}
-        <rect x="4" y="37.5" width="16" height="1.5" rx="0.4" fill={accentColor} />
-        <rect x="4" y="37.5" width="16" height="1.5" rx="0.4" fill="url(#crossbar-grad)" />
+        <rect x="4" y="37.5" width="16" height="0.5" rx="0.2" fill={accentColor} />
+        <rect x="4" y="37.5" width="16" height="0.5" rx="0.2" fill="url(#crossbar-grad)" />
       </g>
     </svg>
   )
