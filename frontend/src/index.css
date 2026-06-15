@@ -1598,6 +1598,8 @@ body {
 
 .ch-news-row-with-thumb {
   padding: 0;
+  padding-left: 112px;
+  position: relative;
 }
 
 .ch-news-thumbnail {
@@ -1607,8 +1609,10 @@ body {
   border: none;
   border-right: 1px solid rgba(60, 50, 35, 0.4);
   display: block;
-  align-self: stretch;
-  margin: 2px 0 2px 2px;
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
   border-radius: 1px 0 0 1px;
 }
 
