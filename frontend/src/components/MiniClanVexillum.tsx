@@ -67,12 +67,20 @@ export function MiniClanVexillum({
         {/* Top crossbar with spear points at ends */}
         <rect x="1" y="4.5" width="22" height="1.5" rx="0.4" fill={accentColor} opacity="0.75" />
         <rect x="1" y="4.5" width="22" height="1.5" rx="0.4" fill="url(#crossbar-grad)" />
-        {/* Left spear point */}
+        {/* Top crossbar left spear point */}
         <polygon points="0,5.25 1.5,4.25 1.5,6.25" fill={accentColor} opacity="0.85" />
-        {/* Right spear point */}
+        {/* Top crossbar right spear point */}
         <polygon points="24,5.25 22.5,4.25 22.5,6.25" fill={accentColor} opacity="0.85" />
 
-        {/* Two small top banners — sit on top crossbar */}
+        {/* Bottom crossbar for small banners — drawn before banners so banners sit on top */}
+        <rect x="1" y="14" width="22" height="1.5" rx="0.4" fill={accentColor} opacity="0.75" />
+        <rect x="1" y="14" width="22" height="1.5" rx="0.4" fill="url(#crossbar-grad)" />
+        {/* Bottom crossbar left spear point */}
+        <polygon points="0,14.75 1.5,13.75 1.5,15.75" fill={accentColor} opacity="0.85" />
+        {/* Bottom crossbar right spear point */}
+        <polygon points="24,14.75 22.5,13.75 22.5,15.75" fill={accentColor} opacity="0.85" />
+
+        {/* Two small top banners — sit on top of both crossbars */}
         {/* Left small banner — border */}
         <rect x="1.5" y="4.5" width="10" height="11" fill={secondaryColor} />
         <rect x="1.5" y="4.5" width="10" height="11" fill="url(#border-grad)" />
