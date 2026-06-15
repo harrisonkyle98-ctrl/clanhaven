@@ -60,26 +60,26 @@ export function MiniClanVexillum({
         <polygon points="12,1.5 13,3 11,3" fill="#fff" opacity="0.1" />
 
         {/* Horizontal crossbar */}
-        <rect x="1" y="5" width="22" height="1.5" rx="0.4" fill={accentColor} opacity="0.75" />
-        <rect x="1" y="5" width="22" height="1.5" rx="0.4" fill="url(#crossbar-grad)" />
+        <rect x="0" y="5" width="24" height="1.5" rx="0.4" fill={accentColor} opacity="0.75" />
+        <rect x="0" y="5" width="24" height="1.5" rx="0.4" fill="url(#crossbar-grad)" />
         {/* Crossbar end caps */}
-        <circle cx="1.5" cy="5.75" r="1" fill={accentColor} opacity="0.8" />
-        <circle cx="22.5" cy="5.75" r="1" fill={accentColor} opacity="0.8" />
+        <circle cx="0.5" cy="5.75" r="1" fill={accentColor} opacity="0.8" />
+        <circle cx="23.5" cy="5.75" r="1" fill={accentColor} opacity="0.8" />
 
         {/* Two small top banners — secondary border, primary fill */}
         {/* Left small banner — border */}
-        <rect x="2.5" y="5" width="8" height="11" fill={secondaryColor} />
+        <rect x="1.5" y="5" width="10" height="11" fill={secondaryColor} />
         {/* Left small banner — primary fill inset */}
-        <rect x="3.5" y="6" width="6" height="9" fill={primaryColor} />
-        <rect x="3.5" y="6" width="6" height="9" fill="url(#banner-grad)" />
-        <rect x="3.5" y="6" width="6" height="9" fill="url(#cloth-sheen)" />
+        <rect x="2.5" y="6" width="8" height="9" fill={primaryColor} />
+        <rect x="2.5" y="6" width="8" height="9" fill="url(#banner-grad)" />
+        <rect x="2.5" y="6" width="8" height="9" fill="url(#cloth-sheen)" />
 
         {/* Right small banner — border */}
-        <rect x="13.5" y="5" width="8" height="11" fill={secondaryColor} />
+        <rect x="12.5" y="5" width="10" height="11" fill={secondaryColor} />
         {/* Right small banner — primary fill inset */}
-        <rect x="14.5" y="6" width="6" height="9" fill={primaryColor} />
-        <rect x="14.5" y="6" width="6" height="9" fill="url(#banner-grad)" />
-        <rect x="14.5" y="6" width="6" height="9" fill="url(#cloth-sheen)" />
+        <rect x="13.5" y="6" width="8" height="9" fill={primaryColor} />
+        <rect x="13.5" y="6" width="8" height="9" fill="url(#banner-grad)" />
+        <rect x="13.5" y="6" width="8" height="9" fill="url(#cloth-sheen)" />
 
         {/* Large main banner — secondary border, primary fill */}
         <rect x="5" y="17" width="14" height="22" fill={secondaryColor} />
