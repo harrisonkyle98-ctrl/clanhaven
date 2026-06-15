@@ -135,34 +135,35 @@ export default function ClanDiscovery() {
           <div className="ch-discovery-grid">
             {clans.map((clan) => (
               <Link key={clan.id} to={`/${clan.slug || clan.id}`} className="ch-stat-cell ch-discovery-card" style={{ textDecoration: "none" }}>
-                <div className="relative z-1 flex flex-col flex-1">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <MiniClanVexillum
-                        primaryColor={clan.primaryColor ?? undefined}
-                        secondaryColor={clan.secondaryColor ?? undefined}
-                        accentColor={clan.accentColor ?? undefined}
-                        size={36}
-                      />
-                      <div>
-                        <div className="ch-discovery-card-name">{clan.name}</div>
-                        {clan.rank && (
-                          <div className="ch-discovery-card-rank">Rank #{clan.rank.toLocaleString()}</div>
-                        )}
-                      </div>
+                {/* Card header with background image */}
+                <div className="ch-discovery-card-header">
+                  <img src="/images/clancardbg.png" alt="" className="ch-discovery-card-header-bg" />
+                  <div className="ch-discovery-card-header-content">
+                    <MiniClanVexillum
+                      primaryColor={clan.primaryColor ?? undefined}
+                      secondaryColor={clan.secondaryColor ?? undefined}
+                      accentColor={clan.accentColor ?? undefined}
+                      size={36}
+                    />
+                    <div className="ch-discovery-card-header-center">
+                      <div className="ch-discovery-card-name">{clan.name}</div>
+                      {clan.rank && (
+                        <div className="ch-discovery-card-rank">Rank #{clan.rank.toLocaleString()}</div>
+                      )}
                     </div>
                     <span className="badge-rs3">RS3</span>
                   </div>
-                  <div className="ch-discovery-card-stats">
-                    <span className="ch-discovery-stat">
-                      <span className="ch-discovery-stat-label">Members</span>
-                      <span className="ch-discovery-stat-value">{clan.memberCount}</span>
-                    </span>
-                    <span className="ch-discovery-stat">
-                      <span className="ch-discovery-stat-label">Total XP</span>
-                      <span className="ch-discovery-stat-value ch-xp-green">{formatXp(clan.totalXp)}</span>
-                    </span>
-                  </div>
+                </div>
+                {/* Stats below the header image */}
+                <div className="ch-discovery-card-stats">
+                  <span className="ch-discovery-stat">
+                    <span className="ch-discovery-stat-label">Members</span>
+                    <span className="ch-discovery-stat-value">{clan.memberCount}</span>
+                  </span>
+                  <span className="ch-discovery-stat">
+                    <span className="ch-discovery-stat-label">Total XP</span>
+                    <span className="ch-discovery-stat-value ch-xp-green">{formatXp(clan.totalXp)}</span>
+                  </span>
                 </div>
               </Link>
             ))}
