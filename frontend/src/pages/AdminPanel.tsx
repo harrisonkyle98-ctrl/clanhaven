@@ -154,6 +154,39 @@ function AdminHomeTab({ username }: { username: string }) {
     }
   }
 
+  // ─── Vexillum Color Backfill state ───
+  const [backfillLimit, setBackfillLimit] = useState(50)
+  const [backfillForce, setBackfillForce] = useState(false)
+  const [backfillRunning, setBackfillRunning] = useState(false)
+  const [backfillError, setBackfillError] = useState<string | null>(null)
+  const [backfillResult, setBackfillResult] = useState<{
+    total: number
+    success: number
+    failed: number
+    errors: { clan: string; error: string }[]
+  } | null>(null)
+
+  const handleBackfill = async () => {
+    setBackfillRunning(true)
+    setBackfillError(null)
+    setBackfillResult(null)
+    try {
+      const params = new URLSearchParams({ limit: String(backfillLimit) })
+      if (backfillForce) params.set("force", "true")
+      const data = await apiFetch<{
+        total: number
+        success: number
+        failed: number
+        errors: { clan: string; error: string }[]
+      }>(`/api/admin/color-backfill?${params}`, { method: "POST" })
+      setBackfillResult(data)
+    } catch (err) {
+      setBackfillError(`Failed: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setBackfillRunning(false)
+    }
+  }
+
   const [stopping, setStopping] = useState(false)
 
   const handleStop = async () => {
@@ -369,6 +402,99 @@ function AdminHomeTab({ username }: { username: string }) {
           </div>
         </CollapsiblePanel>
       </div>
+
+      <CollapsiblePanel variant="purple" title="Vexillum Color Backfill">
+        <div className="ch-admin-section">
+          <p style={{ color: "var(--color-text-muted)", fontSize: "0.8125rem", marginBottom: "0.75rem" }}>
+            Detect primary and secondary colors from clan motif images and update MiniClanVexillum colors.
+            Processes clans with a <code style={{ color: "var(--color-text-warm)" }}>motif_url</code> that haven't had colors detected yet.
+          </p>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+            <label style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Limit:</label>
+            <input
+              type="number"
+              value={backfillLimit}
+              onChange={(e) => setBackfillLimit(Math.max(1, Math.min(500, Number(e.target.value))))}
+              style={{
+                width: "70px",
+                background: "rgba(22, 19, 14, 0.8)",
+                border: "none",
+                boxShadow: "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6)",
+                color: "var(--color-text-warm)",
+                padding: "0.4rem 0.5rem",
+                fontSize: "0.8125rem",
+              }}
+              disabled={backfillRunning}
+            />
+            <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
+              (max 500 clans per run)
+            </span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+            <input
+              type="checkbox"
+              id="backfill-force"
+              checked={backfillForce}
+              onChange={(e) => setBackfillForce(e.target.checked)}
+              disabled={backfillRunning}
+              style={{ accentColor: "#c9a24a" }}
+            />
+            <label htmlFor="backfill-force" style={{ color: "var(--color-text-muted)", fontSize: "0.75rem", cursor: "pointer" }}>
+              Force re-detect (overwrite existing colors)
+            </label>
+          </div>
+
+          <button
+            onClick={handleBackfill}
+            disabled={backfillRunning}
+            className="ch-admin-btn"
+            style={{ opacity: backfillRunning ? 0.6 : 1 }}
+          >
+            {backfillRunning ? "Running..." : "Start Backfill"}
+          </button>
+
+          {backfillError && (
+            <p style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.5rem" }}>{backfillError}</p>
+          )}
+
+          {backfillResult && (
+            <div style={{ marginTop: "1rem", padding: "0.75rem", background: "rgba(10, 8, 5, 0.4)", boxShadow: "inset 0 0 0 1px rgba(52, 45, 34, 0.4)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                <span style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Backfill Result</span>
+                <span style={{
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  color: backfillResult.failed === 0 ? "var(--color-xp-green)" : "#f59e0b",
+                  textTransform: "uppercase",
+                }}>{backfillResult.failed === 0 ? "SUCCESS" : "PARTIAL"}</span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem 1rem", fontSize: "0.75rem" }}>
+                <div style={{ color: "var(--color-text-muted)" }}>Total processed:</div>
+                <div style={{ color: "var(--color-text-warm)" }}>{backfillResult.total}</div>
+
+                <div style={{ color: "var(--color-text-muted)" }}>Colors detected:</div>
+                <div style={{ color: "var(--color-xp-green)" }}>{backfillResult.success}</div>
+
+                <div style={{ color: "var(--color-text-muted)" }}>Failed:</div>
+                <div style={{ color: backfillResult.failed > 0 ? "#ef4444" : "var(--color-text-warm)" }}>{backfillResult.failed}</div>
+              </div>
+
+              {backfillResult.errors.length > 0 && (
+                <div style={{ marginTop: "0.5rem", maxHeight: "120px", overflowY: "auto" }}>
+                  {backfillResult.errors.map((e, i) => (
+                    <div key={i} style={{ fontSize: "0.6875rem", color: "#ef4444", wordBreak: "break-word" }}>
+                      {e.clan}: {e.error}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </CollapsiblePanel>
 
       <CollapsiblePanel variant="purple" title="Management Modules">
         <div className="ch-admin-section">
