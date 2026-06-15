@@ -3332,12 +3332,11 @@ body {
   object-fit: cover;
   object-position: center top;
   display: block;
+  opacity: 0.6;
 }
 
 .ch-discovery-card-header-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  display: none;
 }
 
 .ch-discovery-card-header-content {
