@@ -3281,7 +3281,7 @@ body {
 }
 
 .ch-discovery-card.ch-stat-cell::before {
-  display: none;
+  z-index: 3;
 }
 
 .ch-discovery-card.ch-stat-cell {
