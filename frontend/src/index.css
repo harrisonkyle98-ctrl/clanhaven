@@ -3514,9 +3514,12 @@ body {
   color: var(--color-text-highlight);
 }
 
-.ch-clanpage-card.ch-stat-cell:hover,
-.ch-clanpage-card .ch-stat-cell:hover {
-  background: inherit;
+.ch-clanpage-card.ch-discovery-card.ch-stat-cell:hover {
+  background: none;
+}
+
+.ch-clanpage-card .ch-discovery-stat.ch-stat-cell:hover {
+  background: none;
 }
 
 .ch-clanpage-roster-col {
