@@ -921,6 +921,26 @@ body {
 }
 
 /* ===========================================
+   SIDEBAR MOBILE - Overlay sidebar for small screens
+   =========================================== */
+.ch-sidebar-mobile {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  flex-direction: column;
+}
+
+.ch-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 90;
+}
+
+/* ===========================================
    SIDEBAR RIBBON - Category header
    Stormlight blue ribbon with right-side fold only.
    Uses same single-element clip-path technique as
