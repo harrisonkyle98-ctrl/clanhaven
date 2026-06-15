@@ -82,11 +82,11 @@ export function MiniClanVexillum({
         <rect x="13" y="8" width="6.5" height="7" fill="url(#cloth-sheen)" />
 
         {/* Large main banner — secondary border, primary fill */}
-        <rect x="3.5" y="17" width="17" height="22" fill={secondaryColor} />
+        <rect x="5" y="17" width="14" height="22" fill={secondaryColor} />
         {/* Main banner — primary fill inset */}
-        <rect x="4.5" y="18" width="15" height="20" fill={primaryColor} />
-        <rect x="4.5" y="18" width="15" height="20" fill="url(#banner-grad)" />
-        <rect x="4.5" y="18" width="15" height="20" fill="url(#cloth-sheen)" />
+        <rect x="6" y="18" width="12" height="20" fill={primaryColor} />
+        <rect x="6" y="18" width="12" height="20" fill="url(#banner-grad)" />
+        <rect x="6" y="18" width="12" height="20" fill="url(#cloth-sheen)" />
       </g>
     </svg>
   )
