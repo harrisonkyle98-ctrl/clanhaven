@@ -37,6 +37,7 @@ function formatXp(xp: number | null): string {
 export default function ClanDiscovery() {
   const [clans, setClans] = useState<IndexedClan[]>([])
   const [page, setPage] = useState(1)
+  const [pageInput, setPageInput] = useState("1")
   const [totalPages, setTotalPages] = useState(0)
   const [total, setTotal] = useState(0)
   const [sort, setSort] = useState("xp")
@@ -68,6 +69,18 @@ export default function ClanDiscovery() {
   useEffect(() => {
     fetchClans()
   }, [fetchClans])
+
+  useEffect(() => {
+    setPageInput(String(page))
+  }, [page])
+
+  const handlePageInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      const val = Math.max(1, Math.min(totalPages, Number(pageInput) || 1))
+      setPage(val)
+      setPageInput(String(val))
+    }
+  }
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -162,32 +175,71 @@ export default function ClanDiscovery() {
               className="ch-discovery-page-btn"
               onClick={() => setPage(1)}
               disabled={page === 1}
+              title="First page"
             >
-              ««
+              &lt;&lt;&lt;
+            </button>
+            <button
+              className="ch-discovery-page-btn"
+              onClick={() => setPage(p => Math.max(1, p - 50))}
+              disabled={page === 1}
+              title="Back 50 pages"
+            >
+              &lt;&lt;
             </button>
             <button
               className="ch-discovery-page-btn"
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
+              title="Previous page"
             >
-              «
+              &lt;
             </button>
             <span className="ch-discovery-page-info">
-              Page {page} of {totalPages.toLocaleString()}
+              Page{" "}
+              <input
+                type="text"
+                value={pageInput}
+                onChange={(e) => setPageInput(e.target.value)}
+                onKeyDown={handlePageInputKeyDown}
+                onBlur={() => setPageInput(String(page))}
+                style={{
+                  width: `${Math.max(2, String(totalPages).length)}ch`,
+                  background: "rgba(22, 19, 14, 0.8)",
+                  border: "none",
+                  boxShadow: "inset 0 0 0 1px rgba(52, 45, 34, 0.6)",
+                  color: "var(--color-text-warm)",
+                  textAlign: "center",
+                  padding: "0.15rem 0.3rem",
+                  fontSize: "inherit",
+                  fontFamily: "inherit",
+                }}
+              />
+              {" "}of {totalPages.toLocaleString()}
             </span>
             <button
               className="ch-discovery-page-btn"
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
+              title="Next page"
             >
-              »
+              &gt;
+            </button>
+            <button
+              className="ch-discovery-page-btn"
+              onClick={() => setPage(p => Math.min(totalPages, p + 50))}
+              disabled={page === totalPages}
+              title="Forward 50 pages"
+            >
+              &gt;&gt;
             </button>
             <button
               className="ch-discovery-page-btn"
               onClick={() => setPage(totalPages)}
               disabled={page === totalPages}
+              title="Last page"
             >
-              »»
+              &gt;&gt;&gt;
             </button>
           </div>
         )}
