@@ -3317,7 +3317,7 @@ body {
 
 .ch-discovery-card-name {
   font-family: 'Cinzel', 'Times New Roman', serif;
-  font-size: 0.8125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-text-highlight);
   transition: color 0.2s ease;
