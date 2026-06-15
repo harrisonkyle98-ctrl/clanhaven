@@ -3293,6 +3293,12 @@ body {
   display: block;
 }
 
+.ch-discovery-card-header-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+
 .ch-discovery-card-header-content {
   position: absolute;
   inset: 0;
@@ -3319,11 +3325,7 @@ body {
   color: var(--color-gold);
 }
 
-.ch-discovery-card-rank {
-  font-size: 0.6875rem;
-  color: rgba(255, 255, 255, 0.75);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
+
 
 .ch-discovery-card-stats {
   display: flex;

@@ -138,6 +138,7 @@ export default function ClanDiscovery() {
                 {/* Card header with background image */}
                 <div className="ch-discovery-card-header">
                   <img src="/images/clancardbg.png" alt="" className="ch-discovery-card-header-bg" />
+                  <div className="ch-discovery-card-header-overlay" />
                   <div className="ch-discovery-card-header-content">
                     <MiniClanVexillum
                       primaryColor={clan.primaryColor ?? undefined}
@@ -147,15 +148,16 @@ export default function ClanDiscovery() {
                     />
                     <div className="ch-discovery-card-header-center">
                       <div className="ch-discovery-card-name">{clan.name}</div>
-                      {clan.rank && (
-                        <div className="ch-discovery-card-rank">Rank #{clan.rank.toLocaleString()}</div>
-                      )}
                     </div>
                     <span className="badge-rs3">RS3</span>
                   </div>
                 </div>
                 {/* Stats below the header image */}
                 <div className="ch-discovery-card-stats">
+                  <span className="ch-discovery-stat">
+                    <span className="ch-discovery-stat-label">Rank</span>
+                    <span className="ch-discovery-stat-value">{clan.rank ? `#${clan.rank.toLocaleString()}` : "—"}</span>
+                  </span>
                   <span className="ch-discovery-stat">
                     <span className="ch-discovery-stat-label">Members</span>
                     <span className="ch-discovery-stat-value">{clan.memberCount}</span>
