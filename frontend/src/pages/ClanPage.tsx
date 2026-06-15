@@ -182,7 +182,7 @@ export default function ClanPage() {
           <div className="ch-clanpage-layout">
             {/* Left: Clan Card */}
             <div className="ch-clanpage-card-col">
-              <div className="ch-stat-cell ch-discovery-card ch-clanpage-card">
+              <div className="ch-clanpage-card">
                 <div className="ch-discovery-card-header">
                   <img src="/images/clancardbg.png" alt="" className="ch-discovery-card-header-bg" />
                   <div className="ch-discovery-card-header-overlay" />
@@ -201,15 +201,15 @@ export default function ClanPage() {
                   </div>
                 </div>
                 <div className="ch-discovery-card-stats">
-                  <span className="ch-discovery-stat ch-stat-cell">
+                  <span className="ch-discovery-stat ch-clanpage-stat">
                     <span className="ch-discovery-stat-label">Rank</span>
                     <span className="ch-discovery-stat-value">{clan.rank ? clan.rank.toLocaleString() : "—"}</span>
                   </span>
-                  <span className="ch-discovery-stat ch-stat-cell">
+                  <span className="ch-discovery-stat ch-clanpage-stat">
                     <span className="ch-discovery-stat-label">Members</span>
                     <span className="ch-discovery-stat-value">{clan.memberCount.toLocaleString()}</span>
                   </span>
-                  <span className="ch-discovery-stat ch-stat-cell">
+                  <span className="ch-discovery-stat ch-clanpage-stat">
                     <span className="ch-discovery-stat-label">Total XP</span>
                     <span className="ch-discovery-stat-value ch-xp-green">{formatXp(clan.totalXp)}</span>
                   </span>
