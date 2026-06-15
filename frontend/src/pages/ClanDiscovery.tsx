@@ -177,14 +177,6 @@ export default function ClanDiscovery() {
               disabled={page === 1}
               title="First page"
             >
-              &lt;&lt;&lt;
-            </button>
-            <button
-              className="ch-discovery-page-btn"
-              onClick={() => setPage(p => Math.max(1, p - 50))}
-              disabled={page === 1}
-              title="Back 50 pages"
-            >
               &lt;&lt;
             </button>
             <button
@@ -227,19 +219,11 @@ export default function ClanDiscovery() {
             </button>
             <button
               className="ch-discovery-page-btn"
-              onClick={() => setPage(p => Math.min(totalPages, p + 50))}
-              disabled={page === totalPages}
-              title="Forward 50 pages"
-            >
-              &gt;&gt;
-            </button>
-            <button
-              className="ch-discovery-page-btn"
               onClick={() => setPage(totalPages)}
               disabled={page === totalPages}
               title="Last page"
             >
-              &gt;&gt;&gt;
+              &gt;&gt;
             </button>
           </div>
         )}
