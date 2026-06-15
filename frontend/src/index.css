@@ -3514,6 +3514,11 @@ body {
   color: var(--color-text-highlight);
 }
 
+.ch-clanpage-card.ch-stat-cell:hover,
+.ch-clanpage-card .ch-stat-cell:hover {
+  background: inherit;
+}
+
 .ch-clanpage-roster-col {
   flex: 1;
   min-width: 0;
