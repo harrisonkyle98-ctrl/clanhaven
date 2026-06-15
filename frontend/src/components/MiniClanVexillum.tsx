@@ -89,21 +89,17 @@ export function MiniClanVexillum({
         <rect x="13.5" y="5.5" width="8" height="9" fill="url(#banner-grad)" />
         <rect x="13.5" y="5.5" width="8" height="9" fill="url(#cloth-sheen)" />
 
-        {/* Crossbar below small banners — banners sit on top of it */}
-        <rect x="1" y="15.5" width="22" height="1.5" rx="0.4" fill={accentColor} opacity="0.75" />
-        <rect x="1" y="15.5" width="22" height="1.5" rx="0.4" fill="url(#crossbar-grad)" />
-
         {/* Upper crossbar for large banner — no spear points, banner sits below */}
-        <rect x="4" y="18" width="16" height="1.5" rx="0.4" fill={accentColor} opacity="0.75" />
-        <rect x="4" y="18" width="16" height="1.5" rx="0.4" fill="url(#crossbar-grad)" />
+        <rect x="4" y="16" width="16" height="1.5" rx="0.4" fill={accentColor} opacity="0.75" />
+        <rect x="4" y="16" width="16" height="1.5" rx="0.4" fill="url(#crossbar-grad)" />
 
         {/* Large main banner — sits between upper and lower crossbars */}
-        <rect x="5" y="19.5" width="14" height="18" fill={secondaryColor} />
-        <rect x="5" y="19.5" width="14" height="18" fill="url(#border-grad)" />
+        <rect x="5" y="17.5" width="14" height="20" fill={secondaryColor} />
+        <rect x="5" y="17.5" width="14" height="20" fill="url(#border-grad)" />
         {/* Main banner — primary fill inset */}
-        <rect x="6" y="20.5" width="12" height="16" fill={primaryColor} />
-        <rect x="6" y="20.5" width="12" height="16" fill="url(#banner-grad)" />
-        <rect x="6" y="20.5" width="12" height="16" fill="url(#cloth-sheen)" />
+        <rect x="6" y="18.5" width="12" height="18" fill={primaryColor} />
+        <rect x="6" y="18.5" width="12" height="18" fill="url(#banner-grad)" />
+        <rect x="6" y="18.5" width="12" height="18" fill="url(#cloth-sheen)" />
 
         {/* Lower crossbar for large banner — no spear points, sits below banner */}
         <rect x="4" y="37.5" width="16" height="1.5" rx="0.4" fill={accentColor} opacity="0.75" />
