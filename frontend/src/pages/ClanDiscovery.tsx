@@ -156,7 +156,7 @@ export default function ClanDiscovery() {
                 <div className="ch-discovery-card-stats">
                   <span className="ch-discovery-stat ch-stat-cell">
                     <span className="ch-discovery-stat-label">Rank</span>
-                    <span className="ch-discovery-stat-value">{clan.rank ? `#${clan.rank.toLocaleString()}` : "—"}</span>
+                    <span className="ch-discovery-stat-value">{clan.rank ? clan.rank.toLocaleString() : "—"}</span>
                   </span>
                   <span className="ch-discovery-stat ch-stat-cell">
                     <span className="ch-discovery-stat-label">Members</span>
