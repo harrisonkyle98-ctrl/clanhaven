@@ -44,6 +44,11 @@ export function MiniClanVexillum({
           <stop offset="50%" stopColor="#000" stopOpacity="0" />
           <stop offset="100%" stopColor="#fff" stopOpacity="0.12" />
         </linearGradient>
+        <linearGradient id="border-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.12" />
+          <stop offset="50%" stopColor="#fff" stopOpacity="0" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.1" />
+        </linearGradient>
         <radialGradient id="cloth-sheen" cx="50%" cy="30%" r="60%">
           <stop offset="0%" stopColor="#fff" stopOpacity="0.1" />
           <stop offset="100%" stopColor="#fff" stopOpacity="0" />
@@ -69,6 +74,7 @@ export function MiniClanVexillum({
         {/* Two small top banners — secondary border, primary fill */}
         {/* Left small banner — border */}
         <rect x="1.5" y="5" width="10" height="11" fill={secondaryColor} />
+        <rect x="1.5" y="5" width="10" height="11" fill="url(#border-grad)" />
         {/* Left small banner — primary fill inset */}
         <rect x="2.5" y="6" width="8" height="9" fill={primaryColor} />
         <rect x="2.5" y="6" width="8" height="9" fill="url(#banner-grad)" />
@@ -76,6 +82,7 @@ export function MiniClanVexillum({
 
         {/* Right small banner — border */}
         <rect x="12.5" y="5" width="10" height="11" fill={secondaryColor} />
+        <rect x="12.5" y="5" width="10" height="11" fill="url(#border-grad)" />
         {/* Right small banner — primary fill inset */}
         <rect x="13.5" y="6" width="8" height="9" fill={primaryColor} />
         <rect x="13.5" y="6" width="8" height="9" fill="url(#banner-grad)" />
@@ -83,6 +90,7 @@ export function MiniClanVexillum({
 
         {/* Large main banner — secondary border, primary fill */}
         <rect x="5" y="17" width="14" height="22" fill={secondaryColor} />
+        <rect x="5" y="17" width="14" height="22" fill="url(#border-grad)" />
         {/* Main banner — primary fill inset */}
         <rect x="6" y="18" width="12" height="20" fill={primaryColor} />
         <rect x="6" y="18" width="12" height="20" fill="url(#banner-grad)" />
