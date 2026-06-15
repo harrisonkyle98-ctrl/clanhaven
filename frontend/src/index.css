@@ -3388,6 +3388,10 @@ body {
   padding: 0.4rem 0.5rem;
 }
 
+.ch-discovery-stat.ch-stat-cell:hover {
+  background: rgba(22, 19, 14, 0.8);
+}
+
 .ch-discovery-stat-label {
   font-size: 0.5625rem;
   color: var(--color-text-muted);
