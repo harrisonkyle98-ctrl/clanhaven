@@ -15,6 +15,7 @@ interface User {
   activeGameType: string | null
   activeAccountType: string | null
   activeClanName: string | null
+  clanSlug: string | null
   rsnLinkedAt: string | null
   privileges: number
   lastOnline: string | null
@@ -24,6 +25,12 @@ interface User {
     rsn: string
     clanRole: string
     gameType: string | null
+  }[]
+  approvedAlts: {
+    rsn: string
+    gameType: string | null
+    accountType: string | null
+    clanName: string | null
   }[]
 }
 

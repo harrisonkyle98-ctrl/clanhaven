@@ -84,7 +84,164 @@ export default function AdminPanel() {
   )
 }
 
+interface SeedJobStatus {
+  id: string
+  status: string
+  startPage: number
+  pageCount: number
+  concurrency: number
+  pagesProcessed: number
+  clansDiscovered: number
+  clansIndexed: number
+  clansFailed: number
+  currentPage: number | null
+  currentClan: string | null
+  lastError: string | null
+  startedAt: string | null
+  completedAt: string | null
+  createdAt: string
+}
+
 function AdminHomeTab({ username }: { username: string }) {
+  const [seedPages, setSeedPages] = useState(5)
+  const [seedStartPage, setSeedStartPage] = useState(1)
+  const [seedConcurrency, setSeedConcurrency] = useState(1)
+  const [starting, setStarting] = useState(false)
+  const [startError, setStartError] = useState<string | null>(null)
+  const [job, setJob] = useState<SeedJobStatus | null>(null)
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const fetchLatestJob = async () => {
+    try {
+      const data = await apiFetch<{ job: SeedJobStatus | null }>("/api/admin/seed-jobs/latest")
+      setJob(data.job)
+      return data.job
+    } catch {
+      return null
+    }
+  }
+
+  useEffect(() => {
+    fetchLatestJob()
+    return () => { if (pollRef.current) clearInterval(pollRef.current) }
+  }, [])
+
+  const startPolling = () => {
+    if (pollRef.current) clearInterval(pollRef.current)
+    pollRef.current = setInterval(async () => {
+      const latest = await fetchLatestJob()
+      if (latest && (latest.status === "completed" || latest.status === "failed")) {
+        if (pollRef.current) clearInterval(pollRef.current)
+        pollRef.current = null
+      }
+    }, 3000)
+  }
+
+  const handleSeed = async () => {
+    setStarting(true)
+    setStartError(null)
+    try {
+      await apiFetch<{ jobId: string; status: string }>("/api/admin/seed-clans", {
+        method: "POST",
+        body: JSON.stringify({ startPage: seedStartPage, pageCount: seedPages, concurrency: seedConcurrency }),
+      })
+      await fetchLatestJob()
+      startPolling()
+    } catch (err) {
+      setStartError(`Failed to start: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setStarting(false)
+    }
+  }
+
+  // ─── Vexillum Color Backfill state ───
+  const [backfillLimit, setBackfillLimit] = useState(50)
+  const [backfillForce, setBackfillForce] = useState(false)
+  const [backfillRunning, setBackfillRunning] = useState(false)
+  const [backfillError, setBackfillError] = useState<string | null>(null)
+  const [backfillProgress, setBackfillProgress] = useState<{ processed: number; target: number } | null>(null)
+  const [backfillResult, setBackfillResult] = useState<{
+    total: number
+    success: number
+    failed: number
+    errors: { clan: string; error: string }[]
+  } | null>(null)
+  const backfillStopRef = useRef(false)
+
+  const BATCH_SIZE = 10
+
+  const handleBackfill = async () => {
+    setBackfillRunning(true)
+    setBackfillError(null)
+    setBackfillResult(null)
+    setBackfillProgress({ processed: 0, target: backfillLimit })
+    backfillStopRef.current = false
+
+    const accumulated = { total: 0, success: 0, failed: 0, errors: [] as { clan: string; error: string }[] }
+    let remaining = backfillLimit
+
+    try {
+      while (remaining > 0 && !backfillStopRef.current) {
+        const batchSize = Math.min(BATCH_SIZE, remaining)
+        const params = new URLSearchParams({ limit: String(batchSize) })
+        if (backfillForce) params.set("force", "true")
+
+        const data = await apiFetch<{
+          total: number
+          success: number
+          failed: number
+          errors: { clan: string; error: string }[]
+        }>(`/api/admin/color-backfill?${params}`, { method: "POST" })
+
+        accumulated.total += data.total
+        accumulated.success += data.success
+        accumulated.failed += data.failed
+        accumulated.errors.push(...data.errors)
+
+        remaining -= batchSize
+        setBackfillProgress({ processed: accumulated.total, target: backfillLimit })
+        setBackfillResult({ ...accumulated })
+
+        // If the batch returned fewer than requested, no more clans to process
+        if (data.total < batchSize) break
+      }
+
+      if (backfillStopRef.current) {
+        setBackfillError("Stopped by user")
+      }
+    } catch (err) {
+      setBackfillError(`Failed: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setBackfillRunning(false)
+      setBackfillProgress(null)
+    }
+  }
+
+  const handleBackfillStop = () => {
+    backfillStopRef.current = true
+  }
+
+  const [stopping, setStopping] = useState(false)
+
+  const handleStop = async () => {
+    if (!job) return
+    setStopping(true)
+    try {
+      await apiFetch(`/api/admin/seed-jobs/${job.id}/stop`, { method: "POST" })
+      await fetchLatestJob()
+    } catch (err) {
+      setStartError(`Failed to stop: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setStopping(false)
+    }
+  }
+
+  useEffect(() => {
+    if (job && (job.status === "running" || job.status === "pending")) {
+      startPolling()
+    }
+  }, [job?.id])
+
   return (
     <div className="space-y-4">
       <CollapsiblePanel variant="purple" title="Admin Overview">
@@ -121,15 +278,290 @@ function AdminHomeTab({ username }: { username: string }) {
           </div>
         </CollapsiblePanel>
 
-        <CollapsiblePanel variant="purple" title="Quick Actions">
+        <CollapsiblePanel variant="purple" title="Clan Discovery Seeder">
           <div className="ch-admin-section">
-            <p className="ch-admin-placeholder">
-              Homepage content management, news publishing, and site configuration
-              controls will be available here in future updates.
+            <p style={{ color: "var(--color-text-muted)", fontSize: "0.8125rem", marginBottom: "0.75rem" }}>
+              Discover clan names from official RS3 Clan HiScores ranking pages, then index each clan
+              sequentially via <code style={{ color: "var(--color-text-warm)" }}>members_lite.ws</code>.
             </p>
+
+            {/* Start controls */}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+              <label style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Start Page:</label>
+              <input
+                type="number"
+                value={seedStartPage}
+                onChange={(e) => setSeedStartPage(Math.max(1, Number(e.target.value)))}
+                style={{
+                  width: "70px",
+                  background: "rgba(22, 19, 14, 0.8)",
+                  border: "none",
+                  boxShadow: "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6)",
+                  color: "var(--color-text-warm)",
+                  padding: "0.4rem 0.5rem",
+                  fontSize: "0.8125rem",
+                }}
+                disabled={job?.status === "running"}
+              />
+              <label style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Pages:</label>
+              <input
+                type="number"
+                value={seedPages}
+                onChange={(e) => setSeedPages(Math.max(1, Math.min(50, Number(e.target.value))))}
+                style={{
+                  width: "70px",
+                  background: "rgba(22, 19, 14, 0.8)",
+                  border: "none",
+                  boxShadow: "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6)",
+                  color: "var(--color-text-warm)",
+                  padding: "0.4rem 0.5rem",
+                  fontSize: "0.8125rem",
+                }}
+                disabled={job?.status === "running"}
+              />
+              <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
+                (~20 clans/page, max 50)
+              </span>
+            </div>
+
+            {/* Concurrency control */}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+              <label style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Workers:</label>
+              <input
+                type="number"
+                value={seedConcurrency}
+                onChange={(e) => setSeedConcurrency(Math.max(1, Math.min(5, Number(e.target.value))))}
+                style={{
+                  width: "55px",
+                  background: "rgba(22, 19, 14, 0.8)",
+                  border: "none",
+                  boxShadow: "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6)",
+                  color: "var(--color-text-warm)",
+                  padding: "0.4rem 0.5rem",
+                  fontSize: "0.8125rem",
+                }}
+                disabled={job?.status === "running"}
+              />
+              <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
+                (1–5, each fully indexes one clan at a time)
+              </span>
+            </div>
+            {seedConcurrency > 1 && (
+              <p style={{ color: "#f59e0b", fontSize: "0.6875rem", marginBottom: "0.5rem" }}>
+                ⚠ Higher concurrency increases load on Jagex endpoints. Use cautiously to avoid rate limiting.
+              </p>
+            )}
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button
+                onClick={handleSeed}
+                disabled={starting || job?.status === "running"}
+                className="ch-admin-btn"
+                style={{ opacity: (starting || job?.status === "running") ? 0.6 : 1 }}
+              >
+                {starting ? "Starting..." : job?.status === "running" ? "Job Running..." : "Start Seed"}
+              </button>
+              {(job?.status === "running" || job?.status === "pending") && (
+                <button
+                  onClick={handleStop}
+                  disabled={stopping}
+                  className="ch-admin-btn"
+                  style={{
+                    background: "rgba(239, 68, 68, 0.15)",
+                    boxShadow: "inset 0 0 0 1px rgba(239, 68, 68, 0.4)",
+                    color: "#ef4444",
+                    opacity: stopping ? 0.6 : 1,
+                  }}
+                >
+                  {stopping ? "Stopping..." : "Stop Job"}
+                </button>
+              )}
+            </div>
+            {startError && (
+              <p style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.5rem" }}>{startError}</p>
+            )}
+
+            {/* Job progress */}
+            {job && (
+              <div style={{ marginTop: "1rem", padding: "0.75rem", background: "rgba(10, 8, 5, 0.4)", boxShadow: "inset 0 0 0 1px rgba(52, 45, 34, 0.4)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Job Status</span>
+                  <span style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    color: job.status === "running" ? "#f59e0b" :
+                           job.status === "completed" ? "var(--color-xp-green)" :
+                           job.status === "failed" ? "#ef4444" : "var(--color-text-muted)",
+                    textTransform: "uppercase",
+                  }}>{job.status}</span>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem 1rem", fontSize: "0.75rem" }}>
+                  <div style={{ color: "var(--color-text-muted)" }}>Pages processed:</div>
+                  <div style={{ color: "var(--color-text-warm)" }}>{job.pagesProcessed}/{job.pageCount}</div>
+
+                  <div style={{ color: "var(--color-text-muted)" }}>Clans discovered:</div>
+                  <div style={{ color: "var(--color-text-warm)" }}>{job.clansDiscovered}</div>
+
+                  <div style={{ color: "var(--color-text-muted)" }}>Clans indexed:</div>
+                  <div style={{ color: "var(--color-xp-green)" }}>{job.clansIndexed}</div>
+
+                  <div style={{ color: "var(--color-text-muted)" }}>Clans failed:</div>
+                  <div style={{ color: job.clansFailed > 0 ? "#ef4444" : "var(--color-text-warm)" }}>{job.clansFailed}</div>
+
+                  <div style={{ color: "var(--color-text-muted)" }}>Workers:</div>
+                  <div style={{ color: "var(--color-text-warm)" }}>{job.concurrency}</div>
+
+                  {job.currentPage && (
+                    <>
+                      <div style={{ color: "var(--color-text-muted)" }}>Current page:</div>
+                      <div style={{ color: "var(--color-text-warm)" }}>{job.currentPage}</div>
+                    </>
+                  )}
+
+                  {job.currentClan && (
+                    <>
+                      <div style={{ color: "var(--color-text-muted)" }}>Indexing:</div>
+                      <div style={{ color: "var(--color-text-warm)" }}>{job.currentClan}</div>
+                    </>
+                  )}
+                </div>
+
+                {job.lastError && (
+                  <div style={{ marginTop: "0.5rem", fontSize: "0.6875rem", color: "#ef4444", wordBreak: "break-word" }}>
+                    Last error: {job.lastError}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </CollapsiblePanel>
       </div>
+
+      <CollapsiblePanel variant="purple" title="Vexillum Color Backfill">
+        <div className="ch-admin-section">
+          <p style={{ color: "var(--color-text-muted)", fontSize: "0.8125rem", marginBottom: "0.75rem" }}>
+            Detect primary and secondary colors from clan motif images and update MiniClanVexillum colors.
+            Processes clans with a <code style={{ color: "var(--color-text-warm)" }}>motif_url</code> that haven't had colors detected yet.
+          </p>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+            <label style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Limit:</label>
+            <input
+              type="number"
+              value={backfillLimit}
+              onChange={(e) => setBackfillLimit(Math.max(1, Math.min(500, Number(e.target.value))))}
+              style={{
+                width: "70px",
+                background: "rgba(22, 19, 14, 0.8)",
+                border: "none",
+                boxShadow: "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6)",
+                color: "var(--color-text-warm)",
+                padding: "0.4rem 0.5rem",
+                fontSize: "0.8125rem",
+              }}
+              disabled={backfillRunning}
+            />
+            <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
+              (max 500 clans per run)
+            </span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+            <input
+              type="checkbox"
+              id="backfill-force"
+              checked={backfillForce}
+              onChange={(e) => setBackfillForce(e.target.checked)}
+              disabled={backfillRunning}
+              style={{ accentColor: "#c9a24a" }}
+            />
+            <label htmlFor="backfill-force" style={{ color: "var(--color-text-muted)", fontSize: "0.75rem", cursor: "pointer" }}>
+              Force re-detect (overwrite existing colors)
+            </label>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <button
+              onClick={handleBackfill}
+              disabled={backfillRunning}
+              className="ch-admin-btn"
+              style={{ opacity: backfillRunning ? 0.6 : 1 }}
+            >
+              {backfillRunning ? "Running..." : "Start Backfill"}
+            </button>
+            {backfillRunning && (
+              <button
+                onClick={handleBackfillStop}
+                className="ch-admin-btn"
+                style={{ background: "rgba(239, 68, 68, 0.2)", borderColor: "#ef4444" }}
+              >
+                Stop
+              </button>
+            )}
+          </div>
+
+          {backfillProgress && (
+            <div style={{ marginTop: "0.75rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
+                <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
+                  Processing clans...
+                </span>
+                <span style={{ color: "var(--color-text-warm)", fontSize: "0.6875rem" }}>
+                  {backfillProgress.processed} / {backfillProgress.target}
+                </span>
+              </div>
+              <div style={{ height: "6px", background: "rgba(10, 8, 5, 0.6)", borderRadius: "3px", overflow: "hidden" }}>
+                <div style={{
+                  height: "100%",
+                  width: `${Math.min(100, (backfillProgress.processed / backfillProgress.target) * 100)}%`,
+                  background: "linear-gradient(90deg, #c9a24a, #e8c96d)",
+                  borderRadius: "3px",
+                  transition: "width 0.3s ease",
+                }} />
+              </div>
+            </div>
+          )}
+
+          {backfillError && (
+            <p style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.5rem" }}>{backfillError}</p>
+          )}
+
+          {backfillResult && (
+            <div style={{ marginTop: "1rem", padding: "0.75rem", background: "rgba(10, 8, 5, 0.4)", boxShadow: "inset 0 0 0 1px rgba(52, 45, 34, 0.4)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                <span style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Backfill Result</span>
+                <span style={{
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  color: backfillResult.failed === 0 ? "var(--color-xp-green)" : "#f59e0b",
+                  textTransform: "uppercase",
+                }}>{backfillResult.failed === 0 ? "SUCCESS" : "PARTIAL"}</span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem 1rem", fontSize: "0.75rem" }}>
+                <div style={{ color: "var(--color-text-muted)" }}>Total processed:</div>
+                <div style={{ color: "var(--color-text-warm)" }}>{backfillResult.total}</div>
+
+                <div style={{ color: "var(--color-text-muted)" }}>Colors detected:</div>
+                <div style={{ color: "var(--color-xp-green)" }}>{backfillResult.success}</div>
+
+                <div style={{ color: "var(--color-text-muted)" }}>Failed:</div>
+                <div style={{ color: backfillResult.failed > 0 ? "#ef4444" : "var(--color-text-warm)" }}>{backfillResult.failed}</div>
+              </div>
+
+              {backfillResult.errors.length > 0 && (
+                <div style={{ marginTop: "0.5rem", maxHeight: "120px", overflowY: "auto" }}>
+                  {backfillResult.errors.map((e, i) => (
+                    <div key={i} style={{ fontSize: "0.6875rem", color: "#ef4444", wordBreak: "break-word" }}>
+                      {e.clan}: {e.error}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </CollapsiblePanel>
 
       <CollapsiblePanel variant="purple" title="Management Modules">
         <div className="ch-admin-section">

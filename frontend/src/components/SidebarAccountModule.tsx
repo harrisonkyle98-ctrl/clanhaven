@@ -1,13 +1,77 @@
+import { useState, useRef, useEffect, useCallback } from "react"
+import { createPortal } from "react-dom"
 import { useNavigate } from "react-router-dom"
+import { ChevronDown } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
+import { apiFetch } from "@/lib/api"
 
 function getRsAvatarUrl(rsn: string): string {
   return `https://secure.runescape.com/m=avatar-rs/${encodeURIComponent(rsn)}/chat.png`
 }
 
 export default function SidebarAccountModule() {
-  const { user, loading, login, logout } = useAuth()
+  const { user, loading, login, logout, refreshUser } = useAuth()
   const navigate = useNavigate()
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [switching, setSwitching] = useState(false)
+  const triggerRef = useRef<HTMLSpanElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
+
+  const updatePosition = useCallback(() => {
+    if (!triggerRef.current) return
+    const rect = triggerRef.current.getBoundingClientRect()
+    setDropdownStyle({
+      position: "fixed",
+      bottom: window.innerHeight - rect.top + 6,
+      left: rect.left,
+      width: Math.max(rect.width + 40, 220),
+      zIndex: 9999,
+    })
+  }, [])
+
+  // Position the dropdown when it opens and on scroll/resize
+  useEffect(() => {
+    if (!dropdownOpen) return
+    updatePosition()
+    window.addEventListener("resize", updatePosition)
+    window.addEventListener("scroll", updatePosition, true)
+    return () => {
+      window.removeEventListener("resize", updatePosition)
+      window.removeEventListener("scroll", updatePosition, true)
+    }
+  }, [dropdownOpen, updatePosition])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!dropdownOpen) return
+    function handleClickOutside(e: MouseEvent) {
+      const target = e.target as Node
+      if (
+        triggerRef.current?.contains(target) ||
+        dropdownRef.current?.contains(target)
+      ) return
+      setDropdownOpen(false)
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => { document.removeEventListener("mousedown", handleClickOutside) }
+  }, [dropdownOpen])
+
+  const handleSwitchIdentity = async (rsn: string | null) => {
+    setSwitching(true)
+    try {
+      await apiFetch("/api/users/me/active-identity", {
+        method: "POST",
+        body: JSON.stringify({ rsn }),
+      })
+      await refreshUser()
+      setDropdownOpen(false)
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Switch failed")
+    } finally {
+      setSwitching(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -44,6 +108,90 @@ export default function SidebarAccountModule() {
     )
   }
 
+  const hasAlts = user && user.approvedAlts && user.approvedAlts.length > 0
+  const isMainActive = !user?.activeRsn
+
+  const dropdownContent = dropdownOpen && hasAlts && user ? createPortal(
+    <div className="ch-identity-dropdown" ref={dropdownRef} style={dropdownStyle}>
+      {/* Main account */}
+      <button
+        className={`ch-identity-dropdown-item${isMainActive ? " ch-identity-dropdown-item--active" : ""}`}
+        onClick={() => { void handleSwitchIdentity(null) }}
+        disabled={switching || isMainActive}
+      >
+        <img
+          src={user.rsn ? getRsAvatarUrl(user.rsn) : "/images/default-avatar.png"}
+          alt=""
+          className="ch-identity-dropdown-avatar"
+          onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
+        />
+        <div className="ch-identity-dropdown-info">
+          <span className="ch-identity-dropdown-rsn">
+            {user.rsn}
+            {(user.accountType === "ironman" || user.accountType === "hardcore_ironman") && (
+              <img
+                src={user.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                alt=""
+                style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "3px" }}
+              />
+            )}
+          </span>
+          <div className="ch-identity-dropdown-tags">
+            {user.rsnClanName && <span className="badge-clan">{user.rsnClanName}</span>}
+            {user.gameType && (
+              <span className={user.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                {user.gameType}
+              </span>
+            )}
+          </div>
+        </div>
+        {isMainActive && <span className="badge-active">Active</span>}
+      </button>
+
+      {/* Approved alts */}
+      {user.approvedAlts.map((alt) => {
+        const altActive = !isMainActive && user.activeRsn?.toLowerCase() === alt.rsn.toLowerCase()
+        return (
+          <button
+            key={alt.rsn}
+            className={`ch-identity-dropdown-item${altActive ? " ch-identity-dropdown-item--active" : ""}`}
+            onClick={() => { void handleSwitchIdentity(alt.rsn) }}
+            disabled={switching || altActive}
+          >
+            <img
+              src={getRsAvatarUrl(alt.rsn)}
+              alt=""
+              className="ch-identity-dropdown-avatar"
+              onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
+            />
+            <div className="ch-identity-dropdown-info">
+              <span className="ch-identity-dropdown-rsn">
+                {alt.rsn}
+                {(alt.accountType === "ironman" || alt.accountType === "hardcore_ironman") && (
+                  <img
+                    src={alt.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                    alt=""
+                    style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "3px" }}
+                  />
+                )}
+              </span>
+              <div className="ch-identity-dropdown-tags">
+                {alt.clanName && <span className="badge-clan">{alt.clanName}</span>}
+                {alt.gameType && (
+                  <span className={alt.gameType === "RS3" ? "badge-rs3" : "badge-osrs"}>
+                    {alt.gameType}
+                  </span>
+                )}
+              </div>
+            </div>
+            {altActive && <span className="badge-active">Active</span>}
+          </button>
+        )
+      })}
+    </div>,
+    document.body
+  ) : null
+
   return (
     <div className="ch-sidebar-account">
       {user ? (
@@ -62,7 +210,12 @@ export default function SidebarAccountModule() {
             </div>
             <div className="ch-sidebar-account-info" style={{ flex: 1, minWidth: 0 }}>
               <div className="ch-sidebar-account-name-row">
-                <span className="ch-sidebar-account-name" style={{ display: "inline-flex", alignItems: "center" }}>
+                <span
+                  ref={triggerRef}
+                  className="ch-sidebar-account-name"
+                  style={{ display: "inline-flex", alignItems: "center", cursor: hasAlts ? "pointer" : "default" }}
+                  onClick={hasAlts ? () => { setDropdownOpen(!dropdownOpen) } : undefined}
+                >
                   {user.displayRsn ?? user.rsn}
                   {((user.activeAccountType ?? user.accountType) === "ironman" || (user.activeAccountType ?? user.accountType) === "hardcore_ironman") && (
                     <img
@@ -70,6 +223,19 @@ export default function SidebarAccountModule() {
                       alt={(user.activeAccountType ?? user.accountType) === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
                       title={(user.activeAccountType ?? user.accountType) === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
                       style={{ width: "14px", height: "14px", objectFit: "contain", marginLeft: "4px", flexShrink: 0 }}
+                    />
+                  )}
+                  {hasAlts && (
+                    <ChevronDown
+                      style={{
+                        width: "12px",
+                        height: "12px",
+                        marginLeft: "4px",
+                        flexShrink: 0,
+                        color: "#b0a088",
+                        transition: "transform 0.2s ease",
+                        transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                      }}
                     />
                   )}
                 </span>
@@ -96,13 +262,31 @@ export default function SidebarAccountModule() {
             </div>
           </div>
 
+          {dropdownContent}
+
           <div className="ch-sidebar-account-divider" />
 
           <div className="ch-sidebar-account-actions">
             <button className="ch-sidebar-account-action">
               <span>My Profile</span>
             </button>
-            <button className="ch-sidebar-account-action">
+            <button
+              onClick={() => {
+                if (user.clanSlug) {
+                  navigate(`/${user.clanSlug}`)
+                } else if (!user.rsn) {
+                  navigate("/settings")
+                }
+              }}
+              className="ch-sidebar-account-action"
+              title={
+                user.clanSlug
+                  ? user.activeClanName ?? user.rsnClanName ?? "My Clan"
+                  : !user.rsn
+                    ? "Link your RSN first"
+                    : "No clan detected"
+              }
+            >
               <span>My Clan</span>
             </button>
             <button

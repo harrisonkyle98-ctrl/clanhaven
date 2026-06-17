@@ -38,6 +38,14 @@ async def list_alt_requests(_mod: dict = Depends(require_mod)):
         include={"user": True},
         take=100,
     )
+
+    # Batch-fetch reviewer users for reviewed requests
+    reviewer_ids = list({r.reviewedById for r in requests if r.reviewedById})
+    reviewer_map: dict[str, object] = {}
+    if reviewer_ids:
+        reviewers = await db.user.find_many(where={"id": {"in": reviewer_ids}})
+        reviewer_map = {u.id: u for u in reviewers}
+
     return [
         {
             "id": r.id,
@@ -50,6 +58,8 @@ async def list_alt_requests(_mod: dict = Depends(require_mod)):
             "reviewedById": r.reviewedById,
             "reviewedAt": r.reviewedAt.isoformat() if r.reviewedAt else None,
             "reviewNote": r.reviewNote,
+            "reviewerRsn": reviewer_map[r.reviewedById].rsn if r.reviewedById and r.reviewedById in reviewer_map and reviewer_map[r.reviewedById].rsn else None,
+            "reviewerUsername": reviewer_map[r.reviewedById].username if r.reviewedById and r.reviewedById in reviewer_map else None,
             "createdAt": r.createdAt.isoformat(),
             "requesterUsername": r.user.username if r.user else None,
             "requesterRsn": r.user.rsn if r.user else None,

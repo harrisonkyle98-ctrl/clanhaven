@@ -12,7 +12,7 @@ interface Highlight {
 
 const fallbackHighlights: Highlight[] = [
   {
-    title: "Clan Discovery",
+    title: "Clan Directory",
     description: "Browse hundreds of active clans across RS3 and OSRS. Find your perfect community based on playstyle, size, and goals.",
     image: "/images/highlight-1.jpg",
     buttonText: "Explore",
@@ -86,9 +86,11 @@ export default function SiteHighlights() {
               className="ch-highlight-card-img"
               style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined}
             />
+            <div className="ch-highlight-card-overlay">
+              <h3 className="ch-highlight-card-overlay-title">{item.title}</h3>
+            </div>
           </div>
           <div className="ch-highlight-card-body">
-            <h3 className="ch-highlight-card-title">{item.title}</h3>
             <p className="ch-highlight-card-desc">{item.description}</p>
             {item.buttonLink ? (
               <a href={item.buttonLink} className="ch-highlight-card-explore" style={{ textDecoration: "none" }}>{item.buttonText}</a>

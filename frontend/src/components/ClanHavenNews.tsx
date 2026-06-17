@@ -127,10 +127,10 @@ export default function ClanHavenNews() {
             {posts.map((item) => (
               <div
                 key={item.id}
-                className="ch-row px-4 py-3 cursor-pointer group"
+                className={`ch-row cursor-pointer group${item.thumbnailUrl ? " ch-news-row-with-thumb" : " px-4 py-3"}`}
                 onClick={() => openArticle(item)}
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-stretch gap-0">
                   {item.thumbnailUrl && (
                     <img
                       src={item.thumbnailUrl}
@@ -138,7 +138,7 @@ export default function ClanHavenNews() {
                       className="ch-news-thumbnail"
                     />
                   )}
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 px-3 py-3">
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`badge-category badge-category--${(item.category || "Update").toLowerCase()}`}>
                         {item.category || "Update"}

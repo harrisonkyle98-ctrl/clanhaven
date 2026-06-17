@@ -163,6 +163,8 @@ interface AltRequestMod {
   reviewedById: string | null
   reviewedAt: string | null
   reviewNote: string | null
+  reviewerRsn: string | null
+  reviewerUsername: string | null
   createdAt: string
   requesterUsername: string | null
   requesterRsn: string | null
@@ -341,8 +343,8 @@ function ModAltAccountsTab() {
                   className="ch-row-notch"
                   style={{ flex: 1, position: "relative", zIndex: 1, marginLeft: "-20px" }}
                 >
-                  <div className="ch-row-notch-mid">
-                  <div className="ch-row-notch-fill">
+                  <div className={`ch-row-notch-mid${isPending ? " ch-row-notch-mid--pending" : isApproved ? " ch-row-notch-mid--approved" : isDenied ? " ch-row-notch-mid--denied" : ""}`}>
+                  <div className={`ch-row-notch-fill${isPending ? " ch-row-notch-fill--pending" : isApproved ? " ch-row-notch-fill--approved" : isDenied ? " ch-row-notch-fill--denied" : ""}`}>
                   <div className="px-4 py-3" style={{ paddingLeft: "calc(1rem + 20px)" }}>
                     <div className="flex items-center gap-3">
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -361,7 +363,7 @@ function ModAltAccountsTab() {
                           {isPending && <span className="badge-pending-date" style={{ marginLeft: "0.4rem" }}>Requested on {new Date(req.createdAt).toLocaleDateString()}</span>}
                           {isDenied && <span className="badge-offline" style={{ marginLeft: "0.4rem" }}>Denied</span>}
                           {!isPending && req.reviewedAt && (
-                            <span className="badge-info" style={{ marginLeft: "0.4rem" }}>Reviewed on {new Date(req.reviewedAt).toLocaleDateString(undefined, { month: "numeric", day: "numeric", year: "numeric" })}</span>
+                            <span className="badge-info" style={{ marginLeft: "0.4rem" }}>Reviewed by {req.reviewerRsn ?? req.reviewerUsername ?? "Unknown"}, on {new Date(req.reviewedAt).toLocaleDateString(undefined, { month: "numeric", day: "numeric", year: "numeric" })}</span>
                           )}
                         </div>
                         <div className="ch-user-row-details" style={{ marginTop: "0.2rem" }}>

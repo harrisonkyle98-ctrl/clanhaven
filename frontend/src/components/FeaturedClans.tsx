@@ -1,5 +1,6 @@
 import { featuredClans } from "@/data/mockData"
 import CollapsiblePanel from "@/components/CollapsiblePanel"
+import { MiniClanVexillum } from "@/components/MiniClanVexillum"
 
 export default function FeaturedClans() {
   return (
@@ -13,9 +14,7 @@ export default function FeaturedClans() {
             <div className="relative z-1 flex flex-col flex-1">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-sm bg-gradient-to-br ${clan.bannerColor} flex items-center justify-center`}>
-                    <span className="text-sm font-bold text-white/90">{clan.name[0]}</span>
-                  </div>
+                  <MiniClanVexillum size={36} />
                   <div>
                     <div className="text-sm font-semibold text-text-highlight group-hover:text-gold transition-colors">
                       {clan.name}

@@ -12,6 +12,8 @@ from app.core.auth import get_current_user
 from app.core.config import settings
 from app.core.database import db
 from app.services.clan_indexer import fetch_and_index_clan, lookup_clan_for_rsn
+from app.services.clan_hiscores_crawler import run_seed_job, cancel_seed_job, _running_tasks
+from app.services.color_detector import detect_clan_colors
 
 # ─── Moderation request models ───
 
@@ -67,6 +69,92 @@ async def admin_lookup_clan(rsn: str):
 
     clan_name = await lookup_clan_for_rsn(rsn)
     return {"rsn": rsn, "clan": clan_name}
+
+
+class SeedClansRequest(BaseModel):
+    startPage: int = 1
+    pageCount: int = 5
+    concurrency: int = 1
+
+
+@router.post("/seed-clans")
+async def admin_seed_clans(
+    body: SeedClansRequest,
+    _admin: dict = Depends(require_admin),
+):
+    """Start a background clan discovery seed job. Admin only."""
+    if body.pageCount > 50:
+        raise HTTPException(status_code=400, detail="pageCount cannot exceed 50 per batch")
+    if body.concurrency < 1 or body.concurrency > 5:
+        raise HTTPException(status_code=400, detail="concurrency must be between 1 and 5")
+
+    # Check for already running jobs
+    running = await db.seedjob.find_first(where={"status": "running"})
+    if running:
+        raise HTTPException(status_code=409, detail="A seed job is already running")
+
+    import asyncio
+
+    job = await db.seedjob.create(
+        data={
+            "status": "pending",
+            "startPage": body.startPage,
+            "pageCount": body.pageCount,
+            "concurrency": body.concurrency,
+            "createdByUserId": _admin["sub"],
+        }
+    )
+
+    # Fire off background task and track it for cancellation
+    task = asyncio.create_task(run_seed_job(job.id))
+    _running_tasks[job.id] = task
+
+    return {"jobId": job.id, "status": "pending"}
+
+
+@router.post("/seed-jobs/{job_id}/stop")
+async def admin_stop_seed_job(
+    job_id: str,
+    _admin: dict = Depends(require_admin),
+):
+    """Stop a running seed job. Admin only."""
+    job = await db.seedjob.find_unique(where={"id": job_id})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    if job.status not in ("running", "pending"):
+        raise HTTPException(status_code=400, detail="Job is not running")
+
+    await cancel_seed_job(job_id)
+    return {"status": "stopped", "jobId": job_id}
+
+
+@router.get("/seed-jobs/latest")
+async def admin_get_latest_seed_job(
+    _admin: dict = Depends(require_admin),
+):
+    """Get the most recent seed job status."""
+    job = await db.seedjob.find_first(order={"createdAt": "desc"})
+    if not job:
+        return {"job": None}
+    return {
+        "job": {
+            "id": job.id,
+            "status": job.status,
+            "startPage": job.startPage,
+            "pageCount": job.pageCount,
+            "pagesProcessed": job.pagesProcessed,
+            "clansDiscovered": job.clansDiscovered,
+            "clansIndexed": job.clansIndexed,
+            "clansFailed": job.clansFailed,
+            "currentPage": job.currentPage,
+            "currentClan": job.currentClan,
+            "concurrency": job.concurrency,
+            "lastError": job.lastError,
+            "startedAt": job.startedAt.isoformat() if job.startedAt else None,
+            "completedAt": job.completedAt.isoformat() if job.completedAt else None,
+            "createdAt": job.createdAt.isoformat(),
+        }
+    }
 
 
 @router.get("/users")
@@ -657,3 +745,45 @@ async def remove_ip_ban(ban_id: str, _admin: dict = Depends(require_admin)):
         data={"active": False},
     )
     return {"success": True, "active": updated.active}
+
+
+# ─── Color Detection Backfill ───
+
+
+@router.post("/color-backfill")
+async def backfill_clan_colors(
+    limit: int = 50,
+    force: bool = False,
+    _admin: dict = Depends(require_admin),
+):
+    """Backfill clan colors from motif images for existing indexed clans.
+
+    Processes clans that have a motif_url but no detected colors yet.
+    Set force=true to re-detect even for clans with existing colors.
+    """
+    where: dict = {"motifUrl": {"not": None}}
+    if not force:
+        where["OR"] = [
+            {"colorDetectionStatus": None},
+            {"colorDetectionStatus": "failed"},
+        ]
+
+    clans = await db.indexedclan.find_many(
+        where=where,
+        take=limit,
+        order={"rank": "asc"},
+    )
+
+    results = {"total": len(clans), "success": 0, "failed": 0, "errors": []}
+
+    for clan in clans:
+        if not clan.motifUrl:
+            continue
+        result = await detect_clan_colors(clan.id, clan.motifUrl)
+        if result["status"] == "success":
+            results["success"] += 1
+        else:
+            results["failed"] += 1
+            results["errors"].append({"clan": clan.name, "error": result.get("error", "unknown")})
+
+    return results

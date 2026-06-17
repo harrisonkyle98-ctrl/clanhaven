@@ -431,6 +431,82 @@ body {
   background: rgba(28, 24, 18, 0.85);
 }
 
+/* --- Status-themed notch section: pattern + accent borders --- */
+
+/* Pattern overlay on notch fill (same technique as arrow-fill::before) */
+.ch-row-notch-fill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  -webkit-mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: 20px 20px;
+  mask-size: 20px 20px;
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+  opacity: 0;
+}
+
+/* Content renders above pattern */
+.ch-row-notch-fill > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Tag container inside notch must be opaque so pattern doesn't bleed through */
+.ch-row-notch-fill .ch-user-row-details {
+  background: rgb(12, 10, 8);
+}
+
+/* --- PENDING: orange theme (#f59e0b) --- */
+.ch-row-notch-mid--pending {
+  background: rgba(245, 158, 11, 0.3);
+}
+.ch-row-notch-fill--pending {
+  box-shadow:
+    inset 0 1px 0 rgba(245, 158, 11, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+.ch-row-notch-fill--pending::before {
+  background-color: #f59e0b;
+  opacity: 0.05;
+}
+
+/* --- APPROVED: green theme (#4ade80) --- */
+.ch-row-notch-mid--approved {
+  background: rgba(74, 222, 128, 0.3);
+}
+.ch-row-notch-fill--approved {
+  box-shadow:
+    inset 0 1px 0 rgba(74, 222, 128, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+.ch-row-notch-fill--approved::before {
+  background-color: #4ade80;
+  opacity: 0.05;
+}
+
+/* --- DENIED: red theme (#ef4444) --- */
+.ch-row-notch-mid--denied {
+  background: rgba(239, 68, 68, 0.3);
+}
+.ch-row-notch-fill--denied {
+  box-shadow:
+    inset 0 1px 0 rgba(239, 68, 68, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+.ch-row-notch-fill--denied::before {
+  background-color: #ef4444;
+  opacity: 0.05;
+}
+
 
 /* ===========================================
    LOG ROW - Stormlight-style activity rows
@@ -842,6 +918,26 @@ body {
 
 .ch-sidebar-hidden {
   margin-left: calc(-1 * clamp(200px, 20vw, 300px));
+}
+
+/* ===========================================
+   SIDEBAR MOBILE - Overlay sidebar for small screens
+   =========================================== */
+.ch-sidebar-mobile {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  flex-direction: column;
+}
+
+.ch-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 90;
 }
 
 /* ===========================================
@@ -1520,12 +1616,24 @@ body {
   z-index: 1;
 }
 
+.ch-news-row-with-thumb {
+  padding: 0;
+  padding-left: 112px;
+  position: relative;
+}
+
 .ch-news-thumbnail {
-  width: 64px;
-  height: 64px;
+  width: 110px;
+  height: calc(100% - 4px);
   object-fit: cover;
   flex-shrink: 0;
-  border: 1px solid rgba(60, 50, 35, 0.4);
+  border: none;
+  border-right: 1px solid rgba(60, 50, 35, 0.4);
+  display: block;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  border-radius: 1px 0 0 1px;
 }
 
 /* ── Rich Text Editor ── */
@@ -2052,76 +2160,105 @@ body {
   }
 }
 
+/* ── Highlight cards — compact News expanded-view style ── */
 .ch-highlight-card {
   display: flex;
   flex-direction: column;
-  border-radius: 0;
+  border-radius: 2px;
   overflow: hidden;
-  border: 1px solid rgba(58, 50, 38, 0.7);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .ch-highlight-card-image {
   position: relative;
   height: 160px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
+  border-radius: 2px 2px 0 0;
 }
 
-
-
-.ch-highlight-card-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.ch-highlight-card-body {
-  flex: 1;
-  background: rgba(24, 21, 16, 0.7);
-  padding: 0.875rem;
-  position: relative;
-  border: none;
-  border-radius: 0;
-  box-shadow:
-    inset 0 2px 8px rgba(0, 0, 0, 0.2),
-    inset 0 0 40px rgba(0, 0, 0, 0.15);
-}
-
-.ch-highlight-card-body::after {
+/* Layered border on image — matches ch-news-banner--expanded */
+.ch-highlight-card-image::after {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 80px;
+  bottom: 0;
+  border-radius: 2px 2px 0 0;
+  box-shadow:
+    inset 1px 1px 0 rgba(10, 8, 5, 0.9),
+    inset -1px 0 0 rgba(10, 8, 5, 0.9),
+    inset 0 1px 0 rgba(10, 8, 5, 0.9),
+    inset 2px 2px 0 rgba(52, 45, 34, 0.6),
+    inset -2px 0 0 rgba(52, 45, 34, 0.6),
+    inset 0 2px 0 rgba(52, 45, 34, 0.6),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4);
   pointer-events: none;
-  background:
-    radial-gradient(
-      ellipse 70% 50% at 50% 0%,
-      rgba(255, 235, 200, 0.08) 0%,
-      rgba(255, 220, 180, 0.03) 50%,
-      transparent 100%
-    );
-  opacity: 0.8;
+  z-index: 2;
 }
 
-.ch-highlight-card-title {
+/* Title overlay on image — matches ch-news-banner-overlay */
+.ch-highlight-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.75rem 1rem 0.625rem;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.6) 40%,
+    rgba(0, 0, 0, 0.2) 70%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 3;
+}
+
+.ch-highlight-card-overlay-title {
   font-family: 'Cinzel', 'Times New Roman', serif;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #e8d5b0;
-  margin-bottom: 0.375rem;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.ch-highlight-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.ch-highlight-card:hover .ch-highlight-card-img {
+  transform: scale(1.04);
+}
+
+/* Body — matches ch-news-article-container */
+.ch-highlight-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  border-radius: 0 0 2px 2px;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  padding: 0.875rem 1rem;
 }
 
 .ch-highlight-card-desc {
-  font-size: 0.6875rem;
-  color: rgba(180, 165, 140, 0.7);
-  line-height: 1.5;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: #b0a088;
   margin: 0;
+  flex: 1;
 }
 
 .ch-highlight-card-explore {
@@ -2131,21 +2268,24 @@ body {
   width: 100%;
   margin-top: 0.875rem;
   margin-bottom: 0;
-  padding: 0.375rem 0.5rem;
+  padding: 0.4rem 0.5rem;
   font-size: 0.625rem;
-  color: rgba(200, 180, 150, 0.8);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #b0a088;
   cursor: pointer;
   border: none;
   border-radius: 2px;
-  background: rgba(28, 24, 18, 0.8);
+  background: rgba(22, 19, 14, 0.6);
   box-shadow:
     inset 0 0 0 1px rgba(10, 8, 5, 0.9),
     inset 0 0 0 2px rgba(52, 45, 34, 0.6),
     inset 0 1px 0 rgba(115, 98, 72, 0.15);
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .ch-highlight-card-explore:hover {
-  color: #f8f3ea;
+  color: #e8d5b0;
   background: rgba(38, 33, 26, 0.9);
   box-shadow:
     inset 0 0 0 1px rgba(10, 8, 5, 0.9),
@@ -2388,6 +2528,99 @@ body {
 
 .ch-sidebar-account-action--signout:hover {
   color: rgba(200, 180, 150, 0.8);
+}
+
+/* ── Identity switcher dropdown (portal, fixed positioning) ── */
+.ch-identity-dropdown {
+  background: rgba(18, 16, 12, 0.98);
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    0 4px 16px rgba(0, 0, 0, 0.5);
+  padding: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ch-identity-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.ch-identity-dropdown-item:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.ch-identity-dropdown-item--active {
+  background: rgba(96, 165, 250, 0.08);
+}
+
+.ch-identity-dropdown-item:disabled {
+  cursor: default;
+}
+
+.ch-identity-dropdown-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 2px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: rgba(60, 55, 45, 0.5);
+}
+
+.ch-identity-dropdown-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ch-identity-dropdown-rsn {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #e8d5b0;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ch-identity-dropdown-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.ch-identity-dropdown-tags .badge-clan,
+.ch-identity-dropdown-tags .badge-rs3,
+.ch-identity-dropdown-tags .badge-osrs {
+  font-size: 0.5rem;
+  padding: 0.1rem 0.3rem;
+}
+
+.ch-identity-dropdown-active {
+  font-size: 0.5rem;
+  font-weight: 600;
+  color: #60a5fa;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  flex-shrink: 0;
 }
 
 /* ── Logged-out: guest state ── */
@@ -2969,5 +3202,689 @@ body {
 .ch-loading-bar--complete {
   transition: width 0.15s ease-out, opacity 0.25s ease-out 0.1s;
   opacity: 0;
+}
+
+/* ===========================================
+   CLAN DIRECTORY PAGE
+   =========================================== */
+
+.ch-discovery-controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.ch-discovery-count {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.ch-discovery-search {
+  flex: 1;
+  max-width: 320px;
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 2px 6px rgba(0, 0, 0, 0.3);
+  color: var(--color-text-warm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.ch-discovery-search::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.ch-discovery-search:focus {
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(201, 162, 39, 0.4),
+    inset 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.ch-discovery-sort {
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6);
+  color: var(--color-text-warm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.ch-discovery-sort:focus {
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(201, 162, 39, 0.4);
+}
+
+.ch-discovery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 1200px) {
+  .ch-discovery-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .ch-discovery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .ch-discovery-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ch-discovery-card {
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 160px;
+}
+
+.ch-discovery-card.ch-stat-cell::before {
+  z-index: 10;
+}
+
+.ch-discovery-card.ch-stat-cell {
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ch-discovery-card-header {
+  position: relative;
+  overflow: hidden;
+  margin: 2px 2px 0 2px;
+  height: 50%;
+  min-height: 0;
+  box-shadow:
+    0 1px 0 0 rgba(52, 45, 34, 0.6);
+}
+
+
+
+.ch-discovery-card-header-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  opacity: 0.6;
+}
+
+.ch-discovery-card-header-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.ch-discovery-card-vexillum {
+  position: absolute;
+  bottom: -5px;
+  left: 1rem;
+  z-index: 3;
+}
+
+.ch-discovery-card-header-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.6rem;
+}
+
+.ch-discovery-card-header-center {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+}
+
+.ch-discovery-card-name {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-highlight);
+  transition: color 0.2s ease;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.ch-discovery-card:hover .ch-discovery-card-name {
+  color: var(--color-gold);
+}
+
+
+
+.ch-discovery-card-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  height: 50%;
+  padding: 0.6rem 0.75rem;
+  position: relative;
+  margin: 0 2px;
+  box-shadow:
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.ch-discovery-card-stats::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(175, 150, 110, 0.25) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.ch-discovery-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+}
+
+.ch-discovery-stat.ch-stat-cell:hover {
+  background: rgba(22, 19, 14, 0.8);
+}
+
+.ch-discovery-stat-label {
+  font-size: 0.5625rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ch-discovery-stat-value {
+  font-size: 0.75rem;
+  color: var(--color-text-warm);
+  font-weight: 500;
+}
+
+.ch-xp-green {
+  color: var(--color-xp-green);
+}
+
+.ch-discovery-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding: 1rem 0;
+}
+
+.ch-discovery-page-btn {
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6);
+  color: var(--color-text-muted);
+  padding: 0.4rem 0.7rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ch-discovery-page-btn:hover:not(:disabled) {
+  background: rgba(28, 24, 18, 0.85);
+  color: var(--color-text-highlight);
+}
+
+.ch-discovery-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ch-discovery-page-info {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  padding: 0 0.5rem;
+}
+
+.ch-discovery-loading,
+.ch-discovery-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+
+/* ===========================================
+   CLAN PAGE
+   =========================================== */
+
+.ch-clanpage-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.ch-clanpage-card-col {
+  width: 30%;
+  min-width: 220px;
+  flex-shrink: 0;
+}
+
+.ch-clanpage-card {
+  display: flex;
+  flex-direction: column;
+  height: 160px;
+  padding: 0;
+  cursor: default;
+  position: relative;
+  background: rgba(22, 19, 14, 0.8);
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ch-clanpage-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  z-index: 10;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(175, 150, 110, 0.25) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.ch-clanpage-stat {
+  position: relative;
+  background: rgba(22, 19, 14, 0.8);
+  border: none;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.6),
+    inset 0 1px 0 rgba(115, 98, 72, 0.2),
+    inset 0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ch-clanpage-stat::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(175, 150, 110, 0.25) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ch-clanpage-roster-col {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .ch-clanpage-layout {
+    flex-direction: column;
+  }
+
+  .ch-clanpage-card-col {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+.ch-clan-loading,
+.ch-clan-error {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.ch-clan-back-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--color-gold);
+  text-decoration: none;
+  font-size: 0.8125rem;
+}
+
+.ch-clan-back-link:hover {
+  color: var(--color-text-highlight);
+}
+
+/* Verified badge */
+.ch-clan-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  font-size: 0.875rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+/* Tabs */
+.ch-clan-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(52, 45, 34, 0.5);
+}
+
+.ch-clan-tab {
+  background: none;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.ch-clan-tab:hover {
+  color: var(--color-text-warm);
+}
+
+.ch-clan-tab--active {
+  color: var(--color-gold);
+  border-bottom-color: var(--color-gold);
+}
+
+/* Stats row */
+.ch-clan-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .ch-clan-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Roster */
+.ch-clan-roster-wrapper {
+  background: rgba(16, 14, 10, 0.4);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.5);
+  padding: 1rem;
+}
+
+.ch-clan-roster-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.ch-clan-roster-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-highlight);
+  margin: 0;
+}
+
+.ch-clan-roster-count {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+}
+
+.ch-clan-roster-table-wrap {
+  overflow-x: auto;
+}
+
+.ch-clan-roster-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.ch-roster-th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid rgba(52, 45, 34, 0.4);
+}
+
+.ch-roster-right {
+  text-align: right;
+}
+
+.ch-roster-row {
+  transition: background 0.15s ease;
+}
+
+.ch-roster-row:hover {
+  background: rgba(22, 19, 14, 0.5);
+}
+
+.ch-roster-td {
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid rgba(52, 45, 34, 0.2);
+  color: var(--color-text-warm);
+}
+
+.ch-roster-rsn {
+  font-weight: 600;
+  color: var(--color-text-highlight);
+}
+
+.ch-roster-rank {
+  color: var(--color-text-muted);
+}
+
+.ch-roster-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0 0.25rem;
+  border-top: 1px solid rgba(52, 45, 34, 0.3);
+  margin-top: 0.5rem;
+}
+
+.ch-roster-page-btn {
+  background: rgba(22, 19, 14, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(52, 45, 34, 0.5);
+  color: var(--color-text-warm);
+  border: none;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ch-roster-page-btn:hover:not(:disabled) {
+  background: rgba(38, 33, 26, 0.8);
+}
+
+.ch-roster-page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.ch-roster-page-info {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Clan Management ── */
+
+.ch-clan-management {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ch-clan-mgmt-section {
+  background: rgba(16, 14, 10, 0.4);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 8, 5, 0.9),
+    inset 0 0 0 2px rgba(52, 45, 34, 0.5);
+  padding: 1rem 1.25rem;
+}
+
+.ch-clan-mgmt-heading {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-text-highlight);
+  margin: 0 0 0.75rem 0;
+}
+
+.ch-clan-mgmt-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ch-clan-mgmt-status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ch-clan-mgmt-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  min-width: 7rem;
+}
+
+.ch-clan-mgmt-value {
+  font-size: 0.75rem;
+  color: var(--color-text-warm);
+}
+
+.ch-clan-mgmt-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+}
+
+.ch-clan-mgmt-badge--verified {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.3);
+}
+
+.ch-clan-mgmt-badge--unverified {
+  background: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+  box-shadow: inset 0 0 0 1px rgba(234, 179, 8, 0.25);
+}
+
+.ch-clan-mgmt-verify {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(52, 45, 34, 0.3);
+}
+
+.ch-clan-mgmt-verify-text {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0 0 0.5rem 0;
+}
+
+.ch-clan-mgmt-verify-btn {
+  background: rgba(34, 197, 94, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ch-clan-mgmt-verify-btn:hover {
+  background: rgba(34, 197, 94, 0.25);
+}
+
+.ch-clan-mgmt-verify-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ch-clan-mgmt-error {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #ef4444;
+}
+
+.ch-clan-mgmt-placeholder {
+  opacity: 0.5;
+}
+
+.ch-clan-mgmt-coming {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0;
+  font-style: italic;
 }
 
