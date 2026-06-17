@@ -238,18 +238,36 @@ async def fetch_and_index_clan(
         skip_duplicates=True,
     )
 
-    # ── Step 5: Create a clan snapshot ──
-    await db.clansnapshot.create(
-        data={
-            "clanId": indexed_clan.id,
-            "clanRank": indexed_clan.rank,
-            "memberCount": len(unique_members),
-            "totalXp": indexed_clan.totalXp,
-            "membersJoinedSinceLast": len(joined_rsns),
-            "membersLeftSinceLast": len(left_rsns),
-            "snapshotAt": now,
-        }
+    # ── Step 5: Create a clan snapshot (with daily dedup) ──
+    from datetime import date as _date
+    today = _date.today()
+    snapshot_date = datetime(today.year, today.month, today.day, tzinfo=timezone.utc)
+
+    # Only create if no snapshot exists for today (dedup)
+    existing_snapshot = await db.clansnapshot.find_first(
+        where={"clanId": indexed_clan.id, "snapshotDate": snapshot_date},
     )
+    if not existing_snapshot:
+        await db.clansnapshot.create(
+            data={
+                "clanId": indexed_clan.id,
+                "clanRank": indexed_clan.rank,
+                "memberCount": len(unique_members),
+                "totalXp": roster_total_xp,
+                "membersJoinedSinceLast": len(joined_rsns),
+                "membersLeftSinceLast": len(left_rsns),
+                "snapshotAt": now,
+                "snapshotDate": snapshot_date,
+            }
+        )
+
+    # ── Step 6: Record activity events for membership changes ──
+    if joined_rsns or left_rsns:
+        try:
+            from app.services.activity_detection import detect_clan_membership_changes
+            await detect_clan_membership_changes(indexed_clan.id, joined_rsns, left_rsns)
+        except Exception as e:
+            logger.warning("Activity detection failed for clan '%s': %s", clan_name, e)
 
     logger.info(
         "Indexed %d members for clan '%s' (joined=%d, left=%d)",

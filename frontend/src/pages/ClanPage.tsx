@@ -239,7 +239,11 @@ export default function ClanPage() {
                           <tbody>
                             {pageMembers.map((m) => (
                               <tr key={m.id} className="ch-roster-row">
-                                <td className="ch-roster-td ch-roster-rsn">{m.rsn}</td>
+                                <td className="ch-roster-td ch-roster-rsn">
+                                  <Link to={`/player/${m.rsn.toLowerCase().replace(/\s+/g, "-")}`} className="ch-roster-rsn-link">
+                                    {m.rsn}
+                                  </Link>
+                                </td>
                                 <td className="ch-roster-td ch-roster-rank">{m.clanRank || "—"}</td>
                                 <td className="ch-roster-td ch-roster-right">{formatXp(m.clanXp)}</td>
                                 <td className="ch-roster-td ch-roster-right">{m.kills.toLocaleString()}</td>
