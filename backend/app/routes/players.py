@@ -343,3 +343,47 @@ async def trigger_batch_backfill(
         "backfills_attempted": len(results),
         "results": results,
     }
+
+
+# ─── Admin: Hiscores Refresh ───
+
+
+@router.post("/admin/hiscores/refresh-all")
+async def trigger_hiscores_refresh(
+    current_user: dict = Depends(get_current_user),
+    limit: int = Query(500, ge=1, le=10000),
+    concurrency: int = Query(5, ge=1, le=20),
+):
+    """Refresh RS3 Hiscores data for all indexed players. Admin only.
+
+    Fetches current skill levels and XP from the official RS3 Hiscores API.
+    """
+    user = await db.user.find_unique(where={"id": current_user["sub"]})
+    if not user or user.privileges < 2:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    from app.services.player_hiscores import refresh_all_player_hiscores
+    result = await refresh_all_player_hiscores(limit=limit, concurrency=concurrency)
+    return result
+
+
+@router.post("/admin/hiscores/refresh/{rsn_slug:path}")
+async def trigger_single_hiscores_refresh(
+    rsn_slug: str,
+    current_user: dict = Depends(get_current_user),
+):
+    """Refresh RS3 Hiscores data for a single player. Admin only."""
+    user = await db.user.find_unique(where={"id": current_user["sub"]})
+    if not user or user.privileges < 2:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    normalized = _rsn_from_slug(rsn_slug)
+    player = await db.rs3player.find_first(
+        where={"normalizedRsn": normalized},
+    )
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found")
+
+    from app.services.player_hiscores import refresh_player_hiscores
+    result = await refresh_player_hiscores(player.id, player.rsn)
+    return result
