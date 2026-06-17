@@ -351,19 +351,25 @@ async def trigger_batch_backfill(
 @router.post("/admin/hiscores/refresh-all")
 async def trigger_hiscores_refresh(
     current_user: dict = Depends(get_current_user),
-    limit: int = Query(500, ge=1, le=10000),
-    concurrency: int = Query(5, ge=1, le=20),
+    limit: int = Query(0, ge=0, le=10000000),
+    concurrency: int = Query(25, ge=1, le=50),
+    only_missing: bool = Query(False),
 ):
     """Refresh RS3 Hiscores data for all indexed players. Admin only.
 
     Fetches current skill levels and XP from the official RS3 Hiscores API.
+    Set limit=0 for no limit. Set only_missing=true to skip already-refreshed players.
     """
     user = await db.user.find_unique(where={"id": current_user["sub"]})
     if not user or user.privileges < 2:
         raise HTTPException(status_code=403, detail="Admin access required")
 
     from app.services.player_hiscores import refresh_all_player_hiscores
-    result = await refresh_all_player_hiscores(limit=limit, concurrency=concurrency)
+    result = await refresh_all_player_hiscores(
+        limit=limit if limit > 0 else None,
+        concurrency=concurrency,
+        only_missing=only_missing,
+    )
     return result
 
 
