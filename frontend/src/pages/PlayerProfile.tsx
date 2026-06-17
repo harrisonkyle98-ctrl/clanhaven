@@ -191,7 +191,7 @@ export default function PlayerProfile() {
             <CollapsiblePanel variant="blue" title="Skills" headerRight={<span className="ch-clan-roster-count">{skills.length + 1} entries</span>}>
               <div className="ch-player-skill-rows">
                 {/* Total XP row first */}
-                <div className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#c9a227" } as React.CSSProperties}>
+                <div className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#a49680" } as React.CSSProperties}>
                   <div className="ch-player-skill-row-inner">
                     <div className="ch-player-skill-icon-wrap">
                       <img src="/images/skills/overall.png" alt="Overall" className="ch-player-skill-icon" />
@@ -200,7 +200,7 @@ export default function PlayerProfile() {
                       <span className="ch-player-skill-row-name">Overall</span>
                       <span className="ch-player-skill-row-xp">{formatXpFull(player.totalXp)} XP</span>
                     </div>
-                    <div className="ch-player-skill-level-badge ch-player-skill-level-badge--total">
+                    <div className="ch-player-skill-level-badge">
                       {player.totalLevel.toLocaleString()}
                     </div>
                   </div>
