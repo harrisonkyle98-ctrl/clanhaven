@@ -117,7 +117,6 @@ export default function PlayerProfile() {
         <div className="ch-page-content p-4 lg:p-6">
           <div className="ch-clan-error">
             <p>{error || "This player could not be found."}</p>
-            <Link to="/clan-directory" className="ch-clan-back-link">← Back to Clan Directory</Link>
           </div>
         </div>
       </div>
@@ -138,9 +137,6 @@ export default function PlayerProfile() {
       </div>
 
       <div className="ch-page-content p-4 lg:p-6">
-        {/* Back link */}
-        <Link to="/clan-directory" className="ch-clan-back-link" style={{ marginBottom: "1rem", display: "inline-block" }}>← Back to Clan Directory</Link>
-
         {/* Two-column layout: sidebar (30%) + skills (70%) */}
         <div className="ch-player-layout">
           {/* Left sidebar: Player info card */}
