@@ -267,7 +267,17 @@ export default function SidebarAccountModule() {
           <div className="ch-sidebar-account-divider" />
 
           <div className="ch-sidebar-account-actions">
-            <button className="ch-sidebar-account-action">
+            <button
+              onClick={() => {
+                if (user.rsn) {
+                  navigate(`/player/${user.rsn.toLowerCase().replace(/\s+/g, "-")}`)
+                } else {
+                  navigate("/settings")
+                }
+              }}
+              className="ch-sidebar-account-action"
+              title={user.rsn ? `View ${user.rsn}'s profile` : "Link your RSN first"}
+            >
               <span>My Profile</span>
             </button>
             <button

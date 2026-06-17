@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import { apiFetch } from "@/lib/api"
+import CollapsiblePanel from "@/components/CollapsiblePanel"
 
 interface PlayerData {
   id: string
@@ -35,19 +36,7 @@ interface PlayerProfileResponse {
   hasHistory: boolean
 }
 
-interface GainsData {
-  daily: { totalXp: number; totalLevel: number; period: string } | null
-  weekly: { totalXp: number; totalLevel: number; period: string } | null
-  monthly: { totalXp: number; totalLevel: number; period: string } | null
-  message?: string
-}
 
-interface ActivityEvent {
-  id: string
-  eventType: string
-  metadata: Record<string, unknown>
-  occurredAt: string
-}
 
 function formatXp(xp: number): string {
   if (xp >= 1_000_000_000) return `${(xp / 1_000_000_000).toFixed(1)}B`
@@ -56,12 +45,8 @@ function formatXp(xp: number): string {
   return xp.toLocaleString()
 }
 
-function formatGain(xp: number): string {
-  if (xp === 0) return "—"
-  const prefix = xp > 0 ? "+" : ""
-  if (Math.abs(xp) >= 1_000_000) return `${prefix}${(xp / 1_000_000).toFixed(1)}M`
-  if (Math.abs(xp) >= 1_000) return `${prefix}${(xp / 1_000).toFixed(1)}K`
-  return `${prefix}${xp.toLocaleString()}`
+function formatXpFull(xp: number): string {
+  return xp.toLocaleString()
 }
 
 function getAccountTypeLabel(type: string): string | null {
@@ -80,8 +65,6 @@ function getSkillDisplayName(name: string): string {
 export default function PlayerProfile() {
   const { rsn } = useParams<{ rsn: string }>()
   const [data, setData] = useState<PlayerProfileResponse | null>(null)
-  const [gains, setGains] = useState<GainsData | null>(null)
-  const [activity, setActivity] = useState<ActivityEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -95,14 +78,7 @@ export default function PlayerProfile() {
         const res = await apiFetch<PlayerProfileResponse>(`/api/players/profile/${rsn}`)
         setData(res)
 
-        // Fetch gains and activity in parallel
-        const [gainsRes, activityRes] = await Promise.allSettled([
-          apiFetch<GainsData>(`/api/players/profile/${rsn}/gains`),
-          apiFetch<{ events: ActivityEvent[] }>(`/api/players/profile/${rsn}/activity`),
-        ])
 
-        if (gainsRes.status === "fulfilled") setGains(gainsRes.value)
-        if (activityRes.status === "fulfilled") setActivity(activityRes.value.events)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load player profile")
       } finally {
@@ -161,167 +137,101 @@ export default function PlayerProfile() {
         </div>
       </div>
 
-      <div className="ch-page-content p-4 lg:p-6 space-y-4">
+      <div className="ch-page-content p-4 lg:p-6">
         {/* Back link */}
-        <Link to="/clan-directory" className="ch-clan-back-link">← Back to Clan Directory</Link>
+        <Link to="/clan-directory" className="ch-clan-back-link" style={{ marginBottom: "1rem", display: "inline-block" }}>← Back to Clan Directory</Link>
 
-        {/* Player Header */}
-        <div className="ch-stat-cell ch-player-header">
-          <div className="ch-player-header-info">
-            <h2 className="ch-player-name">{player.rsn}</h2>
-            <div className="ch-player-tags">
-              <span className="ch-player-tag ch-player-tag--rs3">RS3</span>
-              {accountLabel && (
-                <span className="ch-player-tag ch-player-tag--ironman">{accountLabel}</span>
-              )}
-            </div>
-            {clan && (
-              <div className="ch-player-clan-info">
-                <Link to={`/${clan.slug}`} className="ch-player-clan-link">
-                  {clan.name}
-                </Link>
-                {clan.rank && <span className="ch-player-clan-rank">({clan.rank})</span>}
+        {/* Two-column layout: sidebar (30%) + skills (70%) */}
+        <div className="ch-player-layout">
+          {/* Left sidebar: Player info card */}
+          <div className="ch-player-sidebar">
+            <div className="ch-stat-cell ch-player-sidebar-card">
+              <div className="ch-player-sidebar-header">
+                <h2 className="ch-player-name">{player.rsn}</h2>
+                <div className="ch-player-tags">
+                  <span className="ch-player-tag ch-player-tag--rs3">RS3</span>
+                  {accountLabel && (
+                    <span className="ch-player-tag ch-player-tag--ironman">{accountLabel}</span>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Current Stats */}
-        <div className="ch-player-stats-row">
-          <div className="ch-stat-cell ch-player-stat-box">
-            <span className="ch-discovery-stat-label">Total XP</span>
-            <span className="ch-discovery-stat-value ch-xp-green">{formatXp(player.totalXp)}</span>
-          </div>
-          <div className="ch-stat-cell ch-player-stat-box">
-            <span className="ch-discovery-stat-label">Total Level</span>
-            <span className="ch-discovery-stat-value">{player.totalLevel.toLocaleString()}</span>
-          </div>
-          <div className="ch-stat-cell ch-player-stat-box">
-            <span className="ch-discovery-stat-label">Combat Level</span>
-            <span className="ch-discovery-stat-value">{player.combatLevel}</span>
-          </div>
-        </div>
-
-        {/* XP Gains */}
-        {gains && !gains.message && (
-          <div className="ch-player-gains-section">
-            <h3 className="ch-player-section-title">XP Gains</h3>
-            <div className="ch-player-stats-row">
-              {gains.daily && (
-                <div className="ch-stat-cell ch-player-stat-box">
-                  <span className="ch-discovery-stat-label">Daily</span>
-                  <span className="ch-discovery-stat-value ch-xp-green">{formatGain(gains.daily.totalXp)}</span>
+              {clan && (
+                <div className="ch-player-sidebar-clan">
+                  <span className="ch-player-sidebar-label">Clan</span>
+                  <Link to={`/${clan.slug}`} className="ch-player-clan-link">
+                    {clan.name}
+                  </Link>
+                  {clan.rank && <span className="ch-player-clan-rank">{clan.rank}</span>}
                 </div>
               )}
-              {gains.weekly && (
-                <div className="ch-stat-cell ch-player-stat-box">
-                  <span className="ch-discovery-stat-label">Weekly</span>
-                  <span className="ch-discovery-stat-value ch-xp-green">{formatGain(gains.weekly.totalXp)}</span>
-                </div>
-              )}
-              {gains.monthly && (
-                <div className="ch-stat-cell ch-player-stat-box">
-                  <span className="ch-discovery-stat-label">Monthly</span>
-                  <span className="ch-discovery-stat-value ch-xp-green">{formatGain(gains.monthly.totalXp)}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
-        {/* Skills */}
-        <div className="ch-player-skills-section">
-          <h3 className="ch-player-section-title">Skills</h3>
-          <div className="ch-player-skills-grid">
-            {skills.map((skill) => (
-              <div key={skill.name} className="ch-stat-cell ch-player-skill-card">
-                <span className="ch-player-skill-name">{getSkillDisplayName(skill.name)}</span>
-                <span className="ch-player-skill-level">{skill.level}</span>
-                <span className="ch-player-skill-xp">{formatXp(skill.xp)} XP</span>
+              <div className="ch-player-sidebar-stats">
+                <div className="ch-player-sidebar-stat">
+                  <span className="ch-player-sidebar-label">Total Level</span>
+                  <span className="ch-player-sidebar-value">{player.totalLevel.toLocaleString()}</span>
+                </div>
+                <div className="ch-player-sidebar-stat">
+                  <span className="ch-player-sidebar-label">Total XP</span>
+                  <span className="ch-player-sidebar-value ch-xp-green">{formatXp(player.totalXp)}</span>
+                </div>
+                <div className="ch-player-sidebar-stat">
+                  <span className="ch-player-sidebar-label">Combat Level</span>
+                  <span className="ch-player-sidebar-value">{player.combatLevel}</span>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Historical Placeholders */}
-        <div className="ch-player-history-section">
-          <h3 className="ch-player-section-title">History</h3>
-          {data.hasHistory ? (
-            <div className="ch-stat-cell ch-player-history-placeholder">
-              <p>{data.snapshotCount} snapshots recorded</p>
-              <p className="ch-player-history-note">XP graphs and detailed skill history coming soon.</p>
-            </div>
-          ) : (
-            <div className="ch-stat-cell ch-player-history-placeholder">
-              <p>No historical data yet.</p>
-              <p className="ch-player-history-note">Snapshots are generated daily — check back soon for XP history and skill progression.</p>
-            </div>
-          )}
-        </div>
-
-        {/* Activity Feed */}
-        <div className="ch-player-activity-section">
-          <h3 className="ch-player-section-title">Activity</h3>
-          {activity.length > 0 ? (
-            <div className="ch-player-activity-list">
-              {activity.map((event) => (
-                <div key={event.id} className="ch-stat-cell ch-player-activity-item">
-                  <span className="ch-player-activity-type">{formatEventType(event.eventType)}</span>
-                  <span className="ch-player-activity-detail">{formatEventDetail(event)}</span>
-                  <span className="ch-player-activity-time">{formatTimeAgo(event.occurredAt)}</span>
+              {data.hasHistory && (
+                <div className="ch-player-sidebar-stat" style={{ marginTop: "0.5rem", paddingTop: "0.5rem", borderTop: "1px solid rgba(68, 58, 44, 0.3)" }}>
+                  <span className="ch-player-sidebar-label">Snapshots</span>
+                  <span className="ch-player-sidebar-value">{data.snapshotCount}</span>
                 </div>
-              ))}
+              )}
             </div>
-          ) : (
-            <div className="ch-stat-cell ch-player-history-placeholder">
-              <p>No activity detected yet.</p>
-              <p className="ch-player-history-note">Activity events (XP gains, level-ups, clan changes) will appear here once snapshots are generated.</p>
-            </div>
-          )}
+          </div>
+
+          {/* Right content: Skills */}
+          <div className="ch-player-main">
+            <CollapsiblePanel variant="blue" title="Skills" headerRight={<span className="ch-clan-roster-count">{skills.length + 1} entries</span>}>
+              <div className="ch-player-skill-rows">
+                {/* Total XP row first */}
+                <div className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#c9a227" } as React.CSSProperties}>
+                  <div className="ch-player-skill-row-inner">
+                    <div className="ch-player-skill-icon-wrap">
+                      <img src="/images/skills/overall.png" alt="Overall" className="ch-player-skill-icon" />
+                    </div>
+                    <div className="ch-player-skill-info">
+                      <span className="ch-player-skill-row-name">Overall</span>
+                      <span className="ch-player-skill-row-xp">{formatXpFull(player.totalXp)} XP</span>
+                    </div>
+                    <div className="ch-player-skill-level-badge ch-player-skill-level-badge--total">
+                      {player.totalLevel.toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Individual skill rows */}
+                {skills.map((skill) => (
+                  <div key={skill.name} className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#a49680" } as React.CSSProperties}>
+                    <div className="ch-player-skill-row-inner">
+                      <div className="ch-player-skill-icon-wrap">
+                        <img src={`/images/skills/${skill.name}.png`} alt={skill.name} className="ch-player-skill-icon" />
+                      </div>
+                      <div className="ch-player-skill-info">
+                        <span className="ch-player-skill-row-name">{getSkillDisplayName(skill.name)}</span>
+                        <span className="ch-player-skill-row-xp">{formatXpFull(skill.xp)} XP</span>
+                      </div>
+                      <div className="ch-player-skill-level-badge">
+                        {skill.level}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CollapsiblePanel>
+          </div>
         </div>
       </div>
     </div>
   )
-}
-
-function formatEventType(type: string): string {
-  switch (type) {
-    case "xp_gained": return "XP Gained"
-    case "level_gained": return "Level Up"
-    case "clan_changed": return "Clan Changed"
-    case "member_joined": return "Joined Clan"
-    case "member_left": return "Left Clan"
-    default: return type.replace(/_/g, " ")
-  }
-}
-
-function formatEventDetail(event: ActivityEvent): string {
-  const meta = event.metadata
-  if (!meta) return ""
-
-  switch (event.eventType) {
-    case "xp_gained":
-      return `+${formatXp(meta.xp_gained as number)} XP`
-    case "level_gained":
-      if (meta.skill) return `${getSkillDisplayName(meta.skill as string)} → Level ${meta.new_level}`
-      return `Total Level → ${meta.total_level}`
-    case "clan_changed":
-      return `Moved to ${meta.new_clan || "Unknown"}`
-    default:
-      return ""
-  }
-}
-
-function formatTimeAgo(isoDate: string): string {
-  const now = new Date()
-  const date = new Date(isoDate)
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  const diffHours = Math.floor(diffMs / 3600000)
-  const diffDays = Math.floor(diffMs / 86400000)
-
-  if (diffMins < 60) return `${diffMins}m ago`
-  if (diffHours < 24) return `${diffHours}h ago`
-  if (diffDays < 30) return `${diffDays}d ago`
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
 }
