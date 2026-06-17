@@ -82,20 +82,20 @@ export function MiniClanVexillum({
 
         {/* Two small top banners — sit on top of both crossbars */}
         {/* Left small banner — border */}
-        <rect x="1.5" y="4.5" width="10" height="11" fill={secondaryColor} />
-        <rect x="1.5" y="4.5" width="10" height="11" fill="url(#border-grad)" />
+        <rect x="1.5" y="4.5" width="9.33" height="11" fill={secondaryColor} />
+        <rect x="1.5" y="4.5" width="9.33" height="11" fill="url(#border-grad)" />
         {/* Left small banner — primary fill inset */}
-        <rect x="2.5" y="5.5" width="8" height="9" fill={primaryColor} />
-        <rect x="2.5" y="5.5" width="8" height="9" fill="url(#banner-grad)" />
-        <rect x="2.5" y="5.5" width="8" height="9" fill="url(#cloth-sheen)" />
+        <rect x="2.5" y="5.5" width="7.33" height="9" fill={primaryColor} />
+        <rect x="2.5" y="5.5" width="7.33" height="9" fill="url(#banner-grad)" />
+        <rect x="2.5" y="5.5" width="7.33" height="9" fill="url(#cloth-sheen)" />
 
         {/* Right small banner — border */}
-        <rect x="12.5" y="4.5" width="10" height="11" fill={secondaryColor} />
-        <rect x="12.5" y="4.5" width="10" height="11" fill="url(#border-grad)" />
+        <rect x="13.17" y="4.5" width="9.33" height="11" fill={secondaryColor} />
+        <rect x="13.17" y="4.5" width="9.33" height="11" fill="url(#border-grad)" />
         {/* Right small banner — primary fill inset */}
-        <rect x="13.5" y="5.5" width="8" height="9" fill={primaryColor} />
-        <rect x="13.5" y="5.5" width="8" height="9" fill="url(#banner-grad)" />
-        <rect x="13.5" y="5.5" width="8" height="9" fill="url(#cloth-sheen)" />
+        <rect x="14.17" y="5.5" width="7.33" height="9" fill={primaryColor} />
+        <rect x="14.17" y="5.5" width="7.33" height="9" fill="url(#banner-grad)" />
+        <rect x="14.17" y="5.5" width="7.33" height="9" fill="url(#cloth-sheen)" />
 
         {/* Upper crossbar for large banner — no spear points, banner sits below */}
         <rect x="5" y="16.5" width="14" height="1" rx="0.3" fill={accentColor} />
