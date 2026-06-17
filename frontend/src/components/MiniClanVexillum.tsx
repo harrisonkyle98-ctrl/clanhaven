@@ -97,10 +97,6 @@ export function MiniClanVexillum({
         <rect x="14.17" y="5.5" width="7.33" height="9" fill="url(#banner-grad)" />
         <rect x="14.17" y="5.5" width="7.33" height="9" fill="url(#cloth-sheen)" />
 
-        {/* Redraw pole segment over the crossbar area between the small banners */}
-        <rect x="11.33" y="4.5" width="1.34" height="11" fill={accentColor} opacity="0.75" />
-        <rect x="11.33" y="4.5" width="1.34" height="11" fill="url(#pole-grad)" />
-
         {/* Upper crossbar for large banner — no spear points, banner sits below */}
         <rect x="5" y="16.5" width="14" height="1" rx="0.3" fill={accentColor} />
         <rect x="5" y="16.5" width="14" height="1" rx="0.3" fill="url(#crossbar-grad)" />
