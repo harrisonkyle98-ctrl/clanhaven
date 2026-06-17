@@ -188,7 +188,7 @@ export default function PlayerProfile() {
 
           {/* Right content: Skills */}
           <div className="ch-player-main">
-            <CollapsiblePanel variant="blue" title="Skills" headerRight={<span className="ch-clan-roster-count">{skills.length + 1} entries</span>}>
+            <CollapsiblePanel variant="blue" title="Skills">
               <div className="ch-player-skill-rows">
                 {/* Total XP row first */}
                 <div className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#a49680" } as React.CSSProperties}>
