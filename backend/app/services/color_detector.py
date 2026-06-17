@@ -339,8 +339,8 @@ def extract_colors_from_image(image_data: bytes) -> tuple[str, str]:
     return primary_hex, secondary_hex
 
 
-async def detect_clan_colors(clan_id: str, motif_url: str) -> dict:
-    """Download motif image for a clan, detect colors, and store them.
+async def detect_clan_colors_with_client(client: httpx.AsyncClient, clan_id: str, motif_url: str) -> dict:
+    """Download motif image using a shared client, detect colors, and store them.
 
     Returns a summary dict with status and detected colors.
     """
@@ -349,8 +349,7 @@ async def detect_clan_colors(clan_id: str, motif_url: str) -> dict:
     logger.info("Color detection for clan %s: %s → %s", clan_id, motif_url, full_url)
 
     try:
-        async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
-            resp = await client.get(full_url)
+        resp = await client.get(full_url)
 
         if resp.status_code != 200:
             error_msg = f"Failed to download motif: HTTP {resp.status_code}"
@@ -398,3 +397,13 @@ async def detect_clan_colors(clan_id: str, motif_url: str) -> dict:
             },
         )
         return {"status": "failed", "error": error_msg}
+
+
+async def detect_clan_colors(clan_id: str, motif_url: str) -> dict:
+    """Download motif image for a clan, detect colors, and store them.
+
+    Creates its own HTTP client. For batch processing, use
+    detect_clan_colors_with_client() with a shared client instead.
+    """
+    async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
+        return await detect_clan_colors_with_client(client, clan_id, motif_url)
