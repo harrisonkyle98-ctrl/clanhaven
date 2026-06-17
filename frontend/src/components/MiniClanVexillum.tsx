@@ -56,7 +56,15 @@ export function MiniClanVexillum({
       </defs>
 
       <g filter="url(#vex-shadow)">
-        {/* Pole — runs full height behind everything */}
+        {/* Bottom crossbar for small banners — drawn first so pole sits on top */}
+        <rect x="1" y="14" width="22" height="1.5" rx="0.4" fill={accentColor} opacity="0.75" />
+        <rect x="1" y="14" width="22" height="1.5" rx="0.4" fill="url(#crossbar-grad)" />
+        {/* Bottom crossbar left spear point */}
+        <polygon points="0,14.75 1.5,13.75 1.5,15.75" fill={accentColor} opacity="0.85" />
+        {/* Bottom crossbar right spear point */}
+        <polygon points="24,14.75 22.5,13.75 22.5,15.75" fill={accentColor} opacity="0.85" />
+
+        {/* Pole — runs full height, drawn after bottom crossbar so it covers it */}
         <rect x="11.33" y="3" width="1.34" height="43" rx="0.4" fill={accentColor} opacity="0.75" />
         <rect x="11.33" y="3" width="1.34" height="43" rx="0.4" fill="url(#pole-grad)" />
 
@@ -71,14 +79,6 @@ export function MiniClanVexillum({
         <polygon points="0,5.25 1.5,4.25 1.5,6.25" fill={accentColor} opacity="0.85" />
         {/* Top crossbar right spear point */}
         <polygon points="24,5.25 22.5,4.25 22.5,6.25" fill={accentColor} opacity="0.85" />
-
-        {/* Bottom crossbar for small banners — drawn before banners so banners sit on top */}
-        <rect x="1" y="14" width="22" height="1.5" rx="0.4" fill={accentColor} opacity="0.75" />
-        <rect x="1" y="14" width="22" height="1.5" rx="0.4" fill="url(#crossbar-grad)" />
-        {/* Bottom crossbar left spear point */}
-        <polygon points="0,14.75 1.5,13.75 1.5,15.75" fill={accentColor} opacity="0.85" />
-        {/* Bottom crossbar right spear point */}
-        <polygon points="24,14.75 22.5,13.75 22.5,15.75" fill={accentColor} opacity="0.85" />
 
         {/* Two small top banners — sit on top of both crossbars */}
         {/* Left small banner — border */}
