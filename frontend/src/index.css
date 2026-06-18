@@ -3934,6 +3934,8 @@ body {
   color: var(--color-foreground);
   margin: 0;
   word-break: break-word;
+  display: inline-flex;
+  align-items: center;
 }
 
 .ch-player-tags {
@@ -4092,6 +4094,8 @@ body {
   color: var(--color-foreground);
   text-decoration: none;
   transition: color 0.15s;
+  display: inline-flex;
+  align-items: center;
 }
 
 .ch-roster-rsn-link:hover {
