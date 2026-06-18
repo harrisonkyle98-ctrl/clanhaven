@@ -242,13 +242,15 @@ export default function ClanPage() {
                               <tr key={m.id} className="ch-roster-row">
                                 <td className="ch-roster-td ch-roster-rsn">
                                   <Link to={`/player/${m.rsn.toLowerCase().replace(/\s+/g, "-")}`} className="ch-roster-rsn-link">
-                                    {m.accountType === "hardcore_ironman" && (
-                                      <img src="/images/sprites/hardcore.png" alt="HC" title="Hardcore Ironman" style={{ width: "14px", height: "14px", marginRight: "4px", verticalAlign: "middle" }} />
-                                    )}
-                                    {m.accountType === "ironman" && (
-                                      <img src="/images/sprites/ironman.png" alt="IM" title="Ironman" style={{ width: "14px", height: "14px", marginRight: "4px", verticalAlign: "middle" }} />
-                                    )}
                                     {m.rsn}
+                                    {(m.accountType === "hardcore_ironman" || m.accountType === "ironman") && (
+                                      <img
+                                        src={m.accountType === "hardcore_ironman" ? "/images/sprites/hardcore.png" : "/images/sprites/ironman.png"}
+                                        alt={m.accountType === "hardcore_ironman" ? "HC" : "IM"}
+                                        title={m.accountType === "hardcore_ironman" ? "Hardcore Ironman" : "Ironman"}
+                                        style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "3px", verticalAlign: "middle" }}
+                                      />
+                                    )}
                                   </Link>
                                 </td>
                                 <td className="ch-roster-td ch-roster-rank">{m.clanRank || "—"}</td>
