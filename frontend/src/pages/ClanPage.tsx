@@ -30,6 +30,7 @@ interface RosterMember {
   clanRank: string | null
   clanXp: number
   kills: number
+  accountType?: string | null
 }
 
 interface Authority {
@@ -241,6 +242,12 @@ export default function ClanPage() {
                               <tr key={m.id} className="ch-roster-row">
                                 <td className="ch-roster-td ch-roster-rsn">
                                   <Link to={`/player/${m.rsn.toLowerCase().replace(/\s+/g, "-")}`} className="ch-roster-rsn-link">
+                                    {m.accountType === "hardcore_ironman" && (
+                                      <img src="/images/sprites/hardcore.png" alt="HC" title="Hardcore Ironman" style={{ width: "14px", height: "14px", marginRight: "4px", verticalAlign: "middle" }} />
+                                    )}
+                                    {m.accountType === "ironman" && (
+                                      <img src="/images/sprites/ironman.png" alt="IM" title="Ironman" style={{ width: "14px", height: "14px", marginRight: "4px", verticalAlign: "middle" }} />
+                                    )}
                                     {m.rsn}
                                   </Link>
                                 </td>

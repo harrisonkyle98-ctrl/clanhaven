@@ -302,12 +302,13 @@ def get_hiscores_job_status() -> dict[str, Any]:
 async def start_hiscores_job(
     concurrency: int = 25,
     only_missing: bool = True,
+    start_rank: int = 1,
 ) -> dict[str, Any]:
     """Start a background hiscores refresh job. Returns job state.
 
-    Processes players clan-by-clan ordered by clan rank (1 to 11,061).
-    After each clan, if 100% of its members returned 404, the clan and
-    its members are removed from the database.
+    Processes players clan-by-clan ordered by clan rank (start_rank to 11,061).
+    After each clan, if 100% of its members returned 404 (full mode only),
+    the clan and its members are removed from the database.
     """
     global _hiscores_task, _hiscores_cancel
 
@@ -338,7 +339,7 @@ async def start_hiscores_job(
     })
 
     _hiscores_task = asyncio.create_task(
-        _run_hiscores_job(concurrency=concurrency, only_missing=only_missing)
+        _run_hiscores_job(concurrency=concurrency, only_missing=only_missing, start_rank=start_rank)
     )
     return get_hiscores_job_status()
 
@@ -355,15 +356,15 @@ def stop_hiscores_job() -> dict[str, Any]:
 async def _run_hiscores_job(
     concurrency: int = 25,
     only_missing: bool = True,
+    start_rank: int = 1,
 ) -> None:
     """Background task that refreshes hiscores per-clan ordered by rank.
 
-    Processes clans from rank 1 to 11,061. For each clan, fetches all
-    members' stats concurrently. If 100% of a clan's members return 404,
-    the clan and its members are removed from the database.
+    Processes clans from start_rank onward. For each clan, fetches all
+    members' stats concurrently. If 100% of a clan's members return 404
+    (full mode only), the clan and its members are removed from the database.
 
-    Skips players that already have hiscores data (lastHiscoresRefreshAt set)
-    when only_missing is True.
+    Skips players that already have hiscores data when only_missing is True.
     """
     global _hiscores_cancel
     semaphore = asyncio.Semaphore(concurrency)
@@ -378,10 +379,13 @@ async def _run_hiscores_job(
             ),
         ) as client:
 
-            # Fetch all clans ordered by rank
+            # Fetch all clans ordered by rank, starting from start_rank
+            rank_filter: dict = {"not": None}
+            if start_rank > 1:
+                rank_filter = {"gte": start_rank}
             clans = await db.indexedclan.find_many(
                 order=[{"rank": "asc"}],
-                where={"rank": {"not": None}},
+                where={"rank": rank_filter},
             )
             # Also get clans without a rank (append at end)
             clans_no_rank = await db.indexedclan.find_many(

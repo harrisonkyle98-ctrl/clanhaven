@@ -76,6 +76,14 @@ function getAccountTypeLabel(type: string): string | null {
   }
 }
 
+function getAccountTypeIcon(type: string): string | null {
+  switch (type) {
+    case "ironman": return "/images/sprites/ironman.png"
+    case "hardcore_ironman": return "/images/sprites/hardcore.png"
+    default: return null
+  }
+}
+
 function getSkillDisplayName(name: string): string {
   return name.charAt(0).toUpperCase() + name.slice(1)
 }
@@ -143,6 +151,7 @@ export default function PlayerProfile() {
 
   const { player, clan, skills, hasStats } = data
   const accountLabel = getAccountTypeLabel(player.accountType)
+  const accountIcon = getAccountTypeIcon(player.accountType)
 
   return (
     <div>
@@ -161,7 +170,17 @@ export default function PlayerProfile() {
           <div className="ch-player-sidebar">
             <div className="ch-stat-cell ch-player-sidebar-card">
               <div className="ch-player-sidebar-header">
-                <h2 className="ch-player-name">{player.rsn}</h2>
+                <h2 className="ch-player-name">
+                  {accountIcon && (
+                    <img
+                      src={accountIcon}
+                      alt={accountLabel || ""}
+                      title={accountLabel || ""}
+                      style={{ width: "16px", height: "16px", marginRight: "6px", verticalAlign: "middle" }}
+                    />
+                  )}
+                  {player.rsn}
+                </h2>
                 <div className="ch-player-tags">
                   <span className="ch-player-tag ch-player-tag--rs3">RS3</span>
                   {accountLabel && (

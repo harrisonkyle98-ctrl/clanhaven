@@ -224,6 +224,7 @@ function AdminHomeTab({ username }: { username: string }) {
   // ─── Hiscores Backfill state ───
   const [hsConcurrency, setHsConcurrency] = useState(25)
   const [hsOnlyMissing, setHsOnlyMissing] = useState(true)
+  const [hsStartRank, setHsStartRank] = useState(1)
   const [hsStarting, setHsStarting] = useState(false)
   const [hsError, setHsError] = useState<string | null>(null)
 
@@ -293,6 +294,7 @@ function AdminHomeTab({ username }: { username: string }) {
       const params = new URLSearchParams({
         concurrency: String(hsConcurrency),
         only_missing: String(hsOnlyMissing),
+        start_rank: String(hsStartRank),
       })
       const data = await apiFetch<HsJobState>(`/api/players/admin/hiscores/start-job?${params}`, { method: "POST" })
       setHsJob(data)
@@ -668,7 +670,7 @@ function AdminHomeTab({ username }: { username: string }) {
             <input
               type="number"
               value={hsConcurrency}
-              onChange={(e) => setHsConcurrency(Math.max(1, Math.min(50, Number(e.target.value))))}
+              onChange={(e) => setHsConcurrency(Math.max(1, Math.min(100, Number(e.target.value))))}
               style={{
                 width: "55px",
                 background: "rgba(22, 19, 14, 0.8)",
@@ -681,7 +683,29 @@ function AdminHomeTab({ username }: { username: string }) {
               disabled={hsJob?.status === "running"}
             />
             <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
-              (1–50 concurrent requests)
+              (1–100 concurrent requests)
+            </span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+            <label style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Starting Clan Rank:</label>
+            <input
+              type="number"
+              value={hsStartRank}
+              onChange={(e) => setHsStartRank(Math.max(1, Number(e.target.value)))}
+              style={{
+                width: "70px",
+                background: "rgba(22, 19, 14, 0.8)",
+                border: "none",
+                boxShadow: "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6)",
+                color: "var(--color-text-warm)",
+                padding: "0.4rem 0.5rem",
+                fontSize: "0.8125rem",
+              }}
+              disabled={hsJob?.status === "running"}
+            />
+            <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
+              (begins processing from this clan rank)
             </span>
           </div>
 

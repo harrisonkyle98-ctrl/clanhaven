@@ -383,8 +383,9 @@ async def trigger_hiscores_refresh(
 @router.post("/admin/hiscores/start-job")
 async def start_hiscores_job_endpoint(
     current_user: dict = Depends(get_current_user),
-    concurrency: int = Query(25, ge=1, le=50),
+    concurrency: int = Query(25, ge=1, le=100),
     only_missing: bool = Query(True),
+    start_rank: int = Query(1, ge=1),
 ):
     """Start a background hiscores refresh job with progress tracking."""
     user = await db.user.find_unique(where={"id": current_user["sub"]})
@@ -392,7 +393,7 @@ async def start_hiscores_job_endpoint(
         raise HTTPException(status_code=403, detail="Admin access required")
 
     from app.services.player_hiscores import start_hiscores_job
-    result = await start_hiscores_job(concurrency=concurrency, only_missing=only_missing)
+    result = await start_hiscores_job(concurrency=concurrency, only_missing=only_missing, start_rank=start_rank)
     if "error" in result:
         raise HTTPException(status_code=409, detail=result["error"])
     return result
