@@ -221,6 +221,80 @@ function AdminHomeTab({ username }: { username: string }) {
     backfillStopRef.current = true
   }
 
+  // ─── Hiscores Backfill state ───
+  const [hsConcurrency, setHsConcurrency] = useState(25)
+  const [hsOnlyMissing, setHsOnlyMissing] = useState(true)
+  const [hsStarting, setHsStarting] = useState(false)
+  const [hsError, setHsError] = useState<string | null>(null)
+  const [hsJob, setHsJob] = useState<{
+    status: string
+    total_target: number
+    processed: number
+    updated: number
+    errors: number
+    current_rsn: string | null
+    started_at: string | null
+    completed_at: string | null
+    concurrency: number
+    only_missing: boolean
+  } | null>(null)
+  const hsPollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const fetchHsJobStatus = async () => {
+    try {
+      const data = await apiFetch<typeof hsJob>("/api/players/admin/hiscores/job-status")
+      setHsJob(data)
+      return data
+    } catch {
+      return null
+    }
+  }
+
+  useEffect(() => {
+    fetchHsJobStatus()
+    return () => { if (hsPollRef.current) clearInterval(hsPollRef.current) }
+  }, [])
+
+  useEffect(() => {
+    if (hsJob && hsJob.status === "running") {
+      if (!hsPollRef.current) {
+        hsPollRef.current = setInterval(async () => {
+          const latest = await fetchHsJobStatus()
+          if (latest && latest.status !== "running") {
+            if (hsPollRef.current) clearInterval(hsPollRef.current)
+            hsPollRef.current = null
+          }
+        }, 3000)
+      }
+    }
+  }, [hsJob?.status])
+
+  const handleHsStart = async () => {
+    setHsStarting(true)
+    setHsError(null)
+    try {
+      const params = new URLSearchParams({
+        concurrency: String(hsConcurrency),
+        only_missing: String(hsOnlyMissing),
+      })
+      const data = await apiFetch<typeof hsJob>(`/api/players/admin/hiscores/start-job?${params}`, { method: "POST" })
+      setHsJob(data)
+    } catch (err) {
+      setHsError(`Failed to start: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setHsStarting(false)
+    }
+  }
+
+  const handleHsStop = async () => {
+    try {
+      await apiFetch("/api/players/admin/hiscores/stop-job", { method: "POST" })
+      await fetchHsJobStatus()
+    } catch (err) {
+      setHsError(`Failed to stop: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
   const [stopping, setStopping] = useState(false)
 
   const handleStop = async () => {
@@ -437,6 +511,7 @@ function AdminHomeTab({ username }: { username: string }) {
         </CollapsiblePanel>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <CollapsiblePanel variant="purple" title="Vexillum Color Backfill">
         <div className="ch-admin-section">
           <p style={{ color: "var(--color-text-muted)", fontSize: "0.8125rem", marginBottom: "0.75rem" }}>
@@ -562,6 +637,140 @@ function AdminHomeTab({ username }: { username: string }) {
           )}
         </div>
       </CollapsiblePanel>
+
+      <CollapsiblePanel variant="purple" title="Hiscores Backfill">
+        <div className="ch-admin-section">
+          <p style={{ color: "var(--color-text-muted)", fontSize: "0.8125rem", marginBottom: "0.75rem" }}>
+            Fetch current skill levels and XP from the RS3 Hiscores API for all indexed players.
+            Runs as a background job with live progress tracking.
+          </p>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+            <label style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Workers:</label>
+            <input
+              type="number"
+              value={hsConcurrency}
+              onChange={(e) => setHsConcurrency(Math.max(1, Math.min(50, Number(e.target.value))))}
+              style={{
+                width: "55px",
+                background: "rgba(22, 19, 14, 0.8)",
+                border: "none",
+                boxShadow: "inset 0 0 0 1px rgba(10, 8, 5, 0.9), inset 0 0 0 2px rgba(52, 45, 34, 0.6)",
+                color: "var(--color-text-warm)",
+                padding: "0.4rem 0.5rem",
+                fontSize: "0.8125rem",
+              }}
+              disabled={hsJob?.status === "running"}
+            />
+            <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
+              (1–50 concurrent requests)
+            </span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+            <input
+              type="checkbox"
+              id="hs-only-missing"
+              checked={hsOnlyMissing}
+              onChange={(e) => setHsOnlyMissing(e.target.checked)}
+              disabled={hsJob?.status === "running"}
+              style={{ accentColor: "#c9a24a" }}
+            />
+            <label htmlFor="hs-only-missing" style={{ color: "var(--color-text-muted)", fontSize: "0.75rem", cursor: "pointer" }}>
+              Only players with missing stats (totalXp = 0)
+            </label>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <button
+              onClick={handleHsStart}
+              disabled={hsStarting || hsJob?.status === "running"}
+              className="ch-admin-btn"
+              style={{ opacity: (hsStarting || hsJob?.status === "running") ? 0.6 : 1 }}
+            >
+              {hsStarting ? "Starting..." : hsJob?.status === "running" ? "Running..." : "Start Backfill"}
+            </button>
+            {hsJob?.status === "running" && (
+              <button
+                onClick={handleHsStop}
+                className="ch-admin-btn"
+                style={{
+                  background: "rgba(239, 68, 68, 0.15)",
+                  boxShadow: "inset 0 0 0 1px rgba(239, 68, 68, 0.4)",
+                  color: "#ef4444",
+                }}
+              >
+                Stop
+              </button>
+            )}
+          </div>
+
+          {hsError && (
+            <p style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.5rem" }}>{hsError}</p>
+          )}
+
+          {hsJob && hsJob.status !== "idle" && (
+            <div style={{ marginTop: "1rem", padding: "0.75rem", background: "rgba(10, 8, 5, 0.4)", boxShadow: "inset 0 0 0 1px rgba(52, 45, 34, 0.4)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                <span style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Job Status</span>
+                <span style={{
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  color: hsJob.status === "running" ? "#f59e0b" :
+                         hsJob.status === "completed" ? "var(--color-xp-green)" :
+                         hsJob.status === "stopped" ? "var(--color-text-muted)" :
+                         hsJob.status === "failed" ? "#ef4444" : "var(--color-text-muted)",
+                  textTransform: "uppercase",
+                }}>{hsJob.status}</span>
+              </div>
+
+              {hsJob.total_target > 0 && (
+                <div style={{ marginBottom: "0.5rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
+                    <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
+                      Progress
+                    </span>
+                    <span style={{ color: "var(--color-text-warm)", fontSize: "0.6875rem" }}>
+                      {hsJob.processed.toLocaleString()} / {hsJob.total_target.toLocaleString()}
+                    </span>
+                  </div>
+                  <div style={{ height: "6px", background: "rgba(10, 8, 5, 0.6)", borderRadius: "3px", overflow: "hidden" }}>
+                    <div style={{
+                      height: "100%",
+                      width: `${Math.min(100, (hsJob.processed / hsJob.total_target) * 100)}%`,
+                      background: "linear-gradient(90deg, #c9a24a, #e8c96d)",
+                      borderRadius: "3px",
+                      transition: "width 0.3s ease",
+                    }} />
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem 1rem", fontSize: "0.75rem" }}>
+                <div style={{ color: "var(--color-text-muted)" }}>Processed:</div>
+                <div style={{ color: "var(--color-text-warm)" }}>{hsJob.processed.toLocaleString()}</div>
+
+                <div style={{ color: "var(--color-text-muted)" }}>Updated:</div>
+                <div style={{ color: "var(--color-xp-green)" }}>{hsJob.updated.toLocaleString()}</div>
+
+                <div style={{ color: "var(--color-text-muted)" }}>Errors:</div>
+                <div style={{ color: hsJob.errors > 0 ? "#ef4444" : "var(--color-text-warm)" }}>{hsJob.errors.toLocaleString()}</div>
+
+                <div style={{ color: "var(--color-text-muted)" }}>Workers:</div>
+                <div style={{ color: "var(--color-text-warm)" }}>{hsJob.concurrency}</div>
+
+                {hsJob.current_rsn && (
+                  <>
+                    <div style={{ color: "var(--color-text-muted)" }}>Current:</div>
+                    <div style={{ color: "var(--color-text-warm)" }}>{hsJob.current_rsn}</div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </CollapsiblePanel>
+      </div>
 
       <CollapsiblePanel variant="purple" title="Management Modules">
         <div className="ch-admin-section">

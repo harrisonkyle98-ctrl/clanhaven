@@ -373,6 +373,56 @@ async def trigger_hiscores_refresh(
     return result
 
 
+# ─── Admin: Hiscores Background Job ───
+
+
+@router.post("/admin/hiscores/start-job")
+async def start_hiscores_job_endpoint(
+    current_user: dict = Depends(get_current_user),
+    concurrency: int = Query(25, ge=1, le=50),
+    only_missing: bool = Query(True),
+):
+    """Start a background hiscores refresh job with progress tracking."""
+    user = await db.user.find_unique(where={"id": current_user["sub"]})
+    if not user or user.privileges < 2:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    from app.services.player_hiscores import start_hiscores_job
+    result = await start_hiscores_job(concurrency=concurrency, only_missing=only_missing)
+    if "error" in result:
+        raise HTTPException(status_code=409, detail=result["error"])
+    return result
+
+
+@router.get("/admin/hiscores/job-status")
+async def get_hiscores_job_status_endpoint(
+    current_user: dict = Depends(get_current_user),
+):
+    """Get the current hiscores refresh job progress."""
+    user = await db.user.find_unique(where={"id": current_user["sub"]})
+    if not user or user.privileges < 2:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    from app.services.player_hiscores import get_hiscores_job_status
+    return get_hiscores_job_status()
+
+
+@router.post("/admin/hiscores/stop-job")
+async def stop_hiscores_job_endpoint(
+    current_user: dict = Depends(get_current_user),
+):
+    """Stop the running hiscores refresh job."""
+    user = await db.user.find_unique(where={"id": current_user["sub"]})
+    if not user or user.privileges < 2:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    from app.services.player_hiscores import stop_hiscores_job
+    result = stop_hiscores_job()
+    if "error" in result:
+        raise HTTPException(status_code=409, detail=result["error"])
+    return result
+
+
 @router.post("/admin/hiscores/refresh/{rsn_slug:path}")
 async def trigger_single_hiscores_refresh(
     rsn_slug: str,

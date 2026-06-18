@@ -11,12 +11,29 @@ Lines 1-29: Individual skills in RS3 order
 import asyncio
 import logging
 from datetime import datetime, timezone
+from typing import Any
 
 import httpx
 
 from app.core.database import db
 
 logger = logging.getLogger(__name__)
+
+# ─── In-memory job state for background hiscores refresh ───
+_hiscores_job: dict[str, Any] = {
+    "status": "idle",
+    "total_target": 0,
+    "processed": 0,
+    "updated": 0,
+    "errors": 0,
+    "current_rsn": None,
+    "started_at": None,
+    "completed_at": None,
+    "concurrency": 0,
+    "only_missing": False,
+}
+_hiscores_task: asyncio.Task | None = None
+_hiscores_cancel = False
 
 HISCORES_URL = "https://secure.runescape.com/m=hiscore/index_lite.ws?player={}"
 
@@ -246,3 +263,126 @@ async def refresh_all_player_hiscores(
         "updated": updated,
         "errors": errors,
     }
+
+
+# ─── Background job management ───
+
+
+def get_hiscores_job_status() -> dict[str, Any]:
+    """Return current hiscores refresh job state."""
+    return dict(_hiscores_job)
+
+
+async def start_hiscores_job(
+    concurrency: int = 25,
+    only_missing: bool = True,
+) -> dict[str, Any]:
+    """Start a background hiscores refresh job. Returns job state."""
+    global _hiscores_task, _hiscores_cancel
+
+    if _hiscores_job["status"] == "running":
+        return {"error": "A hiscores refresh job is already running"}
+
+    _hiscores_cancel = False
+
+    # Count target players
+    where_filter: dict | None = {"totalXp": 0} if only_missing else None
+    total_target = await db.rs3player.count(where=where_filter)
+
+    _hiscores_job.update({
+        "status": "running",
+        "total_target": total_target,
+        "processed": 0,
+        "updated": 0,
+        "errors": 0,
+        "current_rsn": None,
+        "started_at": datetime.now(timezone.utc).isoformat(),
+        "completed_at": None,
+        "concurrency": concurrency,
+        "only_missing": only_missing,
+    })
+
+    _hiscores_task = asyncio.create_task(
+        _run_hiscores_job(concurrency=concurrency, only_missing=only_missing)
+    )
+    return get_hiscores_job_status()
+
+
+def stop_hiscores_job() -> dict[str, Any]:
+    """Signal the running hiscores job to stop."""
+    global _hiscores_cancel
+    if _hiscores_job["status"] != "running":
+        return {"error": "No job is running"}
+    _hiscores_cancel = True
+    return {"status": "stopping"}
+
+
+async def _run_hiscores_job(
+    concurrency: int = 25,
+    only_missing: bool = True,
+) -> None:
+    """Background task that refreshes hiscores with progress tracking."""
+    global _hiscores_cancel
+    batch_size = 500
+    offset = 0
+    semaphore = asyncio.Semaphore(concurrency)
+    where_filter: dict | None = {"totalXp": 0} if only_missing else None
+
+    try:
+        async with httpx.AsyncClient(
+            timeout=15.0,
+            follow_redirects=True,
+            limits=httpx.Limits(
+                max_connections=concurrency + 5,
+                max_keepalive_connections=concurrency,
+            ),
+        ) as client:
+
+            async def _refresh_one(pid: str, rsn: str) -> None:
+                async with semaphore:
+                    if _hiscores_cancel:
+                        return
+                    _hiscores_job["current_rsn"] = rsn
+                    result = await refresh_player_hiscores(pid, rsn, client=client)
+                    _hiscores_job["processed"] += 1
+                    if "error" in result:
+                        _hiscores_job["errors"] += 1
+                    else:
+                        _hiscores_job["updated"] += 1
+                    await asyncio.sleep(0.05)
+
+            while not _hiscores_cancel:
+                players = await db.rs3player.find_many(
+                    take=batch_size,
+                    skip=offset,
+                    where=where_filter,
+                    order={"id": "asc"},
+                )
+
+                if not players:
+                    break
+
+                tasks = []
+                for player in players:
+                    if _hiscores_cancel:
+                        break
+                    tasks.append(_refresh_one(player.id, player.rsn))
+
+                await asyncio.gather(*tasks)
+                offset += batch_size
+
+                logger.info(
+                    "Hiscores job progress: %d processed, %d updated, %d errors",
+                    _hiscores_job["processed"],
+                    _hiscores_job["updated"],
+                    _hiscores_job["errors"],
+                )
+
+        _hiscores_job["status"] = "stopped" if _hiscores_cancel else "completed"
+    except Exception as e:
+        logger.exception("Hiscores job failed: %s", e)
+        _hiscores_job["status"] = "failed"
+    finally:
+        _hiscores_job["current_rsn"] = None
+        _hiscores_job["completed_at"] = datetime.now(timezone.utc).isoformat()
+        _hiscores_cancel = False
