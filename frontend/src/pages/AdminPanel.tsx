@@ -226,7 +226,8 @@ function AdminHomeTab({ username }: { username: string }) {
   const [hsOnlyMissing, setHsOnlyMissing] = useState(true)
   const [hsStarting, setHsStarting] = useState(false)
   const [hsError, setHsError] = useState<string | null>(null)
-  const [hsJob, setHsJob] = useState<{
+
+  type HsJobState = {
     status: string
     total_target: number
     processed: number
@@ -237,37 +238,41 @@ function AdminHomeTab({ username }: { username: string }) {
     completed_at: string | null
     concurrency: number
     only_missing: boolean
-  } | null>(null)
+  }
+  const [hsJob, setHsJob] = useState<HsJobState | null>(null)
   const hsPollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const hsFetchingRef = useRef(false)
 
-  const fetchHsJobStatus = async () => {
+  const fetchHsJobStatus = async (): Promise<HsJobState | null> => {
+    if (hsFetchingRef.current) return null
+    hsFetchingRef.current = true
     try {
-      const data = await apiFetch<typeof hsJob>("/api/players/admin/hiscores/job-status")
-      setHsJob(data)
+      const data = await apiFetch<HsJobState>("/api/players/admin/hiscores/job-status")
+      if (data) setHsJob(data)
       return data
     } catch {
       return null
+    } finally {
+      hsFetchingRef.current = false
     }
   }
 
-  useEffect(() => {
-    fetchHsJobStatus()
-    return () => { if (hsPollRef.current) clearInterval(hsPollRef.current) }
-  }, [])
+  const startHsPolling = () => {
+    if (hsPollRef.current) return
+    hsPollRef.current = setInterval(async () => {
+      const latest = await fetchHsJobStatus()
+      if (latest && latest.status !== "running") {
+        if (hsPollRef.current) { clearInterval(hsPollRef.current); hsPollRef.current = null }
+      }
+    }, 3000)
+  }
 
   useEffect(() => {
-    if (hsJob && hsJob.status === "running") {
-      if (!hsPollRef.current) {
-        hsPollRef.current = setInterval(async () => {
-          const latest = await fetchHsJobStatus()
-          if (latest && latest.status !== "running") {
-            if (hsPollRef.current) clearInterval(hsPollRef.current)
-            hsPollRef.current = null
-          }
-        }, 3000)
-      }
-    }
-  }, [hsJob?.status])
+    fetchHsJobStatus().then((data) => {
+      if (data && data.status === "running") startHsPolling()
+    })
+    return () => { if (hsPollRef.current) { clearInterval(hsPollRef.current); hsPollRef.current = null } }
+  }, [])
 
   const handleHsStart = async () => {
     setHsStarting(true)
@@ -277,8 +282,9 @@ function AdminHomeTab({ username }: { username: string }) {
         concurrency: String(hsConcurrency),
         only_missing: String(hsOnlyMissing),
       })
-      const data = await apiFetch<typeof hsJob>(`/api/players/admin/hiscores/start-job?${params}`, { method: "POST" })
+      const data = await apiFetch<HsJobState>(`/api/players/admin/hiscores/start-job?${params}`, { method: "POST" })
       setHsJob(data)
+      startHsPolling()
     } catch (err) {
       setHsError(`Failed to start: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
@@ -709,7 +715,7 @@ function AdminHomeTab({ username }: { username: string }) {
             <p style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.5rem" }}>{hsError}</p>
           )}
 
-          {hsJob && hsJob.status !== "idle" && (
+          {hsJob && (hsJob.status === "running" || hsJob.status === "completed" || hsJob.status === "stopped" || hsJob.status === "failed" || hsJob.processed > 0) && (
             <div style={{ marginTop: "1rem", padding: "0.75rem", background: "rgba(10, 8, 5, 0.4)", boxShadow: "inset 0 0 0 1px rgba(52, 45, 34, 0.4)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
                 <span style={{ color: "var(--color-text-muted)", fontSize: "0.75rem" }}>Job Status</span>

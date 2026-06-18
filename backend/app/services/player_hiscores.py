@@ -321,12 +321,16 @@ async def _run_hiscores_job(
     concurrency: int = 25,
     only_missing: bool = True,
 ) -> None:
-    """Background task that refreshes hiscores with progress tracking."""
+    """Background task that refreshes hiscores with progress tracking.
+
+    Uses cursor-based pagination to avoid skipping players when the
+    filter set shrinks (only_missing removes updated rows from results).
+    """
     global _hiscores_cancel
     batch_size = 500
-    offset = 0
     semaphore = asyncio.Semaphore(concurrency)
     where_filter: dict | None = {"totalXp": 0} if only_missing else None
+    cursor_id: str | None = None
 
     try:
         async with httpx.AsyncClient(
@@ -352,15 +356,31 @@ async def _run_hiscores_job(
                     await asyncio.sleep(0.05)
 
             while not _hiscores_cancel:
-                players = await db.rs3player.find_many(
-                    take=batch_size,
-                    skip=offset,
-                    where=where_filter,
-                    order={"id": "asc"},
-                )
+                # Cursor-based pagination: fetch next batch after last seen ID.
+                # For only_missing, updated rows drop out of the filter so we
+                # must NOT use offset — always fetch from the start of remaining.
+                if only_missing:
+                    players = await db.rs3player.find_many(
+                        take=batch_size,
+                        where=where_filter,
+                        order={"id": "asc"},
+                    )
+                else:
+                    query_args: dict[str, Any] = {
+                        "take": batch_size,
+                        "order": {"id": "asc"},
+                    }
+                    if where_filter:
+                        query_args["where"] = where_filter
+                    if cursor_id:
+                        query_args["cursor"] = {"id": cursor_id}
+                        query_args["skip"] = 1
+                    players = await db.rs3player.find_many(**query_args)
 
                 if not players:
                     break
+
+                cursor_id = players[-1].id
 
                 tasks = []
                 for player in players:
@@ -369,7 +389,6 @@ async def _run_hiscores_job(
                     tasks.append(_refresh_one(player.id, player.rsn))
 
                 await asyncio.gather(*tasks)
-                offset += batch_size
 
                 logger.info(
                     "Hiscores job progress: %d processed, %d updated, %d errors",
