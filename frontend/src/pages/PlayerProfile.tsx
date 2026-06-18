@@ -34,19 +34,37 @@ interface PlayerProfileResponse {
   skills: Skill[]
   snapshotCount: number
   hasHistory: boolean
+  hasStats: boolean
 }
 
 
 
-function formatXp(xp: number): string {
+function formatXp(xp: number, hasStats: boolean): string {
+  if (!hasStats) return "-"
   if (xp >= 1_000_000_000) return `${(xp / 1_000_000_000).toFixed(1)}B`
   if (xp >= 1_000_000) return `${(xp / 1_000_000).toFixed(1)}M`
   if (xp >= 1_000) return `${(xp / 1_000).toFixed(1)}K`
   return xp.toLocaleString()
 }
 
-function formatXpFull(xp: number): string {
+function formatXpFull(xp: number, hasStats: boolean): string {
+  if (!hasStats) return "-"
   return xp.toLocaleString()
+}
+
+function formatLevel(level: number, hasStats: boolean): string {
+  if (!hasStats) return "-"
+  return level.toLocaleString()
+}
+
+function formatSkillXp(xp: number, level: number): string {
+  if (level === 0 && xp === 0) return "-"
+  return xp.toLocaleString()
+}
+
+function formatSkillLevel(level: number, xp: number): string {
+  if (level === 0 && xp === 0) return "-"
+  return level.toString()
 }
 
 function getAccountTypeLabel(type: string): string | null {
@@ -123,7 +141,7 @@ export default function PlayerProfile() {
     )
   }
 
-  const { player, clan, skills } = data
+  const { player, clan, skills, hasStats } = data
   const accountLabel = getAccountTypeLabel(player.accountType)
 
   return (
@@ -165,15 +183,15 @@ export default function PlayerProfile() {
               <div className="ch-player-sidebar-stats">
                 <div className="ch-player-sidebar-stat">
                   <span className="ch-player-sidebar-label">Total Level</span>
-                  <span className="ch-player-sidebar-value">{player.totalLevel.toLocaleString()}</span>
+                  <span className="ch-player-sidebar-value">{formatLevel(player.totalLevel, hasStats)}</span>
                 </div>
                 <div className="ch-player-sidebar-stat">
                   <span className="ch-player-sidebar-label">Total XP</span>
-                  <span className="ch-player-sidebar-value ch-xp-green">{formatXp(player.totalXp)}</span>
+                  <span className="ch-player-sidebar-value ch-xp-green">{formatXp(player.totalXp, hasStats)}</span>
                 </div>
                 <div className="ch-player-sidebar-stat">
                   <span className="ch-player-sidebar-label">Combat Level</span>
-                  <span className="ch-player-sidebar-value">{player.combatLevel}</span>
+                  <span className="ch-player-sidebar-value">{formatLevel(player.combatLevel, hasStats)}</span>
                 </div>
               </div>
 
@@ -198,10 +216,10 @@ export default function PlayerProfile() {
                     </div>
                     <div className="ch-player-skill-info">
                       <span className="ch-player-skill-row-name">Overall</span>
-                      <span className="ch-player-skill-row-xp">{formatXpFull(player.totalXp)} XP</span>
+                      <span className="ch-player-skill-row-xp">{formatXpFull(player.totalXp, hasStats)} XP</span>
                     </div>
                     <div className="ch-player-skill-level-badge">
-                      {player.totalLevel.toLocaleString()}
+                      {formatLevel(player.totalLevel, hasStats)}
                     </div>
                   </div>
                 </div>
@@ -215,10 +233,10 @@ export default function PlayerProfile() {
                       </div>
                       <div className="ch-player-skill-info">
                         <span className="ch-player-skill-row-name">{getSkillDisplayName(skill.name)}</span>
-                        <span className="ch-player-skill-row-xp">{formatXpFull(skill.xp)} XP</span>
+                        <span className="ch-player-skill-row-xp">{formatSkillXp(skill.xp, skill.level)} XP</span>
                       </div>
                       <div className="ch-player-skill-level-badge">
-                        {skill.level}
+                        {formatSkillLevel(skill.level, skill.xp)}
                       </div>
                     </div>
                   </div>

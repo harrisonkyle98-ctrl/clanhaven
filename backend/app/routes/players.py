@@ -81,6 +81,9 @@ async def get_player_profile(rsn_slug: str):
         where={"playerId": player.id}
     )
 
+    # hasStats = True if player has been successfully looked up on hiscores
+    has_stats = player.totalXp > 0
+
     return {
         "player": {
             "id": player.id,
@@ -102,6 +105,7 @@ async def get_player_profile(rsn_slug: str):
         "skills": skills,
         "snapshotCount": snapshot_count,
         "hasHistory": snapshot_count > 0,
+        "hasStats": has_stats,
     }
 
 

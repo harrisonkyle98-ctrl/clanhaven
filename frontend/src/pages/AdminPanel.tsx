@@ -233,6 +233,10 @@ function AdminHomeTab({ username }: { username: string }) {
     processed: number
     updated: number
     errors: number
+    skipped: number
+    clans_processed: number
+    clans_removed: number
+    current_clan: string | null
     current_rsn: string | null
     started_at: string | null
     completed_at: string | null
@@ -753,21 +757,31 @@ function AdminHomeTab({ username }: { username: string }) {
               )}
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem 1rem", fontSize: "0.75rem" }}>
-                <div style={{ color: "var(--color-text-muted)" }}>Processed:</div>
-                <div style={{ color: "var(--color-text-warm)" }}>{hsJob.processed.toLocaleString()}</div>
+                <div style={{ color: "var(--color-text-muted)" }}>Clans Processed:</div>
+                <div style={{ color: "var(--color-text-warm)" }}>{hsJob.clans_processed.toLocaleString()}</div>
 
-                <div style={{ color: "var(--color-text-muted)" }}>Updated:</div>
+                <div style={{ color: "var(--color-text-muted)" }}>Clans Removed:</div>
+                <div style={{ color: hsJob.clans_removed > 0 ? "#ef4444" : "var(--color-text-warm)" }}>{hsJob.clans_removed.toLocaleString()}</div>
+
+                <div style={{ color: "var(--color-text-muted)" }}>Players Updated:</div>
                 <div style={{ color: "var(--color-xp-green)" }}>{hsJob.updated.toLocaleString()}</div>
 
-                <div style={{ color: "var(--color-text-muted)" }}>Errors:</div>
+                <div style={{ color: "var(--color-text-muted)" }}>404s:</div>
                 <div style={{ color: hsJob.errors > 0 ? "#ef4444" : "var(--color-text-warm)" }}>{hsJob.errors.toLocaleString()}</div>
 
                 <div style={{ color: "var(--color-text-muted)" }}>Workers:</div>
                 <div style={{ color: "var(--color-text-warm)" }}>{hsJob.concurrency}</div>
 
+                {hsJob.current_clan && (
+                  <>
+                    <div style={{ color: "var(--color-text-muted)" }}>Current Clan:</div>
+                    <div style={{ color: "var(--color-text-warm)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{hsJob.current_clan}</div>
+                  </>
+                )}
+
                 {hsJob.current_rsn && (
                   <>
-                    <div style={{ color: "var(--color-text-muted)" }}>Current:</div>
+                    <div style={{ color: "var(--color-text-muted)" }}>Current Player:</div>
                     <div style={{ color: "var(--color-text-warm)" }}>{hsJob.current_rsn}</div>
                   </>
                 )}
