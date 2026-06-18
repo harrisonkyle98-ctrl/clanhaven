@@ -457,24 +457,44 @@ async def _run_hiscores_job(
 
                 _hiscores_job["clans_processed"] += 1
 
-                # Clan cleanup: if 100% of members got 404, remove clan
-                if clan_total > 0 and clan_errors == clan_total and clan_updated == 0 and not _hiscores_cancel:
-                    try:
-                        # Delete all members of this clan
-                        await db.indexedclanmember.delete_many(
-                            where={"clanId": clan.id},
-                        )
-                        # Delete the clan itself
-                        await db.indexedclan.delete(
-                            where={"id": clan.id},
-                        )
-                        _hiscores_job["clans_removed"] += 1
-                        logger.info(
-                            "Removed clan '%s' (rank %s) — 100%% 404s (%d members)",
-                            clan.name, clan.rank, clan_total,
-                        )
-                    except Exception as e:
-                        logger.warning("Failed to remove clan '%s': %s", clan.name, e)
+                # Clan cleanup: ONLY remove if we checked ALL members (not just
+                # the only_missing subset) and ALL returned 404.
+                # This prevents deleting active clans where only a few
+                # unlooked-up members are renamed/inactive.
+                if (
+                    not only_missing
+                    and clan_total > 0
+                    and clan_errors == clan_total
+                    and clan_updated == 0
+                    and not _hiscores_cancel
+                ):
+                    # Double check: count ALL members of this clan, not just
+                    # the ones we processed. If there are members we didn't
+                    # process (e.g. already had data), don't delete.
+                    total_members = await db.indexedclanmember.count(
+                        where={"clanId": clan.id, "isCurrent": True},
+                    )
+                    total_players_with_data = await db.rs3player.count(
+                        where={
+                            "id": {"in": [m.playerId for m in members if m.playerId]},
+                            "totalXp": {"gt": 0},
+                        },
+                    )
+                    if total_players_with_data == 0 and clan_total >= total_members:
+                        try:
+                            await db.indexedclanmember.delete_many(
+                                where={"clanId": clan.id},
+                            )
+                            await db.indexedclan.delete(
+                                where={"id": clan.id},
+                            )
+                            _hiscores_job["clans_removed"] += 1
+                            logger.info(
+                                "Removed clan '%s' (rank %s) — 100%% 404s (%d members)",
+                                clan.name, clan.rank, clan_total,
+                            )
+                        except Exception as e:
+                            logger.warning("Failed to remove clan '%s': %s", clan.name, e)
 
                 if _hiscores_job["clans_processed"] % 50 == 0:
                     logger.info(
