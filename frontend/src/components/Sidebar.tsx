@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { ChevronDown, ChevronLeft } from "lucide-react"
-import ClanHavenLogo from "@/components/ClanHavenLogo"
 import SidebarAccountModule from "@/components/SidebarAccountModule"
 
 const mainNavItems = [
@@ -44,7 +43,6 @@ export default function Sidebar({ open, onClose, isMobile }: SidebarProps) {
           />
           <div className="ch-sidebar-branding-pattern" />
           <div className="ch-sidebar-branding-content">
-            <ClanHavenLogo size={36} className="ch-sidebar-logo" />
             <span className="ch-sidebar-branding-title">Clan Haven</span>
           </div>
           <button
