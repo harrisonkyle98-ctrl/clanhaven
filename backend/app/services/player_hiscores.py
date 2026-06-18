@@ -36,6 +36,8 @@ _hiscores_task: asyncio.Task | None = None
 _hiscores_cancel = False
 
 HISCORES_URL = "https://secure.runescape.com/m=hiscore/index_lite.ws?player={}"
+HISCORES_IRONMAN_URL = "https://secure.runescape.com/m=hiscore_ironman/index_lite.ws?player={}"
+HISCORES_HARDCORE_URL = "https://secure.runescape.com/m=hiscore_hardcore_ironman/index_lite.ws?player={}"
 
 # RS3 Hiscores skill order (lines 1-29 after the Overall line)
 HISCORES_SKILL_ORDER = [
@@ -78,22 +80,37 @@ async def refresh_player_hiscores(
 ) -> dict:
     """Fetch current skill data from RS3 Hiscores and update Rs3Player.
 
+    Tries regular hiscores first, then falls back to ironman and
+    hardcore ironman endpoints for players not on the main hiscores.
     Accepts an optional shared httpx client for connection pooling.
     """
-    url = HISCORES_URL.format(rsn.replace(" ", "+"))
+    encoded_rsn = rsn.replace(" ", "+")
     own_client = client is None
 
     if own_client:
         client = httpx.AsyncClient(timeout=15.0, follow_redirects=True)
 
     try:
-        try:
-            resp = await client.get(url)
-        except httpx.RequestError as e:
-            return {"player_id": player_id, "rsn": rsn, "error": f"Request failed: {e}"}
+        # Try regular → hardcore ironman → ironman hiscores
+        resp = None
+        detected_type: str | None = None
+        endpoints = [
+            (HISCORES_URL.format(encoded_rsn), None),
+            (HISCORES_HARDCORE_URL.format(encoded_rsn), "hardcore_ironman"),
+            (HISCORES_IRONMAN_URL.format(encoded_rsn), "ironman"),
+        ]
 
-        if resp.status_code == 404:
-            return {"player_id": player_id, "rsn": rsn, "error": "Player not found on hiscores"}
+        for url, acct_type in endpoints:
+            try:
+                resp = await client.get(url)
+            except httpx.RequestError as e:
+                return {"player_id": player_id, "rsn": rsn, "error": f"Request failed: {e}"}
+            if resp.status_code == 200:
+                detected_type = acct_type
+                break
+
+        if resp is None or resp.status_code == 404:
+            return {"player_id": player_id, "rsn": rsn, "error": "Player not found on any hiscores"}
         if resp.status_code != 200:
             return {"player_id": player_id, "rsn": rsn, "error": f"Hiscores returned {resp.status_code}"}
 
@@ -158,6 +175,11 @@ async def refresh_player_hiscores(
 
         update_data["combatLevel"] = combat_level
         update_data["lastHiscoresRefreshAt"] = datetime.now(timezone.utc)
+
+        if detected_type:
+            update_data["accountType"] = detected_type
+            update_data["accountTypeSource"] = "hiscores"
+            update_data["accountTypeVerifiedAt"] = datetime.now(timezone.utc)
 
         try:
             await db.rs3player.update(
