@@ -247,12 +247,16 @@ function AdminHomeTab({ username }: { username: string }) {
   const hsPollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const hsFetchingRef = useRef(false)
 
+  const updateHsJob = (data: HsJobState) => {
+    setHsJob(data)
+  }
+
   const fetchHsJobStatus = async (): Promise<HsJobState | null> => {
     if (hsFetchingRef.current) return null
     hsFetchingRef.current = true
     try {
       const data = await apiFetch<HsJobState>("/api/players/admin/hiscores/job-status")
-      if (data) setHsJob(data)
+      if (data) updateHsJob(data)
       return data
     } catch {
       return null
@@ -272,10 +276,14 @@ function AdminHomeTab({ username }: { username: string }) {
   }
 
   useEffect(() => {
+    let cancelled = false
     fetchHsJobStatus().then((data) => {
-      if (data && data.status === "running") startHsPolling()
+      if (!cancelled && data && data.status === "running") startHsPolling()
     })
-    return () => { if (hsPollRef.current) { clearInterval(hsPollRef.current); hsPollRef.current = null } }
+    return () => {
+      cancelled = true
+      if (hsPollRef.current) { clearInterval(hsPollRef.current); hsPollRef.current = null }
+    }
   }, [])
 
   const handleHsStart = async () => {
@@ -758,19 +766,19 @@ function AdminHomeTab({ username }: { username: string }) {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem 1rem", fontSize: "0.75rem" }}>
                 <div style={{ color: "var(--color-text-muted)" }}>Clans Processed:</div>
-                <div style={{ color: "var(--color-text-warm)" }}>{hsJob.clans_processed.toLocaleString()}</div>
+                <div style={{ color: "var(--color-text-warm)" }}>{(hsJob.clans_processed ?? 0).toLocaleString()}</div>
 
                 <div style={{ color: "var(--color-text-muted)" }}>Clans Removed:</div>
-                <div style={{ color: hsJob.clans_removed > 0 ? "#ef4444" : "var(--color-text-warm)" }}>{hsJob.clans_removed.toLocaleString()}</div>
+                <div style={{ color: (hsJob.clans_removed ?? 0) > 0 ? "#ef4444" : "var(--color-text-warm)" }}>{(hsJob.clans_removed ?? 0).toLocaleString()}</div>
 
                 <div style={{ color: "var(--color-text-muted)" }}>Players Updated:</div>
-                <div style={{ color: "var(--color-xp-green)" }}>{hsJob.updated.toLocaleString()}</div>
+                <div style={{ color: "var(--color-xp-green)" }}>{(hsJob.updated ?? 0).toLocaleString()}</div>
 
                 <div style={{ color: "var(--color-text-muted)" }}>404s:</div>
-                <div style={{ color: hsJob.errors > 0 ? "#ef4444" : "var(--color-text-warm)" }}>{hsJob.errors.toLocaleString()}</div>
+                <div style={{ color: (hsJob.errors ?? 0) > 0 ? "#ef4444" : "var(--color-text-warm)" }}>{(hsJob.errors ?? 0).toLocaleString()}</div>
 
                 <div style={{ color: "var(--color-text-muted)" }}>Workers:</div>
-                <div style={{ color: "var(--color-text-warm)" }}>{hsJob.concurrency}</div>
+                <div style={{ color: "var(--color-text-warm)" }}>{hsJob.concurrency ?? 0}</div>
 
                 {hsJob.current_clan && (
                   <>
