@@ -383,7 +383,7 @@ async def trigger_hiscores_refresh(
 @router.post("/admin/hiscores/start-job")
 async def start_hiscores_job_endpoint(
     current_user: dict = Depends(get_current_user),
-    concurrency: int = Query(25, ge=1, le=100),
+    concurrency: int = Query(25, ge=1, le=200),
     only_missing: bool = Query(True),
     start_rank: int = Query(1, ge=1),
 ):

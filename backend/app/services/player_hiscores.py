@@ -249,7 +249,6 @@ async def refresh_all_player_hiscores(
                         logger.warning("Hiscores refresh error for '%s': %s", rsn, result["error"])
                 else:
                     updated += 1
-                await asyncio.sleep(0.05)
 
         while True:
             players = await db.rs3player.find_many(
@@ -360,22 +359,20 @@ async def _run_hiscores_job(
 ) -> None:
     """Background task that refreshes hiscores per-clan ordered by rank.
 
-    Processes clans from start_rank onward. For each clan, fetches all
-    members' stats concurrently. If 100% of a clan's members return 404
-    (full mode only), the clan and its members are removed from the database.
-
-    Skips players that already have hiscores data when only_missing is True.
+    Processes clans from start_rank onward. Uses a global semaphore so
+    players across multiple clans are fetched concurrently — no waiting
+    for an entire clan to finish before starting the next.
     """
     global _hiscores_cancel
     semaphore = asyncio.Semaphore(concurrency)
 
     try:
         async with httpx.AsyncClient(
-            timeout=15.0,
+            timeout=10.0,
             follow_redirects=True,
             limits=httpx.Limits(
-                max_connections=concurrency + 10,
-                max_keepalive_connections=concurrency,
+                max_connections=concurrency + 20,
+                max_keepalive_connections=concurrency + 10,
             ),
         ) as client:
 
@@ -387,120 +384,140 @@ async def _run_hiscores_job(
                 order=[{"rank": "asc"}],
                 where={"rank": rank_filter},
             )
-            # Also get clans without a rank (append at end)
             clans_no_rank = await db.indexedclan.find_many(
                 where={"rank": None},
                 order={"id": "asc"},
             )
             clans = clans + clans_no_rank
 
-            for clan in clans:
+            # Track per-clan results for cleanup logic
+            clan_results: dict[str, dict] = {}
+            # Pending tasks across all clans
+            pending_tasks: list[asyncio.Task] = []
+            # Map clan_id → clan object for cleanup
+            clan_map: dict[str, Any] = {}
+            # Map clan_id → members for cleanup
+            clan_members_map: dict[str, list] = {}
+
+            async def _refresh_one(
+                pid: str, rsn: str, clan_id: str,
+            ) -> None:
+                async with semaphore:
+                    if _hiscores_cancel:
+                        return
+                    _hiscores_job["current_rsn"] = rsn
+                    result = await refresh_player_hiscores(pid, rsn, client=client)
+                    _hiscores_job["processed"] += 1
+                    if "error" in result:
+                        _hiscores_job["errors"] += 1
+                        clan_results[clan_id]["errors"] += 1
+                    else:
+                        _hiscores_job["updated"] += 1
+                        clan_results[clan_id]["updated"] += 1
+
+            # Pipeline: enqueue work for multiple clans at once
+            # Process in batches of clans to avoid loading everything at once
+            CLAN_BATCH = 50
+            for batch_start in range(0, len(clans), CLAN_BATCH):
                 if _hiscores_cancel:
                     break
 
-                _hiscores_job["current_clan"] = clan.name
+                clan_batch = clans[batch_start:batch_start + CLAN_BATCH]
 
-                # Get all members of this clan with linked player IDs
-                members = await db.indexedclanmember.find_many(
-                    where={"clanId": clan.id, "isCurrent": True, "playerId": {"not": None}},
-                )
-
-                if not members:
-                    _hiscores_job["clans_processed"] += 1
-                    continue
-
-                # Get player records for these members
-                player_ids = [m.playerId for m in members if m.playerId]
-                if not player_ids:
-                    _hiscores_job["clans_processed"] += 1
-                    continue
-
-                players = await db.rs3player.find_many(
-                    where={"id": {"in": player_ids}},
-                )
-
-                # Filter: skip already-refreshed if only_missing
-                if only_missing:
-                    players = [p for p in players if p.totalXp == 0]
-
-                if not players:
-                    _hiscores_job["clans_processed"] += 1
-                    continue
-
-                # Track per-clan results for cleanup logic
-                clan_errors = 0
-                clan_updated = 0
-                clan_total = len(players)
-
-                async def _refresh_one(pid: str, rsn: str) -> bool:
-                    """Returns True if player was found, False if 404."""
-                    nonlocal clan_errors, clan_updated
-                    async with semaphore:
-                        if _hiscores_cancel:
-                            return True  # Don't count as 404
-                        _hiscores_job["current_rsn"] = rsn
-                        result = await refresh_player_hiscores(pid, rsn, client=client)
-                        _hiscores_job["processed"] += 1
-                        if "error" in result:
-                            _hiscores_job["errors"] += 1
-                            clan_errors += 1
-                            return False
-                        else:
-                            _hiscores_job["updated"] += 1
-                            clan_updated += 1
-                            return True
-
-                # Process all players in this clan concurrently
-                tasks = []
-                for player in players:
+                for clan in clan_batch:
                     if _hiscores_cancel:
                         break
-                    tasks.append(_refresh_one(player.id, player.rsn))
 
-                await asyncio.gather(*tasks)
+                    _hiscores_job["current_clan"] = clan.name
+                    clan_map[clan.id] = clan
 
-                _hiscores_job["clans_processed"] += 1
-
-                # Clan cleanup: ONLY remove if we checked ALL members (not just
-                # the only_missing subset) and ALL returned 404.
-                # This prevents deleting active clans where only a few
-                # unlooked-up members are renamed/inactive.
-                if (
-                    not only_missing
-                    and clan_total > 0
-                    and clan_errors == clan_total
-                    and clan_updated == 0
-                    and not _hiscores_cancel
-                ):
-                    # Double check: count ALL members of this clan, not just
-                    # the ones we processed. If there are members we didn't
-                    # process (e.g. already had data), don't delete.
-                    total_members = await db.indexedclanmember.count(
-                        where={"clanId": clan.id, "isCurrent": True},
+                    members = await db.indexedclanmember.find_many(
+                        where={"clanId": clan.id, "isCurrent": True, "playerId": {"not": None}},
                     )
-                    total_players_with_data = await db.rs3player.count(
-                        where={
-                            "id": {"in": [m.playerId for m in members if m.playerId]},
-                            "totalXp": {"gt": 0},
-                        },
-                    )
-                    if total_players_with_data == 0 and clan_total >= total_members:
-                        try:
-                            await db.indexedclanmember.delete_many(
-                                where={"clanId": clan.id},
-                            )
-                            await db.indexedclan.delete(
-                                where={"id": clan.id},
-                            )
-                            _hiscores_job["clans_removed"] += 1
-                            logger.info(
-                                "Removed clan '%s' (rank %s) — 100%% 404s (%d members)",
-                                clan.name, clan.rank, clan_total,
-                            )
-                        except Exception as e:
-                            logger.warning("Failed to remove clan '%s': %s", clan.name, e)
 
-                if _hiscores_job["clans_processed"] % 50 == 0:
+                    if not members:
+                        _hiscores_job["clans_processed"] += 1
+                        continue
+
+                    player_ids = [m.playerId for m in members if m.playerId]
+                    if not player_ids:
+                        _hiscores_job["clans_processed"] += 1
+                        continue
+
+                    players = await db.rs3player.find_many(
+                        where={"id": {"in": player_ids}},
+                    )
+
+                    if only_missing:
+                        players = [p for p in players if p.totalXp == 0]
+
+                    if not players:
+                        _hiscores_job["clans_processed"] += 1
+                        continue
+
+                    clan_results[clan.id] = {"errors": 0, "updated": 0, "total": len(players)}
+                    clan_members_map[clan.id] = members
+
+                    for player in players:
+                        if _hiscores_cancel:
+                            break
+                        task = asyncio.create_task(
+                            _refresh_one(player.id, player.rsn, clan.id)
+                        )
+                        pending_tasks.append(task)
+
+                # Wait for all tasks in this batch of clans to complete
+                if pending_tasks:
+                    await asyncio.gather(*pending_tasks)
+                    pending_tasks.clear()
+
+                # Process cleanup for completed clans in this batch
+                for clan in clan_batch:
+                    if clan.id not in clan_results:
+                        continue
+                    cr = clan_results[clan.id]
+                    _hiscores_job["clans_processed"] += 1
+
+                    if (
+                        not only_missing
+                        and cr["total"] > 0
+                        and cr["errors"] == cr["total"]
+                        and cr["updated"] == 0
+                        and not _hiscores_cancel
+                    ):
+                        members = clan_members_map.get(clan.id, [])
+                        total_members = await db.indexedclanmember.count(
+                            where={"clanId": clan.id, "isCurrent": True},
+                        )
+                        total_players_with_data = await db.rs3player.count(
+                            where={
+                                "id": {"in": [m.playerId for m in members if m.playerId]},
+                                "totalXp": {"gt": 0},
+                            },
+                        )
+                        if total_players_with_data == 0 and cr["total"] >= total_members:
+                            try:
+                                await db.indexedclanmember.delete_many(
+                                    where={"clanId": clan.id},
+                                )
+                                await db.indexedclan.delete(
+                                    where={"id": clan.id},
+                                )
+                                _hiscores_job["clans_removed"] += 1
+                                logger.info(
+                                    "Removed clan '%s' (rank %s) — 100%% 404s (%d members)",
+                                    clan.name, clan.rank, cr["total"],
+                                )
+                            except Exception as e:
+                                logger.warning("Failed to remove clan '%s': %s", clan.name, e)
+
+                # Clear references for this batch
+                for clan in clan_batch:
+                    clan_results.pop(clan.id, None)
+                    clan_members_map.pop(clan.id, None)
+                    clan_map.pop(clan.id, None)
+
+                if _hiscores_job["clans_processed"] > 0:
                     logger.info(
                         "Hiscores job: %d clans processed, %d removed, %d players updated, %d errors",
                         _hiscores_job["clans_processed"],

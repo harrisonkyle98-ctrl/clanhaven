@@ -670,7 +670,7 @@ function AdminHomeTab({ username }: { username: string }) {
             <input
               type="number"
               value={hsConcurrency}
-              onChange={(e) => setHsConcurrency(Math.max(1, Math.min(100, Number(e.target.value))))}
+              onChange={(e) => setHsConcurrency(Math.max(1, Math.min(200, Number(e.target.value))))}
               style={{
                 width: "55px",
                 background: "rgba(22, 19, 14, 0.8)",
@@ -683,7 +683,7 @@ function AdminHomeTab({ username }: { username: string }) {
               disabled={hsJob?.status === "running"}
             />
             <span style={{ color: "var(--color-text-muted)", fontSize: "0.6875rem" }}>
-              (1–100 concurrent requests)
+              (1–200 concurrent requests)
             </span>
           </div>
 
