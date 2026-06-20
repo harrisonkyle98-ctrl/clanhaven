@@ -8,6 +8,7 @@ Provides:
 - Manual snapshot trigger (admin)
 """
 
+import asyncio
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -448,3 +449,91 @@ async def trigger_single_hiscores_refresh(
     from app.services.player_hiscores import refresh_player_hiscores
     result = await refresh_player_hiscores(player.id, player.rsn)
     return result
+
+
+# ─── Admin: Purge orphaned rs3_players ───
+
+_purge_task: asyncio.Task | None = None
+_purge_status: dict = {"status": "idle", "deleted": 0, "total_checked": 0}
+
+
+@router.post("/admin/purge-orphan-players")
+async def purge_orphan_players(
+    current_user: dict = Depends(get_current_user),
+):
+    """Delete rs3_players with no indexed_clan_member link. Runs in background."""
+    global _purge_task
+    user = await db.user.find_unique(where={"id": current_user["sub"]})
+    if not user or user.privileges < 2:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    if _purge_task and not _purge_task.done():
+        return {"error": "Purge already running", **_purge_status}
+
+    _purge_status.update({"status": "running", "deleted": 0, "total_checked": 0})
+    _purge_task = asyncio.create_task(_run_purge())
+    return _purge_status
+
+
+@router.get("/admin/purge-orphan-players/status")
+async def get_purge_status(
+    current_user: dict = Depends(get_current_user),
+):
+    user = await db.user.find_unique(where={"id": current_user["sub"]})
+    if not user or user.privileges < 2:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return _purge_status
+
+
+async def _run_purge():
+    import logging
+    logger = logging.getLogger(__name__)
+    try:
+        # Build set of linked player IDs
+        linked: set[str] = set()
+        skip = 0
+        while True:
+            members = await db.indexedclanmember.find_many(
+                take=5000, skip=skip,
+                where={"playerId": {"not": None}},
+            )
+            if not members:
+                break
+            for m in members:
+                if m.playerId:
+                    linked.add(m.playerId)
+            skip += 5000
+        logger.info("Purge: %d linked player IDs found", len(linked))
+
+        # Iterate all rs3_players and delete orphans
+        cursor = None
+        while True:
+            if cursor:
+                players = await db.rs3player.find_many(
+                    take=1000, skip=1, cursor={"id": cursor}, order={"id": "asc"},
+                )
+            else:
+                players = await db.rs3player.find_many(
+                    take=1000, order={"id": "asc"},
+                )
+            if not players:
+                break
+            cursor = players[-1].id
+            _purge_status["total_checked"] += len(players)
+
+            to_delete = [p.id for p in players if p.id not in linked]
+            if to_delete:
+                d = await db.rs3player.delete_many(where={"id": {"in": to_delete}})
+                _purge_status["deleted"] += d
+
+            if _purge_status["total_checked"] % 10000 == 0:
+                logger.info(
+                    "Purge progress: checked %d, deleted %d",
+                    _purge_status["total_checked"], _purge_status["deleted"],
+                )
+
+        _purge_status["status"] = "completed"
+        logger.info("Purge complete: deleted %d orphaned players", _purge_status["deleted"])
+    except Exception as e:
+        logger.exception("Purge failed: %s", e)
+        _purge_status["status"] = f"failed: {e}"
