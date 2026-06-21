@@ -4220,14 +4220,14 @@ body {
   position: relative;
 }
 
-/* Shadow cast from chevron into level area — only on level side */
+/* Shadow cast from chevron into level area — starts under chevron shape */
 .ch-player-skill-row-level::before {
   content: "";
   position: absolute;
   top: calc(-0.5rem - 2px);
   bottom: calc(-0.5rem - 2px);
-  left: calc(-0.75rem);
-  width: calc(100% + 0.75rem);
+  left: calc(-0.75rem - 12px);
+  width: calc(100% + 0.75rem + 12px);
   background: linear-gradient(to right, rgba(0, 0, 0, 0.55) 0%, transparent 80%);
   pointer-events: none;
   z-index: -1;
