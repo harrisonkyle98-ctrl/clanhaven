@@ -280,10 +280,10 @@ export default function PlayerProfile() {
                 <div className="ch-player-skill-rows">
                   {/* Total XP row first */}
                   <div className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#a49680" } as React.CSSProperties}>
-                    <div className="ch-player-skill-row-inner">
-                      <div className="ch-player-skill-icon-wrap ch-skill-icon-block ch-skill-icon-block--blue">
-                        <img src="/images/skills/overall.png" alt="Overall" className="ch-player-skill-icon" />
-                      </div>
+                    <div className="ch-skill-icon-col ch-skill-icon-block--blue">
+                      <img src="/images/skills/overall.png" alt="Overall" className="ch-player-skill-icon" />
+                    </div>
+                    <div className="ch-player-skill-row-content">
                       <div className="ch-player-skill-info">
                         <span className="ch-player-skill-row-name">Overall</span>
                         <span className="ch-player-skill-row-xp">{formatXpFull(player.totalXp, hasStats)} XP</span>
@@ -297,10 +297,10 @@ export default function PlayerProfile() {
                   {/* Individual skill rows */}
                   {skills.map((skill) => (
                     <div key={skill.name} className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#a49680" } as React.CSSProperties}>
-                      <div className="ch-player-skill-row-inner">
-                        <div className={`ch-player-skill-icon-wrap ch-skill-icon-block ch-skill-icon-block--${getSkillCategory(skill.name)}`}>
-                          <img src={`/images/skills/${skill.name}.png`} alt={skill.name} className="ch-player-skill-icon" />
-                        </div>
+                      <div className={`ch-skill-icon-col ch-skill-icon-block--${getSkillCategory(skill.name)}`}>
+                        <img src={`/images/skills/${skill.name}.png`} alt={skill.name} className="ch-player-skill-icon" />
+                      </div>
+                      <div className="ch-player-skill-row-content">
                         <div className="ch-player-skill-info">
                           <span className="ch-player-skill-row-name">{getSkillDisplayName(skill.name)}</span>
                           <span className="ch-player-skill-row-xp">{formatSkillXp(skill.xp, skill.level)} XP</span>
