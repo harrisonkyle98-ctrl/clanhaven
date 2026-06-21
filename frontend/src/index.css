@@ -4033,11 +4033,12 @@ body {
 
 .ch-player-skill-row-inner {
   display: flex;
-  align-items: stretch;
-  gap: 0;
-  padding: 0;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem 0.5rem 3rem;
   position: relative;
   z-index: 1;
+  min-height: 2.75rem;
 }
 
 .ch-player-skill-icon-wrap {
@@ -4050,8 +4051,8 @@ body {
 }
 
 .ch-player-skill-icon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   image-rendering: pixelated;
   position: relative;
   z-index: 1;
@@ -4062,11 +4063,16 @@ body {
   --sib-color: rgba(65, 90, 115, 0.95);
   --sib-pattern: rgba(100, 140, 180, 0.6);
   --sib-border: rgba(40, 60, 85, 0.95);
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
   aspect-ratio: 1;
-  flex-shrink: 0;
   border-radius: 0;
-  position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background:
     linear-gradient(
       180deg,
@@ -4132,8 +4138,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  align-self: center;
-  padding-left: 0.75rem;
 }
 
 .ch-player-skill-row-name {
@@ -4151,10 +4155,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  align-self: center;
   min-width: 36px;
   padding: 0.2rem 0.5rem;
-  margin-right: 0.75rem;
   border-radius: 3px;
   font-size: 0.8rem;
   font-weight: 700;
