@@ -93,6 +93,7 @@ export default function PlayerProfile() {
   const [data, setData] = useState<PlayerProfileResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState("skills")
 
   useEffect(() => {
     if (!rsn) return
@@ -152,6 +153,13 @@ export default function PlayerProfile() {
   const { player, clan, skills, hasStats } = data
   const accountLabel = getAccountTypeLabel(player.accountType)
   const accountIcon = getAccountTypeIcon(player.accountType)
+
+  const TABS: { key: string; label: string }[] = [
+    { key: "skills", label: "Skills" },
+    { key: "activity", label: "Activity" },
+    { key: "achievements", label: "Achievements" },
+    { key: "history", label: "History" },
+  ]
 
   return (
     <div>
@@ -223,45 +231,85 @@ export default function PlayerProfile() {
             </div>
           </div>
 
-          {/* Right content: Skills */}
+          {/* Right content: Tabs + content */}
           <div className="ch-player-main">
-            <CollapsiblePanel variant="blue" title="Skills">
-              <div className="ch-player-skill-rows">
-                {/* Total XP row first */}
-                <div className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#a49680" } as React.CSSProperties}>
-                  <div className="ch-player-skill-row-inner">
-                    <div className="ch-player-skill-icon-wrap">
-                      <img src="/images/skills/overall.png" alt="Overall" className="ch-player-skill-icon" />
-                    </div>
-                    <div className="ch-player-skill-info">
-                      <span className="ch-player-skill-row-name">Overall</span>
-                      <span className="ch-player-skill-row-xp">{formatXpFull(player.totalXp, hasStats)} XP</span>
-                    </div>
-                    <div className="ch-player-skill-level-badge">
-                      {formatLevel(player.totalLevel, hasStats)}
-                    </div>
-                  </div>
-                </div>
+            {/* Tab bar */}
+            <div className="ch-player-tabs">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  className={`ch-sidebar-btn ch-player-tab${activeTab === tab.key ? " ch-sidebar-btn-active ch-player-tab--active" : ""}`}
+                  onClick={() => setActiveTab(tab.key)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
 
-                {/* Individual skill rows */}
-                {skills.map((skill) => (
-                  <div key={skill.name} className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#a49680" } as React.CSSProperties}>
+            {/* Tab content */}
+            {activeTab === "skills" && (
+              <CollapsiblePanel variant="blue" title="Skills">
+                <div className="ch-player-skill-rows">
+                  {/* Total XP row first */}
+                  <div className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#a49680" } as React.CSSProperties}>
                     <div className="ch-player-skill-row-inner">
                       <div className="ch-player-skill-icon-wrap">
-                        <img src={`/images/skills/${skill.name}.png`} alt={skill.name} className="ch-player-skill-icon" />
+                        <img src="/images/skills/overall.png" alt="Overall" className="ch-player-skill-icon" />
                       </div>
                       <div className="ch-player-skill-info">
-                        <span className="ch-player-skill-row-name">{getSkillDisplayName(skill.name)}</span>
-                        <span className="ch-player-skill-row-xp">{formatSkillXp(skill.xp, skill.level)} XP</span>
+                        <span className="ch-player-skill-row-name">Overall</span>
+                        <span className="ch-player-skill-row-xp">{formatXpFull(player.totalXp, hasStats)} XP</span>
                       </div>
                       <div className="ch-player-skill-level-badge">
-                        {formatSkillLevel(skill.level, skill.xp)}
+                        {formatLevel(player.totalLevel, hasStats)}
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CollapsiblePanel>
+
+                  {/* Individual skill rows */}
+                  {skills.map((skill) => (
+                    <div key={skill.name} className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#a49680" } as React.CSSProperties}>
+                      <div className="ch-player-skill-row-inner">
+                        <div className="ch-player-skill-icon-wrap">
+                          <img src={`/images/skills/${skill.name}.png`} alt={skill.name} className="ch-player-skill-icon" />
+                        </div>
+                        <div className="ch-player-skill-info">
+                          <span className="ch-player-skill-row-name">{getSkillDisplayName(skill.name)}</span>
+                          <span className="ch-player-skill-row-xp">{formatSkillXp(skill.xp, skill.level)} XP</span>
+                        </div>
+                        <div className="ch-player-skill-level-badge">
+                          {formatSkillLevel(skill.level, skill.xp)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CollapsiblePanel>
+            )}
+
+            {activeTab === "activity" && (
+              <CollapsiblePanel variant="blue" title="Activity">
+                <div className="ch-player-tab-placeholder">
+                  <p>Activity tracking coming soon.</p>
+                </div>
+              </CollapsiblePanel>
+            )}
+
+            {activeTab === "achievements" && (
+              <CollapsiblePanel variant="blue" title="Achievements">
+                <div className="ch-player-tab-placeholder">
+                  <p>Achievements coming soon.</p>
+                </div>
+              </CollapsiblePanel>
+            )}
+
+            {activeTab === "history" && (
+              <CollapsiblePanel variant="blue" title="History">
+                <div className="ch-player-tab-placeholder">
+                  <p>Clan membership history coming soon.</p>
+                </div>
+              </CollapsiblePanel>
+            )}
           </div>
         </div>
       </div>
