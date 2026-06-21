@@ -4158,6 +4158,39 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  position: relative;
+  margin-right: 0.5rem;
+}
+
+/* Chevron/notch boundary — structural divider between XP and Level sections */
+.ch-player-skill-info::after {
+  content: "";
+  position: absolute;
+  right: -0.75rem;
+  top: -0.5rem;
+  bottom: -0.5rem;
+  width: 16px;
+  background: rgba(10, 8, 5, 0.9);
+  clip-path: polygon(
+    0 0, calc(100% - 7px) 0, 100% 50%, calc(100% - 7px) 100%, 0 100%,
+    2px calc(100% - 2px), calc(100% - 9px) calc(100% - 2px), calc(100% - 2px) 50%, calc(100% - 9px) 2px, 2px 2px
+  );
+  z-index: 2;
+}
+
+.ch-player-skill-info::before {
+  content: "";
+  position: absolute;
+  right: -0.75rem;
+  top: -0.5rem;
+  bottom: -0.5rem;
+  width: 16px;
+  background: rgba(52, 45, 34, 0.6);
+  clip-path: polygon(
+    1px 1px, calc(100% - 8px) 1px, calc(100% - 1px) 50%, calc(100% - 8px) calc(100% - 1px), 1px calc(100% - 1px),
+    2px calc(100% - 2px), calc(100% - 9px) calc(100% - 2px), calc(100% - 2px) 50%, calc(100% - 9px) 2px, 2px 2px
+  );
+  z-index: 1;
 }
 
 .ch-player-skill-row-name {
