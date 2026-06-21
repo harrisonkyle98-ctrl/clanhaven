@@ -4176,7 +4176,7 @@ body {
   flex-shrink: 0;
   align-self: stretch;
   position: relative;
-  margin: -0.5rem 0;
+  margin: calc(-0.5rem + 2px) 0;
 }
 
 /* Dark outer chevron line */
