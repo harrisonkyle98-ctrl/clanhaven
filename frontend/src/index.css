@@ -4090,7 +4090,7 @@ body {
   opacity: 0.15;
 }
 
-/* Row content is now split into arrow (name+XP) and notch (level) at row level */
+/* Row content is split into xp-arrow and level-notch at row level */
 
 .ch-player-skill-icon-wrap {
   width: 28px;
@@ -4167,7 +4167,7 @@ body {
   z-index: 1;
 }
 
-/* Skill XP arrow section — row-level, reuses ch-row-arrow clip-path approach */
+/* Skill XP arrow section — chevron border only, row provides background/pattern/lighting */
 .ch-skill-xp-arrow {
   flex: 1;
   min-width: 0;
@@ -4178,52 +4178,23 @@ body {
 }
 
 .ch-skill-xp-arrow-mid {
-  clip-path: polygon(0 1px, calc(100% - 13px) 1px, calc(100% - 1px) 50%, calc(100% - 13px) calc(100% - 1px), 0 calc(100% - 1px));
+  clip-path: polygon(0 0, calc(100% - 13px) 0, calc(100% - 1px) 50%, calc(100% - 13px) 100%, 0 100%);
   background: rgba(52, 45, 34, 0.6);
   height: 100%;
 }
 
 .ch-skill-xp-arrow-fill {
-  clip-path: polygon(0 2px, calc(100% - 14px) 2px, calc(100% - 2px) 50%, calc(100% - 14px) calc(100% - 2px), 0 calc(100% - 2px));
-  background: rgba(22, 19, 14, 0.8);
+  clip-path: polygon(0 0, calc(100% - 14px) 0, calc(100% - 2px) 50%, calc(100% - 14px) 100%, 0 100%);
+  background: transparent;
   height: 100%;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 1.5rem 0.5rem 0.75rem;
   min-height: 2.75rem;
-  position: relative;
-  overflow: hidden;
-  box-shadow:
-    inset 0 1px 0 rgba(115, 98, 72, 0.2),
-    inset 0 3px 8px rgba(0, 0, 0, 0.4),
-    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
 }
 
-.ch-skill-xp-arrow-fill::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-color: var(--row-accent, #c9a227);
-  -webkit-mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
-  mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
-  -webkit-mask-repeat: repeat;
-  mask-repeat: repeat;
-  -webkit-mask-size: 20px 20px;
-  mask-size: 20px 20px;
-  -webkit-mask-position: 0 0;
-  mask-position: 0 0;
-  opacity: 0.05;
-}
-
-.ch-skill-xp-arrow-fill > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* Skill Level notch section — row-level, reuses ch-row-notch clip-path approach */
+/* Skill Level notch section — chevron border only, row provides background/pattern/lighting */
 .ch-skill-level-notch {
   flex-shrink: 0;
   clip-path: polygon(12px 50%, 0 0, 100% 0, 100% 100%, 0 100%);
@@ -4234,49 +4205,20 @@ body {
 }
 
 .ch-skill-level-notch-mid {
-  clip-path: polygon(13px 50%, 1px 1px, calc(100% - 1px) 1px, calc(100% - 1px) calc(100% - 1px), 1px calc(100% - 1px));
+  clip-path: polygon(13px 50%, 1px 0, 100% 0, 100% 100%, 1px 100%);
   background: rgba(52, 45, 34, 0.6);
   height: 100%;
 }
 
 .ch-skill-level-notch-fill {
-  clip-path: polygon(14px 50%, 2px 2px, calc(100% - 2px) 2px, calc(100% - 2px) calc(100% - 2px), 2px calc(100% - 2px));
-  background: rgba(22, 19, 14, 0.8);
+  clip-path: polygon(14px 50%, 2px 0, 100% 0, 100% 100%, 2px 100%);
+  background: transparent;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0.5rem 0.75rem 0.5rem 1rem;
   min-width: 3.5rem;
-  position: relative;
-  overflow: hidden;
-  box-shadow:
-    inset 0 1px 0 rgba(115, 98, 72, 0.2),
-    inset 0 3px 8px rgba(0, 0, 0, 0.4),
-    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
-}
-
-.ch-skill-level-notch-fill::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-color: var(--row-accent, #c9a227);
-  -webkit-mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
-  mask-image: url("/assets/patterns/stormlight-grid-pattern-mask-inverted-tile-128.png");
-  -webkit-mask-repeat: repeat;
-  mask-repeat: repeat;
-  -webkit-mask-size: 20px 20px;
-  mask-size: 20px 20px;
-  -webkit-mask-position: 0 0;
-  mask-position: 0 0;
-  opacity: 0.05;
-}
-
-.ch-skill-level-notch-fill > * {
-  position: relative;
-  z-index: 1;
 }
 
 .ch-roster-rsn-link {
