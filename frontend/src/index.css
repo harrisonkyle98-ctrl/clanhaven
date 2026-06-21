@@ -4147,45 +4147,60 @@ body {
   --sib-border: rgba(60, 50, 85, 0.95);
 }
 
-.ch-player-skill-info {
+.ch-player-skill-row-name {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.ch-player-skill-row-name {
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.ch-player-skill-row-xp {
-  font-size: 0.65rem;
-  color: var(--color-muted-foreground);
-}
-
-.ch-player-skill-level-badge {
+.ch-player-skill-right {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-width: 36px;
-  padding: 0.2rem 0.5rem;
-  border-radius: 3px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--color-foreground);
-  background: rgba(68, 58, 44, 0.3);
-  border: 1px solid rgba(68, 58, 44, 0.5);
+  gap: 0;
   flex-shrink: 0;
 }
 
-.ch-player-skill-level-badge--total {
-  background: rgba(201, 162, 39, 0.15);
-  border-color: rgba(201, 162, 39, 0.4);
-  color: var(--color-primary);
-  font-size: 0.85rem;
+.ch-player-skill-row-xp {
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+  white-space: nowrap;
+  padding-right: 0.25rem;
+}
+
+.ch-player-skill-row-level {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+  white-space: nowrap;
+  padding-left: 0.25rem;
+  min-width: 2rem;
+  text-align: center;
+}
+
+/* Skill row arrow divider — reuses ch-row-arrow clip-path approach */
+.ch-skill-arrow-divider {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
+  background: rgba(10, 8, 5, 0.9);
+}
+
+.ch-skill-arrow-divider-mid {
+  clip-path: polygon(1px 1px, calc(100% - 9px) 1px, calc(100% - 1px) 50%, calc(100% - 9px) calc(100% - 1px), 1px calc(100% - 1px));
+  background: rgba(52, 45, 34, 0.6);
+  height: 100%;
+}
+
+.ch-skill-arrow-divider-fill {
+  clip-path: polygon(2px 2px, calc(100% - 10px) 2px, calc(100% - 2px) 50%, calc(100% - 10px) calc(100% - 2px), 2px calc(100% - 2px));
+  background: rgba(22, 19, 14, 0.8);
+  height: 100%;
 }
 
 .ch-roster-rsn-link {

@@ -284,12 +284,15 @@ export default function PlayerProfile() {
                       <img src="/images/skills/overall.png" alt="Overall" className="ch-player-skill-icon" />
                     </div>
                     <div className="ch-player-skill-row-content">
-                      <div className="ch-player-skill-info">
-                        <span className="ch-player-skill-row-name">Overall</span>
+                      <span className="ch-player-skill-row-name">Overall</span>
+                      <div className="ch-player-skill-right">
                         <span className="ch-player-skill-row-xp">{formatXpFull(player.totalXp, hasStats)} XP</span>
-                      </div>
-                      <div className="ch-player-skill-level-badge">
-                        {formatLevel(player.totalLevel, hasStats)}
+                        <div className="ch-skill-arrow-divider">
+                          <div className="ch-skill-arrow-divider-mid">
+                            <div className="ch-skill-arrow-divider-fill"></div>
+                          </div>
+                        </div>
+                        <span className="ch-player-skill-row-level">{formatLevel(player.totalLevel, hasStats)}</span>
                       </div>
                     </div>
                   </div>
@@ -301,12 +304,15 @@ export default function PlayerProfile() {
                         <img src={`/images/skills/${skill.name}.png`} alt={skill.name} className="ch-player-skill-icon" />
                       </div>
                       <div className="ch-player-skill-row-content">
-                        <div className="ch-player-skill-info">
-                          <span className="ch-player-skill-row-name">{getSkillDisplayName(skill.name)}</span>
+                        <span className="ch-player-skill-row-name">{getSkillDisplayName(skill.name)}</span>
+                        <div className="ch-player-skill-right">
                           <span className="ch-player-skill-row-xp">{formatSkillXp(skill.xp, skill.level)} XP</span>
-                        </div>
-                        <div className="ch-player-skill-level-badge">
-                          {formatSkillLevel(skill.level, skill.xp)}
+                          <div className="ch-skill-arrow-divider">
+                            <div className="ch-skill-arrow-divider-mid">
+                              <div className="ch-skill-arrow-divider-fill"></div>
+                            </div>
+                          </div>
+                          <span className="ch-player-skill-row-level">{formatSkillLevel(skill.level, skill.xp)}</span>
                         </div>
                       </div>
                     </div>
