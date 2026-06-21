@@ -4109,6 +4109,18 @@ body {
   text-decoration: underline;
 }
 
+/* ─── Player Profile Clan Banner ─── */
+.ch-player-clan-banner {
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.ch-player-clan-banner .ch-discovery-card-header {
+  height: 80px;
+  margin: 2px;
+}
+
 /* ─── Player Profile Tabs ─── */
 .ch-player-tabs {
   display: flex;

@@ -102,6 +102,8 @@ async def get_player_profile(rsn_slug: str):
             "name": clan_membership.clan.name,
             "slug": clan_membership.clan.slug,
             "rank": clan_membership.clanRank,
+            "primaryColor": clan_membership.clan.primaryColor,
+            "secondaryColor": clan_membership.clan.secondaryColor,
         } if clan_membership and clan_membership.clan else None,
         "skills": skills,
         "snapshotCount": snapshot_count,

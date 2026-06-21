@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import { apiFetch } from "@/lib/api"
 import CollapsiblePanel from "@/components/CollapsiblePanel"
+import MiniClanVexillum from "@/components/MiniClanVexillum"
 
 interface PlayerData {
   id: string
@@ -20,6 +21,8 @@ interface ClanInfo {
   name: string
   slug: string
   rank: string | null
+  primaryColor: string | null
+  secondaryColor: string | null
 }
 
 interface Skill {
@@ -174,8 +177,28 @@ export default function PlayerProfile() {
       <div className="ch-page-content p-4 lg:p-6">
         {/* Two-column layout: sidebar (30%) + skills (70%) */}
         <div className="ch-player-layout">
-          {/* Left sidebar: Player info card */}
+          {/* Left sidebar: Clan banner + Player info card */}
           <div className="ch-player-sidebar">
+            {clan && (
+              <Link to={`/${clan.slug}`} className="ch-stat-cell ch-player-clan-banner" style={{ textDecoration: "none", display: "block" }}>
+                <div className="ch-discovery-card-header">
+                  <img src="/images/clancardbg.png" alt="" className="ch-discovery-card-header-bg" />
+                  <div className="ch-discovery-card-header-overlay" />
+                  <div className="ch-discovery-card-header-content">
+                    <div className="ch-discovery-card-header-center">
+                      <div className="ch-discovery-card-name">{clan.name}</div>
+                    </div>
+                  </div>
+                  <div className="ch-discovery-card-vexillum">
+                    <MiniClanVexillum
+                      primaryColor={clan.primaryColor ?? undefined}
+                      secondaryColor={clan.secondaryColor ?? undefined}
+                      size={52}
+                    />
+                  </div>
+                </div>
+              </Link>
+            )}
             <div className="ch-stat-cell ch-player-sidebar-card">
               <div className="ch-player-sidebar-header">
                 <h2 className="ch-player-name">
@@ -197,13 +220,10 @@ export default function PlayerProfile() {
                 </div>
               </div>
 
-              {clan && (
+              {clan && clan.rank && (
                 <div className="ch-player-sidebar-clan">
-                  <span className="ch-player-sidebar-label">Clan</span>
-                  <Link to={`/${clan.slug}`} className="ch-player-clan-link">
-                    {clan.name}
-                  </Link>
-                  {clan.rank && <span className="ch-player-clan-rank">{clan.rank}</span>}
+                  <span className="ch-player-sidebar-label">Clan Rank</span>
+                  <span className="ch-player-clan-rank">{clan.rank}</span>
                 </div>
               )}
 
