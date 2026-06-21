@@ -4134,6 +4134,10 @@ body {
   border-top-right-radius: 0;
 }
 
+.ch-player-sidebar-card:hover {
+  background: rgba(22, 19, 14, 0.8);
+}
+
 /* ─── Player Profile Tabs ─── */
 .ch-player-tabs {
   display: flex;
