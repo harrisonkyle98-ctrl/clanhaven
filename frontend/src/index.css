@@ -4228,7 +4228,7 @@ body {
   bottom: calc(-0.5rem - 2px);
   left: calc(-0.75rem - 12px);
   width: calc(100% + 0.75rem + 12px);
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.4) 0%, transparent 30%);
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.3) 0%, transparent 30%);
   pointer-events: none;
   z-index: -1;
   clip-path: polygon(12px 50%, 0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
