@@ -91,12 +91,47 @@ function getSkillDisplayName(name: string): string {
   return name.charAt(0).toUpperCase() + name.slice(1)
 }
 
-function getSkillCategory(name: string): string {
-  const combat = ["attack", "strength", "defence", "constitution", "ranged", "prayer", "magic", "summoning", "slayer", "necromancy"]
-  const gathering = ["woodcutting", "mining", "fishing", "farming", "hunter", "divination", "archaeology"]
-  if (combat.includes(name)) return "red"
-  if (gathering.includes(name)) return "green"
-  return "purple"
+/** Per-skill colors from Stormlight, desaturated/darkened for Clan Haven fantasy theme */
+const SKILL_COLORS: Record<string, { color: string; pattern: string; border: string }> = {
+  attack:         { color: "rgba(130, 50, 50, 0.95)",  pattern: "rgba(170, 80, 80, 0.6)",   border: "rgba(85, 30, 30, 0.95)" },
+  defence:        { color: "rgba(60, 85, 115, 0.95)",  pattern: "rgba(90, 125, 165, 0.6)",  border: "rgba(35, 55, 80, 0.95)" },
+  strength:       { color: "rgba(55, 110, 75, 0.95)",  pattern: "rgba(85, 155, 105, 0.6)",  border: "rgba(30, 75, 45, 0.95)" },
+  constitution:   { color: "rgba(140, 55, 55, 0.95)",  pattern: "rgba(180, 85, 85, 0.6)",   border: "rgba(95, 30, 30, 0.95)" },
+  ranged:         { color: "rgba(70, 90, 50, 0.95)",   pattern: "rgba(105, 135, 75, 0.6)",  border: "rgba(45, 60, 30, 0.95)" },
+  prayer:         { color: "rgba(140, 125, 50, 0.95)", pattern: "rgba(185, 170, 75, 0.6)",  border: "rgba(95, 85, 30, 0.95)" },
+  magic:          { color: "rgba(40, 55, 120, 0.95)",  pattern: "rgba(65, 85, 165, 0.6)",   border: "rgba(20, 35, 80, 0.95)" },
+  cooking:        { color: "rgba(90, 45, 95, 0.95)",   pattern: "rgba(135, 70, 140, 0.6)",  border: "rgba(60, 25, 65, 0.95)" },
+  woodcutting:    { color: "rgba(45, 75, 40, 0.95)",   pattern: "rgba(70, 115, 60, 0.6)",   border: "rgba(25, 50, 20, 0.95)" },
+  fletching:      { color: "rgba(40, 85, 80, 0.95)",   pattern: "rgba(60, 125, 120, 0.6)",  border: "rgba(20, 55, 55, 0.95)" },
+  fishing:        { color: "rgba(65, 95, 115, 0.95)",  pattern: "rgba(95, 135, 160, 0.6)",  border: "rgba(40, 65, 80, 0.95)" },
+  firemaking:     { color: "rgba(140, 80, 30, 0.95)",  pattern: "rgba(185, 110, 50, 0.6)",  border: "rgba(95, 50, 15, 0.95)" },
+  crafting:       { color: "rgba(110, 85, 55, 0.95)",  pattern: "rgba(155, 120, 80, 0.6)",  border: "rgba(75, 55, 30, 0.95)" },
+  smithing:       { color: "rgba(140, 120, 45, 0.95)", pattern: "rgba(185, 160, 65, 0.6)",  border: "rgba(95, 80, 25, 0.95)" },
+  mining:         { color: "rgba(45, 115, 115, 0.95)", pattern: "rgba(65, 160, 165, 0.6)",  border: "rgba(25, 80, 80, 0.95)" },
+  herblore:       { color: "rgba(35, 95, 40, 0.95)",   pattern: "rgba(55, 140, 60, 0.6)",   border: "rgba(15, 65, 20, 0.95)" },
+  agility:        { color: "rgba(65, 65, 115, 0.95)",  pattern: "rgba(95, 95, 160, 0.6)",   border: "rgba(40, 40, 80, 0.95)" },
+  thieving:       { color: "rgba(85, 55, 90, 0.95)",   pattern: "rgba(125, 80, 130, 0.6)",  border: "rgba(55, 30, 60, 0.95)" },
+  slayer:         { color: "rgba(110, 40, 40, 0.95)",  pattern: "rgba(150, 60, 60, 0.6)",   border: "rgba(75, 20, 20, 0.95)" },
+  farming:        { color: "rgba(80, 130, 75, 0.95)",  pattern: "rgba(120, 175, 115, 0.6)", border: "rgba(50, 90, 45, 0.95)" },
+  runecrafting:   { color: "rgba(140, 110, 40, 0.95)", pattern: "rgba(185, 150, 60, 0.6)",  border: "rgba(95, 75, 20, 0.95)" },
+  hunter:         { color: "rgba(110, 105, 90, 0.95)", pattern: "rgba(155, 150, 130, 0.6)", border: "rgba(75, 70, 55, 0.95)" },
+  construction:   { color: "rgba(145, 95, 35, 0.95)",  pattern: "rgba(190, 130, 50, 0.6)",  border: "rgba(100, 60, 15, 0.95)" },
+  summoning:      { color: "rgba(80, 100, 130, 0.95)", pattern: "rgba(120, 145, 180, 0.6)", border: "rgba(50, 70, 95, 0.95)" },
+  dungeoneering:  { color: "rgba(135, 95, 50, 0.95)",  pattern: "rgba(180, 130, 75, 0.6)",  border: "rgba(90, 60, 30, 0.95)" },
+  divination:     { color: "rgba(85, 55, 130, 0.95)",  pattern: "rgba(125, 85, 175, 0.6)",  border: "rgba(55, 35, 90, 0.95)" },
+  invention:      { color: "rgba(140, 130, 40, 0.95)", pattern: "rgba(185, 175, 60, 0.6)",  border: "rgba(95, 90, 20, 0.95)" },
+  archaeology:    { color: "rgba(55, 50, 50, 0.95)",   pattern: "rgba(85, 75, 75, 0.6)",    border: "rgba(30, 25, 25, 0.95)" },
+  necromancy:     { color: "rgba(90, 50, 130, 0.95)",  pattern: "rgba(130, 75, 175, 0.6)",  border: "rgba(60, 30, 90, 0.95)" },
+}
+
+function getSkillIconStyle(name: string): React.CSSProperties {
+  const colors = SKILL_COLORS[name]
+  if (!colors) return {}
+  return {
+    "--sib-color": colors.color,
+    "--sib-pattern": colors.pattern,
+    "--sib-border": colors.border,
+  } as React.CSSProperties
 }
 
 export default function PlayerProfile() {
@@ -298,7 +333,7 @@ export default function PlayerProfile() {
                   {/* Individual skill rows */}
                   {skills.map((skill) => (
                     <div key={skill.name} className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#a49680" } as React.CSSProperties}>
-                      <div className={`ch-skill-icon-col ch-skill-icon-block--${getSkillCategory(skill.name)}`}>
+                      <div className="ch-skill-icon-col" style={getSkillIconStyle(skill.name)}>
                         <img src={`/images/skills/${skill.name}.png`} alt={skill.name} className="ch-player-skill-icon" />
                       </div>
                       <div className="ch-player-skill-row-content">
