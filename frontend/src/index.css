@@ -4171,26 +4171,42 @@ body {
   color: var(--color-muted-foreground);
 }
 
-/* Skill row chevron notch — same 3-layer nested clip-path as Mod Panel ch-row-notch, scaled to 10px */
+/* Skill row chevron notch — V-shaped boundary between XP and Level */
 .ch-skill-row-notch {
   width: 12px;
   flex-shrink: 0;
   align-self: stretch;
-  clip-path: polygon(10px 50%, 0 0, 100% 0, 100% 100%, 0 100%);
-  background: rgba(10, 8, 5, 0.9);
+  position: relative;
   margin: -0.5rem 0;
 }
 
-.ch-skill-row-notch-mid {
-  clip-path: polygon(11px 50%, 1px 1px, calc(100% - 1px) 1px, calc(100% - 1px) calc(100% - 1px), 1px calc(100% - 1px));
-  background: rgba(52, 45, 34, 0.6);
-  height: 100%;
+/* Dark outer chevron line */
+.ch-skill-row-notch::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 8, 5, 0.9);
+  clip-path: polygon(
+    0 0, 2px 0, 100% 50%, 2px 100%, 0 100%,
+    0 calc(100% - 1px), 1px calc(100% - 1px), calc(100% - 2px) 50%, 1px 1px, 0 1px
+  );
 }
 
+/* Lighter inner chevron line */
+.ch-skill-row-notch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(52, 45, 34, 0.6);
+  clip-path: polygon(
+    0 0, 1px 0, calc(100% - 1px) 50%, 1px 100%, 0 100%,
+    0 calc(100% - 1px), 0 calc(100% - 1px), calc(100% - 3px) 50%, 0 1px, 0 1px
+  );
+}
+
+.ch-skill-row-notch-mid,
 .ch-skill-row-notch-fill {
-  clip-path: polygon(12px 50%, 2px 2px, calc(100% - 2px) 2px, calc(100% - 2px) calc(100% - 2px), 2px calc(100% - 2px));
-  background: transparent;
-  height: 100%;
+  display: none;
 }
 
 .ch-player-skill-level-badge {
