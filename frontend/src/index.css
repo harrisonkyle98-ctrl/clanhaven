@@ -4131,9 +4131,7 @@ body {
   background: rgba(22, 19, 14, 0.8);
 }
 
-.ch-player-clan-banner::before {
-  display: none;
-}
+
 
 .ch-player-clan-banner .ch-discovery-card-header {
   height: 80px;
