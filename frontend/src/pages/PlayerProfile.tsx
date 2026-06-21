@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import { apiFetch } from "@/lib/api"
 import CollapsiblePanel from "@/components/CollapsiblePanel"
-import MiniClanVexillum from "@/components/MiniClanVexillum"
+import { MiniClanVexillum } from "@/components/MiniClanVexillum"
 
 interface PlayerData {
   id: string
