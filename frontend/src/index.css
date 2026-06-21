@@ -4113,7 +4113,14 @@ body {
 .ch-player-clan-banner {
   padding: 0;
   overflow: hidden;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.ch-player-sidebar .ch-player-clan-banner + .ch-player-sidebar-card {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 .ch-player-clan-banner .ch-discovery-card-header {
