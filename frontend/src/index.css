@@ -4116,8 +4116,8 @@ body {
 }
 
 .ch-player-skill-icon {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   position: relative;
   z-index: 1;
   filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.5));
