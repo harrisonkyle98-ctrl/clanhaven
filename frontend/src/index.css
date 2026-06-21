@@ -4122,16 +4122,7 @@ body {
   background: rgba(22, 19, 14, 0.8);
 }
 
-.ch-player-clan-banner::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: rgba(22, 19, 14, 0.8);
-  z-index: 5;
-}
+
 
 .ch-player-clan-banner .ch-discovery-card-header {
   height: 80px;

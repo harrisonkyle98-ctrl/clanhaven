@@ -193,7 +193,7 @@ export default function PlayerProfile() {
                     <MiniClanVexillum
                       primaryColor={clan.primaryColor ?? undefined}
                       secondaryColor={clan.secondaryColor ?? undefined}
-                      size={52}
+                      size={72}
                     />
                   </div>
                 </div>
