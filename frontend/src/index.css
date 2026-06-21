@@ -4152,23 +4152,22 @@ body {
   --sib-border: rgba(60, 50, 85, 0.95);
 }
 
-.ch-player-skill-info {
+.ch-player-skill-row-name {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.ch-player-skill-row-name {
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ch-player-skill-row-xp {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   color: var(--color-muted-foreground);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Skill row chevron notch — V-shaped boundary between XP and Level */
@@ -4192,7 +4191,7 @@ body {
   );
 }
 
-/* Lighter inner chevron line */
+/* Lighter inner chevron line + shadow cast into level area */
 .ch-skill-row-notch::after {
   content: "";
   position: absolute;
@@ -4202,6 +4201,7 @@ body {
     0 0, 1px 0, calc(100% - 1px) 50%, 1px 100%, 0 100%,
     0 calc(100% - 1px), 0 calc(100% - 1px), calc(100% - 3px) 50%, 0 1px, 0 1px
   );
+  filter: drop-shadow(3px 0 4px rgba(0, 0, 0, 0.35));
 }
 
 .ch-skill-row-notch-mid,
@@ -4209,19 +4209,14 @@ body {
   display: none;
 }
 
-.ch-player-skill-level-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36px;
-  padding: 0.2rem 0.5rem;
-  border-radius: 3px;
+.ch-player-skill-row-level {
   font-size: 0.8rem;
   font-weight: 700;
   color: var(--color-foreground);
-  background: rgba(68, 58, 44, 0.3);
-  border: 1px solid rgba(68, 58, 44, 0.5);
+  white-space: nowrap;
   flex-shrink: 0;
+  min-width: 2rem;
+  text-align: center;
 }
 
 .ch-roster-rsn-link {
