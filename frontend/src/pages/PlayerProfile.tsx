@@ -288,6 +288,11 @@ export default function PlayerProfile() {
                         <span className="ch-player-skill-row-name">Overall</span>
                         <span className="ch-player-skill-row-xp">{formatXpFull(player.totalXp, hasStats)} XP</span>
                       </div>
+                      <div className="ch-skill-row-notch">
+                        <div className="ch-skill-row-notch-mid">
+                          <div className="ch-skill-row-notch-fill"></div>
+                        </div>
+                      </div>
                       <div className="ch-player-skill-level-badge">
                         {formatLevel(player.totalLevel, hasStats)}
                       </div>
@@ -304,6 +309,11 @@ export default function PlayerProfile() {
                         <div className="ch-player-skill-info">
                           <span className="ch-player-skill-row-name">{getSkillDisplayName(skill.name)}</span>
                           <span className="ch-player-skill-row-xp">{formatSkillXp(skill.xp, skill.level)} XP</span>
+                        </div>
+                        <div className="ch-skill-row-notch">
+                          <div className="ch-skill-row-notch-mid">
+                            <div className="ch-skill-row-notch-fill"></div>
+                          </div>
                         </div>
                         <div className="ch-player-skill-level-badge">
                           {formatSkillLevel(skill.level, skill.xp)}

@@ -4158,39 +4158,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  position: relative;
-  margin-right: 0.5rem;
-}
-
-/* Chevron/notch boundary — structural divider between XP and Level sections */
-.ch-player-skill-info::after {
-  content: "";
-  position: absolute;
-  right: -0.75rem;
-  top: -0.5rem;
-  bottom: -0.5rem;
-  width: 16px;
-  background: rgba(10, 8, 5, 0.9);
-  clip-path: polygon(
-    0 0, calc(100% - 7px) 0, 100% 50%, calc(100% - 7px) 100%, 0 100%,
-    2px calc(100% - 2px), calc(100% - 9px) calc(100% - 2px), calc(100% - 2px) 50%, calc(100% - 9px) 2px, 2px 2px
-  );
-  z-index: 2;
-}
-
-.ch-player-skill-info::before {
-  content: "";
-  position: absolute;
-  right: -0.75rem;
-  top: -0.5rem;
-  bottom: -0.5rem;
-  width: 16px;
-  background: rgba(52, 45, 34, 0.6);
-  clip-path: polygon(
-    1px 1px, calc(100% - 8px) 1px, calc(100% - 1px) 50%, calc(100% - 8px) calc(100% - 1px), 1px calc(100% - 1px),
-    2px calc(100% - 2px), calc(100% - 9px) calc(100% - 2px), calc(100% - 2px) 50%, calc(100% - 9px) 2px, 2px 2px
-  );
-  z-index: 1;
 }
 
 .ch-player-skill-row-name {
@@ -4202,6 +4169,28 @@ body {
 .ch-player-skill-row-xp {
   font-size: 0.65rem;
   color: var(--color-muted-foreground);
+}
+
+/* Skill row chevron notch — same 3-layer nested clip-path as Mod Panel ch-row-notch, scaled to 10px */
+.ch-skill-row-notch {
+  width: 12px;
+  flex-shrink: 0;
+  align-self: stretch;
+  clip-path: polygon(10px 50%, 0 0, 100% 0, 100% 100%, 0 100%);
+  background: rgba(10, 8, 5, 0.9);
+  margin: -0.5rem 0;
+}
+
+.ch-skill-row-notch-mid {
+  clip-path: polygon(11px 50%, 1px 1px, calc(100% - 1px) 1px, calc(100% - 1px) calc(100% - 1px), 1px calc(100% - 1px));
+  background: rgba(52, 45, 34, 0.6);
+  height: 100%;
+}
+
+.ch-skill-row-notch-fill {
+  clip-path: polygon(12px 50%, 2px 2px, calc(100% - 2px) 2px, calc(100% - 2px) calc(100% - 2px), 2px calc(100% - 2px));
+  background: transparent;
+  height: 100%;
 }
 
 .ch-player-skill-level-badge {
