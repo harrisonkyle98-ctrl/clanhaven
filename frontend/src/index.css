@@ -4090,16 +4090,7 @@ body {
   opacity: 0.15;
 }
 
-.ch-player-skill-row-content {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  position: relative;
-  z-index: 1;
-  min-height: 2.75rem;
-}
+/* Row content is now split into arrow (name+XP) and notch (level) at row level */
 
 .ch-player-skill-icon-wrap {
   width: 28px;
@@ -4158,20 +4149,11 @@ body {
   text-overflow: ellipsis;
 }
 
-.ch-player-skill-right {
-  display: flex;
-  align-items: stretch;
-  flex-shrink: 0;
-  align-self: stretch;
-}
-
 .ch-player-skill-row-xp {
   font-size: 0.75rem;
   color: var(--color-muted-foreground);
   white-space: nowrap;
-  display: flex;
-  align-items: center;
-  padding: 0 1.25rem 0 0.5rem;
+  flex-shrink: 0;
   position: relative;
   z-index: 1;
 }
@@ -4181,17 +4163,14 @@ body {
   font-weight: 700;
   color: var(--color-foreground);
   white-space: nowrap;
-  display: flex;
-  align-items: center;
-  padding: 0 0.5rem 0 1rem;
-  min-width: 2rem;
-  justify-content: center;
   position: relative;
   z-index: 1;
 }
 
-/* Skill XP arrow container — reuses ch-row-arrow clip-path approach */
+/* Skill XP arrow section — row-level, reuses ch-row-arrow clip-path approach */
 .ch-skill-xp-arrow {
+  flex: 1;
+  min-width: 0;
   clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
   background: rgba(10, 8, 5, 0.9);
   position: relative;
@@ -4199,21 +4178,25 @@ body {
 }
 
 .ch-skill-xp-arrow-mid {
-  clip-path: polygon(1px 1px, calc(100% - 13px) 1px, calc(100% - 1px) 50%, calc(100% - 13px) calc(100% - 1px), 1px calc(100% - 1px));
+  clip-path: polygon(0 1px, calc(100% - 13px) 1px, calc(100% - 1px) 50%, calc(100% - 13px) calc(100% - 1px), 0 calc(100% - 1px));
   background: rgba(52, 45, 34, 0.6);
   height: 100%;
 }
 
 .ch-skill-xp-arrow-fill {
-  clip-path: polygon(2px 2px, calc(100% - 14px) 2px, calc(100% - 2px) 50%, calc(100% - 14px) calc(100% - 2px), 2px calc(100% - 2px));
+  clip-path: polygon(0 2px, calc(100% - 14px) 2px, calc(100% - 2px) 50%, calc(100% - 14px) calc(100% - 2px), 0 calc(100% - 2px));
   background: rgba(22, 19, 14, 0.8);
   height: 100%;
   display: flex;
   align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1.5rem 0.5rem 0.75rem;
+  min-height: 2.75rem;
 }
 
-/* Skill Level notch container — reuses ch-row-notch clip-path approach */
+/* Skill Level notch section — row-level, reuses ch-row-notch clip-path approach */
 .ch-skill-level-notch {
+  flex-shrink: 0;
   clip-path: polygon(12px 50%, 0 0, 100% 0, 100% 100%, 0 100%);
   background: rgba(10, 8, 5, 0.9);
   margin-left: -12px;
@@ -4233,6 +4216,9 @@ body {
   height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem 0.5rem 1rem;
+  min-width: 3.5rem;
 }
 
 .ch-roster-rsn-link {
