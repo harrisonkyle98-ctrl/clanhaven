@@ -4138,6 +4138,18 @@ body {
 .ch-player-sidebar .ch-player-clan-banner + .ch-player-sidebar-card {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+  box-shadow:
+    inset 1px 0 0 0 rgba(10, 8, 5, 0.9),
+    inset -1px 0 0 0 rgba(10, 8, 5, 0.9),
+    inset 0 -1px 0 0 rgba(10, 8, 5, 0.9),
+    inset 2px 0 0 0 rgba(52, 45, 34, 0.6),
+    inset -2px 0 0 0 rgba(52, 45, 34, 0.6),
+    inset 0 -2px 0 0 rgba(52, 45, 34, 0.6),
+    inset 0 -1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ch-player-sidebar .ch-player-clan-banner + .ch-player-sidebar-card::before {
+  display: none;
 }
 
 .ch-player-sidebar-card:hover {
