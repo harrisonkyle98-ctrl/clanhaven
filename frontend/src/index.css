@@ -4220,7 +4220,7 @@ body {
   position: relative;
 }
 
-/* Shadow cast from chevron into level area — starts under chevron shape */
+/* Shadow cast from chevron into level area — starts under chevron, clipped to chevron contour */
 .ch-player-skill-row-level::before {
   content: "";
   position: absolute;
@@ -4231,6 +4231,7 @@ body {
   background: linear-gradient(to right, rgba(0, 0, 0, 0.55) 0%, transparent 80%);
   pointer-events: none;
   z-index: -1;
+  clip-path: polygon(12px 50%, 0 0, 100% 0, 100% 100%, 0 100%);
 }
 
 .ch-roster-rsn-link {
