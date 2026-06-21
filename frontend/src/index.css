@@ -4033,9 +4033,9 @@ body {
 
 .ch-player-skill-row-inner {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0 0.75rem 0 0;
   position: relative;
   z-index: 1;
 }
@@ -4062,9 +4062,9 @@ body {
   --sib-color: rgba(65, 90, 115, 0.95);
   --sib-pattern: rgba(100, 140, 180, 0.6);
   --sib-border: rgba(40, 60, 85, 0.95);
-  width: 32px;
-  height: 32px;
-  border-radius: 3px;
+  width: 36px;
+  min-height: 36px;
+  border-radius: 0;
   position: relative;
   overflow: hidden;
   background:
@@ -4132,6 +4132,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  align-self: center;
 }
 
 .ch-player-skill-row-name {
@@ -4149,6 +4150,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  align-self: center;
   min-width: 36px;
   padding: 0.2rem 0.5rem;
   border-radius: 3px;
