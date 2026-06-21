@@ -4062,7 +4062,6 @@ body {
     inset 0 1px 0 0 rgba(10, 8, 5, 0.9),
     inset 1px 0 0 0 rgba(10, 8, 5, 0.9),
     inset 0 -1px 0 0 rgba(10, 8, 5, 0.9),
-    inset -1px 0 0 0 rgba(10, 8, 5, 0.9),
     inset 0 2px 0 0 rgba(52, 45, 34, 0.6),
     inset 2px 0 0 0 rgba(52, 45, 34, 0.6),
     inset 0 -2px 0 0 rgba(52, 45, 34, 0.6),
@@ -4112,9 +4111,8 @@ body {
 }
 
 .ch-player-skill-icon {
-  width: 32px;
-  height: 32px;
-  image-rendering: pixelated;
+  width: 28px;
+  height: 28px;
   position: relative;
   z-index: 1;
   filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.5));
