@@ -4201,7 +4201,7 @@ body {
     0 0, 1px 0, calc(100% - 1px) 50%, 1px 100%, 0 100%,
     0 calc(100% - 1px), 0 calc(100% - 1px), calc(100% - 3px) 50%, 0 1px, 0 1px
   );
-  filter: drop-shadow(5px 0 8px rgba(0, 0, 0, 0.7));
+  /* Shadow handled by level::before gradient overlay */
 }
 
 .ch-skill-row-notch-mid,
@@ -4217,6 +4217,20 @@ body {
   flex-shrink: 0;
   min-width: 2rem;
   text-align: center;
+  position: relative;
+}
+
+/* Shadow cast from chevron into level area — sits above pattern, below text */
+.ch-player-skill-row-level::before {
+  content: "";
+  position: absolute;
+  top: -0.5rem;
+  bottom: -0.5rem;
+  left: -1.5rem;
+  width: 2rem;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.5), transparent);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .ch-roster-rsn-link {
