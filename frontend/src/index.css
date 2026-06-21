@@ -4067,8 +4067,7 @@ body {
   --sib-color: rgba(65, 90, 115, 0.95);
   --sib-pattern: rgba(100, 140, 180, 0.6);
   --sib-border: rgba(40, 60, 85, 0.95);
-  width: 36px;
-  min-height: 36px;
+  aspect-ratio: 1;
   border-radius: 0;
   position: relative;
   overflow: hidden;
