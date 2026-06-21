@@ -4034,6 +4034,11 @@ body {
 .ch-player-skill-row {
   display: flex;
   align-items: stretch;
+  cursor: pointer;
+}
+
+.ch-player-skill-row:hover {
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 .ch-skill-icon-col {
@@ -4173,8 +4178,6 @@ body {
   min-width: 0;
   clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
   background: rgba(10, 8, 5, 0.9);
-  position: relative;
-  z-index: 2;
 }
 
 .ch-skill-xp-arrow-mid {
@@ -4200,8 +4203,6 @@ body {
   clip-path: polygon(12px 50%, 0 0, 100% 0, 100% 100%, 0 100%);
   background: rgba(10, 8, 5, 0.9);
   margin-left: -12px;
-  position: relative;
-  z-index: 1;
 }
 
 .ch-skill-level-notch-mid {
