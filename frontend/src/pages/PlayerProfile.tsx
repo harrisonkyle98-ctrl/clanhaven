@@ -91,6 +91,14 @@ function getSkillDisplayName(name: string): string {
   return name.charAt(0).toUpperCase() + name.slice(1)
 }
 
+function getSkillCategory(name: string): string {
+  const combat = ["attack", "strength", "defence", "constitution", "ranged", "prayer", "magic", "summoning", "slayer", "necromancy"]
+  const gathering = ["woodcutting", "mining", "fishing", "farming", "hunter", "divination", "archaeology"]
+  if (combat.includes(name)) return "red"
+  if (gathering.includes(name)) return "green"
+  return "purple"
+}
+
 export default function PlayerProfile() {
   const { rsn } = useParams<{ rsn: string }>()
   const [data, setData] = useState<PlayerProfileResponse | null>(null)
@@ -273,7 +281,7 @@ export default function PlayerProfile() {
                   {/* Total XP row first */}
                   <div className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#a49680" } as React.CSSProperties}>
                     <div className="ch-player-skill-row-inner">
-                      <div className="ch-player-skill-icon-wrap">
+                      <div className="ch-player-skill-icon-wrap ch-skill-icon-block ch-skill-icon-block--blue">
                         <img src="/images/skills/overall.png" alt="Overall" className="ch-player-skill-icon" />
                       </div>
                       <div className="ch-player-skill-info">
@@ -290,7 +298,7 @@ export default function PlayerProfile() {
                   {skills.map((skill) => (
                     <div key={skill.name} className="ch-log-row ch-player-skill-row" style={{ "--row-accent": "#a49680" } as React.CSSProperties}>
                       <div className="ch-player-skill-row-inner">
-                        <div className="ch-player-skill-icon-wrap">
+                        <div className={`ch-player-skill-icon-wrap ch-skill-icon-block ch-skill-icon-block--${getSkillCategory(skill.name)}`}>
                           <img src={`/images/skills/${skill.name}.png`} alt={skill.name} className="ch-player-skill-icon" />
                         </div>
                         <div className="ch-player-skill-info">
