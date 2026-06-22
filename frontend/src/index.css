@@ -4217,6 +4217,12 @@ body {
   min-width: 2rem;
   text-align: center;
   position: relative;
+  align-self: stretch;
+  margin: calc(-0.5rem + 2px) calc(-0.75rem - 2px) calc(-0.5rem + 2px) 0;
+  padding: calc(0.5rem - 2px) calc(0.75rem + 2px) calc(0.5rem - 2px) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Shadow cast from chevron into level area — starts under chevron, clipped to chevron contour */
