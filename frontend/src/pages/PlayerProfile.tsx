@@ -93,12 +93,12 @@ function getSkillDisplayName(name: string): string {
 
 /** Per-skill colors from Stormlight, desaturated/darkened for Clan Haven fantasy theme */
 const SKILL_COLORS: Record<string, { color: string; pattern: string; border: string }> = {
-  attack:         { color: "rgba(98, 68, 68, 0.95)",   pattern: "rgba(130, 100, 100, 0.6)",  border: "rgba(62, 42, 42, 0.95)" },
+  attack:         { color: "rgba(115, 58, 58, 0.95)",  pattern: "rgba(150, 88, 88, 0.6)",   border: "rgba(75, 35, 35, 0.95)" },
   defence:        { color: "rgba(75, 85, 100, 0.95)",  pattern: "rgba(110, 125, 145, 0.6)", border: "rgba(48, 55, 68, 0.95)" },
-  strength:       { color: "rgba(72, 92, 78, 0.95)",   pattern: "rgba(105, 132, 112, 0.6)", border: "rgba(42, 60, 48, 0.95)" },
-  constitution:   { color: "rgba(105, 72, 72, 0.95)",  pattern: "rgba(140, 102, 102, 0.6)", border: "rgba(68, 42, 42, 0.95)" },
+  strength:       { color: "rgba(62, 102, 78, 0.95)",  pattern: "rgba(95, 145, 108, 0.6)",  border: "rgba(35, 68, 46, 0.95)" },
+  constitution:   { color: "rgba(122, 62, 62, 0.95)",  pattern: "rgba(160, 92, 92, 0.6)",   border: "rgba(82, 35, 35, 0.95)" },
   ranged:         { color: "rgba(72, 78, 62, 0.95)",   pattern: "rgba(108, 118, 90, 0.6)",  border: "rgba(45, 50, 38, 0.95)" },
-  prayer:         { color: "rgba(112, 105, 70, 0.95)", pattern: "rgba(152, 145, 95, 0.6)",  border: "rgba(75, 70, 42, 0.95)" },
+  prayer:         { color: "rgba(145, 142, 138, 0.95)", pattern: "rgba(185, 182, 178, 0.6)",  border: "rgba(100, 98, 95, 0.95)" },
   magic:          { color: "rgba(58, 65, 98, 0.95)",   pattern: "rgba(85, 95, 140, 0.6)",   border: "rgba(35, 42, 65, 0.95)" },
   cooking:        { color: "rgba(80, 62, 82, 0.95)",   pattern: "rgba(115, 88, 118, 0.6)",  border: "rgba(50, 35, 52, 0.95)" },
   woodcutting:    { color: "rgba(55, 65, 50, 0.95)",   pattern: "rgba(82, 98, 75, 0.6)",    border: "rgba(32, 42, 28, 0.95)" },
@@ -111,7 +111,7 @@ const SKILL_COLORS: Record<string, { color: string; pattern: string; border: str
   herblore:       { color: "rgba(50, 72, 52, 0.95)",   pattern: "rgba(72, 108, 75, 0.6)",   border: "rgba(28, 48, 30, 0.95)" },
   agility:        { color: "rgba(75, 75, 98, 0.95)",   pattern: "rgba(108, 108, 138, 0.6)", border: "rgba(48, 48, 65, 0.95)" },
   thieving:       { color: "rgba(78, 65, 80, 0.95)",   pattern: "rgba(112, 92, 115, 0.6)",  border: "rgba(48, 38, 50, 0.95)" },
-  slayer:         { color: "rgba(82, 55, 55, 0.95)",   pattern: "rgba(115, 78, 78, 0.6)",   border: "rgba(52, 32, 32, 0.95)" },
+  slayer:         { color: "rgba(95, 45, 45, 0.95)",   pattern: "rgba(132, 68, 68, 0.6)",   border: "rgba(62, 25, 25, 0.95)" },
   farming:        { color: "rgba(80, 130, 75, 0.95)",  pattern: "rgba(120, 175, 115, 0.6)", border: "rgba(50, 90, 45, 0.95)" },
   runecrafting:   { color: "rgba(108, 98, 60, 0.95)",  pattern: "rgba(148, 132, 80, 0.6)",  border: "rgba(72, 62, 35, 0.95)" },
   hunter:         { color: "rgba(110, 105, 90, 0.95)", pattern: "rgba(155, 150, 130, 0.6)", border: "rgba(75, 70, 55, 0.95)" },
