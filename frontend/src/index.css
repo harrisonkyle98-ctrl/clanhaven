@@ -4233,21 +4233,21 @@ body {
   clip-path: polygon(12px 50%, 0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
 }
 
-/* --- Profile milestone level colors (recolor existing elements only) --- */
+/* --- Profile milestone level colors (recolor level span only) --- */
 
 /* Blue — Level 99 */
-.ch-profile-level--99::before {
-  background: linear-gradient(to right, rgba(40, 70, 120, 0.3) 0%, transparent 30%);
+.ch-profile-level--99 {
+  background-color: rgba(40, 70, 120, 0.4);
 }
 
 /* Gold — Level 120 */
-.ch-profile-level--120::before {
-  background: linear-gradient(to right, rgba(120, 100, 30, 0.3) 0%, transparent 30%);
+.ch-profile-level--120 {
+  background-color: rgba(120, 100, 30, 0.4);
 }
 
 /* Purple — 200m XP */
-.ch-profile-level--200m::before {
-  background: linear-gradient(to right, rgba(80, 40, 120, 0.3) 0%, transparent 30%);
+.ch-profile-level--200m {
+  background-color: rgba(80, 40, 120, 0.4);
 }
 
 .ch-roster-rsn-link {
