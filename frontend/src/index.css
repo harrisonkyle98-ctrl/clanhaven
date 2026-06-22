@@ -4208,32 +4208,7 @@ body {
   display: none;
 }
 
-.ch-player-skill-row-level {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--color-foreground);
-  white-space: nowrap;
-  flex-shrink: 0;
-  min-width: 2rem;
-  text-align: center;
-  position: relative;
-}
-
-/* Shadow cast from chevron into level area — starts under chevron, clipped to chevron contour */
-.ch-player-skill-row-level::before {
-  content: "";
-  position: absolute;
-  top: calc(-0.5rem - 2px);
-  bottom: calc(-0.5rem - 2px);
-  left: calc(-0.75rem - 12px);
-  width: calc(100% + 0.75rem + 12px);
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.3) 0%, transparent 30%);
-  pointer-events: none;
-  z-index: -1;
-  clip-path: polygon(12px 50%, 0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
-}
-
-/* Level section container — fills the right side of the row after the chevron */
+/* Level section — sibling container after chevron, fills right side of row */
 .ch-skill-level-section {
   flex-shrink: 0;
   align-self: stretch;
@@ -4242,9 +4217,34 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
-/* --- Profile milestone level colors (on the container itself) --- */
+/* Shadow cast from chevron into level area — starts under chevron, clipped to chevron contour */
+.ch-skill-level-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(-0.75rem - 12px);
+  width: calc(100% + 0.75rem + 12px);
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.3) 0%, transparent 30%);
+  pointer-events: none;
+  z-index: -1;
+  clip-path: polygon(12px 50%, 0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+}
+
+.ch-player-skill-row-level {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 2rem;
+  text-align: center;
+}
+
+/* --- Profile milestone level colors (on the Level Section container itself) --- */
 
 /* Blue — Level 99 */
 .ch-profile-level--99 {
