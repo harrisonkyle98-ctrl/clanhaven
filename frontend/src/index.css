@@ -4234,6 +4234,49 @@ body {
   clip-path: polygon(12px 50%, 0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
 }
 
+/* Milestone level section styling — colored background behind level text */
+.ch-level-milestone--99,
+.ch-level-milestone--120,
+.ch-level-milestone--200m {
+  z-index: 0;
+}
+
+.ch-level-milestone--99::after,
+.ch-level-milestone--120::after,
+.ch-level-milestone--200m::after {
+  content: "";
+  position: absolute;
+  top: calc(-0.5rem - 2px);
+  bottom: calc(-0.5rem - 2px);
+  left: -0.75rem;
+  right: calc(-0.75rem - 2px);
+  z-index: -2;
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.03) 30%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.06) 80%,
+    rgba(0, 0, 0, 0.12) 100%
+  );
+  pointer-events: none;
+}
+
+/* Blue — Level 99 */
+.ch-level-milestone--99::after {
+  background-color: rgba(55, 80, 110, 0.85);
+}
+
+/* Gold — Level 120 */
+.ch-level-milestone--120::after {
+  background-color: rgba(130, 105, 45, 0.85);
+}
+
+/* Purple — 200m XP */
+.ch-level-milestone--200m::after {
+  background-color: rgba(85, 50, 120, 0.85);
+}
+
 .ch-roster-rsn-link {
   color: var(--color-foreground);
   text-decoration: none;

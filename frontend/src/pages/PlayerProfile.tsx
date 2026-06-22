@@ -124,6 +124,13 @@ const SKILL_COLORS: Record<string, { color: string; pattern: string; border: str
   necromancy:     { color: "rgba(82, 62, 105, 0.95)",  pattern: "rgba(115, 88, 145, 0.6)",  border: "rgba(52, 38, 70, 0.95)" },
 }
 
+function getSkillMilestone(level: number, xp: number): string | null {
+  if (xp >= 200_000_000) return "200m"
+  if (level >= 120) return "120"
+  if (level >= 99) return "99"
+  return null
+}
+
 function getSkillIconStyle(name: string): React.CSSProperties {
   const colors = SKILL_COLORS[name]
   if (!colors) return {}
@@ -344,7 +351,7 @@ export default function PlayerProfile() {
                             <div className="ch-skill-row-notch-fill"></div>
                           </div>
                         </div>
-                        <span className="ch-player-skill-row-level">{formatSkillLevel(skill.level, skill.xp)}</span>
+                        <span className={`ch-player-skill-row-level${getSkillMilestone(skill.level, skill.xp) ? ` ch-level-milestone--${getSkillMilestone(skill.level, skill.xp)}` : ""}`}>{formatSkillLevel(skill.level, skill.xp)}</span>
                       </div>
                     </div>
                   ))}
