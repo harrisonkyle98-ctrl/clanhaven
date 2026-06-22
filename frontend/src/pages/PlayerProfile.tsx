@@ -329,11 +329,7 @@ export default function PlayerProfile() {
                       <span className="ch-player-skill-row-name">Overall</span>
                       <span className="ch-player-skill-row-xp">{formatXpFull(player.totalXp, hasStats)} XP</span>
                       <div className="ch-skill-level-section">
-                        <div className="ch-skill-level-section-mid">
-                          <div className="ch-skill-level-section-fill">
-                            <span className="ch-player-skill-row-level">{formatLevel(player.totalLevel, hasStats)}</span>
-                          </div>
-                        </div>
+                        <span className="ch-player-skill-row-level">{formatLevel(player.totalLevel, hasStats)}</span>
                       </div>
                     </div>
                   </div>
@@ -347,12 +343,8 @@ export default function PlayerProfile() {
                       <div className="ch-player-skill-row-content">
                         <span className="ch-player-skill-row-name">{getSkillDisplayName(skill.name)}</span>
                         <span className="ch-player-skill-row-xp">{formatSkillXp(skill.xp, skill.level)} XP</span>
-                        <div className={`ch-skill-level-section${getSkillMilestone(skill.level, skill.xp) ? ` ch-level-milestone--${getSkillMilestone(skill.level, skill.xp)}` : ""}`}>
-                          <div className="ch-skill-level-section-mid">
-                            <div className="ch-skill-level-section-fill">
-                              <span className="ch-player-skill-row-level">{formatSkillLevel(skill.level, skill.xp)}</span>
-                            </div>
-                          </div>
+                        <div className={`ch-skill-level-section${getSkillMilestone(skill.level, skill.xp) ? ` ch-profile-level--${getSkillMilestone(skill.level, skill.xp)}` : ""}`}>
+                          <span className="ch-player-skill-row-level">{formatSkillLevel(skill.level, skill.xp)}</span>
                         </div>
                       </div>
                     </div>
