@@ -4217,12 +4217,6 @@ body {
   min-width: 2rem;
   text-align: center;
   position: relative;
-  align-self: stretch;
-  margin: calc(-0.5rem + 2px) calc(-0.75rem - 2px) calc(-0.5rem + 2px) 0;
-  padding: calc(0.5rem - 2px) calc(0.75rem + 2px) calc(0.5rem - 2px) 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* Shadow cast from chevron into level area — starts under chevron, clipped to chevron contour */
@@ -4239,7 +4233,18 @@ body {
   clip-path: polygon(12px 50%, 0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
 }
 
-/* --- Profile milestone level colors (recolor level span only) --- */
+/* Level section container — fills the right side of the row after the chevron */
+.ch-skill-level-section {
+  flex-shrink: 0;
+  align-self: stretch;
+  margin: calc(-0.5rem + 2px) calc(-0.75rem - 2px) calc(-0.5rem + 2px) 0;
+  padding: 0 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Profile milestone level colors (on the container itself) --- */
 
 /* Blue — Level 99 */
 .ch-profile-level--99 {

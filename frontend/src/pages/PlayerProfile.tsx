@@ -333,7 +333,9 @@ export default function PlayerProfile() {
                           <div className="ch-skill-row-notch-fill"></div>
                         </div>
                       </div>
-                      <span className="ch-player-skill-row-level">{formatLevel(player.totalLevel, hasStats)}</span>
+                      <div className="ch-skill-level-section">
+                        <span className="ch-player-skill-row-level">{formatLevel(player.totalLevel, hasStats)}</span>
+                      </div>
                     </div>
                   </div>
 
@@ -351,7 +353,9 @@ export default function PlayerProfile() {
                             <div className="ch-skill-row-notch-fill"></div>
                           </div>
                         </div>
-                        <span className={`ch-player-skill-row-level${getSkillMilestone(skill.level, skill.xp) ? ` ch-profile-level--${getSkillMilestone(skill.level, skill.xp)}` : ""}`}>{formatSkillLevel(skill.level, skill.xp)}</span>
+                        <div className={`ch-skill-level-section${getSkillMilestone(skill.level, skill.xp) ? ` ch-profile-level--${getSkillMilestone(skill.level, skill.xp)}` : ""}`}>
+                          <span className="ch-player-skill-row-level">{formatSkillLevel(skill.level, skill.xp)}</span>
+                        </div>
                       </div>
                     </div>
                   ))}
