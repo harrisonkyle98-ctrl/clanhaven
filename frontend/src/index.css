@@ -4170,47 +4170,42 @@ body {
   flex-shrink: 0;
 }
 
-/* Level section — V-notch shaped right-side section of skill row */
-.ch-skill-level-section {
+/* Skill row chevron notch — V-shaped boundary between XP and Level */
+.ch-skill-row-notch {
+  width: 12px;
   flex-shrink: 0;
   align-self: stretch;
-  margin: calc(-0.5rem + 2px) calc(-0.75rem - 2px) calc(-0.5rem + 2px) 0;
-  clip-path: polygon(12px 50%, 0 0, 100% 0, 100% 100%, 0 100%);
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 0.75rem 0 calc(12px + 0.5rem);
-  overflow: hidden;
+  margin: calc(-0.5rem + 2px) 0;
 }
 
-/* Chevron border lines — dark outer + lighter inner (profile row border language) */
-.ch-skill-level-section::before {
+/* Dark outer chevron line */
+.ch-skill-row-notch::before {
   content: "";
   position: absolute;
   inset: 0;
   background: rgba(10, 8, 5, 0.9);
   clip-path: polygon(
-    12px 50%, 0 0, 100% 0, 100% 100%, 0 100%,
-    0 calc(100% - 1px), 1px calc(100% - 1px), 13px 50%, 1px 1px, 0 1px,
-    0 0, 100% 0, 100% 100%, 0 100%, 0 0
+    0 0, 2px 0, 100% 50%, 2px 100%, 0 100%,
+    0 calc(100% - 1px), 1px calc(100% - 1px), calc(100% - 2px) 50%, 1px 1px, 0 1px
   );
-  z-index: 2;
-  pointer-events: none;
 }
 
-.ch-skill-level-section::after {
+/* Lighter inner chevron line + shadow cast into level area */
+.ch-skill-row-notch::after {
   content: "";
   position: absolute;
   inset: 0;
   background: rgba(52, 45, 34, 0.6);
   clip-path: polygon(
-    13px 50%, 1px 1px, calc(100% - 1px) 1px, calc(100% - 1px) calc(100% - 1px), 1px calc(100% - 1px),
-    1px calc(100% - 2px), 2px calc(100% - 2px), 14px 50%, 2px 2px, 1px 2px,
-    1px 1px, calc(100% - 1px) 1px, calc(100% - 1px) calc(100% - 1px), 1px calc(100% - 1px), 1px 1px
+    0 0, 1px 0, calc(100% - 1px) 50%, 1px 100%, 0 100%,
+    0 calc(100% - 1px), 0 calc(100% - 1px), calc(100% - 3px) 50%, 0 1px, 0 1px
   );
-  z-index: 2;
-  pointer-events: none;
+}
+
+.ch-skill-row-notch-mid,
+.ch-skill-row-notch-fill {
+  display: none;
 }
 
 .ch-player-skill-row-level {
@@ -4222,23 +4217,50 @@ body {
   min-width: 2rem;
   text-align: center;
   position: relative;
-  z-index: 1;
 }
 
-/* --- Profile-specific milestone level section colors --- */
+/* Shadow cast from chevron into level area — starts under chevron, clipped to chevron contour */
+.ch-player-skill-row-level::before {
+  content: "";
+  position: absolute;
+  top: calc(-0.5rem - 2px);
+  bottom: calc(-0.5rem - 2px);
+  left: calc(-0.75rem - 12px);
+  width: calc(100% + 0.75rem + 12px);
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.3) 0%, transparent 30%);
+  pointer-events: none;
+  z-index: -1;
+  clip-path: polygon(12px 50%, 0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+}
 
-/* Blue — Level 99: subtle blue tint on profile row background */
-.ch-profile-level--99 {
+/* --- Profile milestone level colors (color-only change) --- */
+
+.ch-profile-level--99::after,
+.ch-profile-level--120::after,
+.ch-profile-level--200m::after {
+  content: "";
+  position: absolute;
+  top: calc(-0.5rem - 2px);
+  bottom: calc(-0.5rem - 2px);
+  left: calc(-0.75rem - 12px);
+  width: calc(100% + 0.75rem + 12px);
+  pointer-events: none;
+  z-index: -2;
+  clip-path: polygon(12px 50%, 0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+}
+
+/* Blue — Level 99 */
+.ch-profile-level--99::after {
   background-color: rgba(55, 75, 105, 0.45);
 }
 
-/* Gold — Level 120: subtle gold tint on profile row background */
-.ch-profile-level--120 {
+/* Gold — Level 120 */
+.ch-profile-level--120::after {
   background-color: rgba(120, 100, 40, 0.45);
 }
 
-/* Purple — 200m XP: subtle purple tint on profile row background */
-.ch-profile-level--200m {
+/* Purple — 200m XP */
+.ch-profile-level--200m::after {
   background-color: rgba(80, 45, 115, 0.45);
 }
 
