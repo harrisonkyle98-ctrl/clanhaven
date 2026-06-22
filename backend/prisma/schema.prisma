@@ -270,6 +270,10 @@ model ClanSnapshot {
 
   clan IndexedClan @relation(fields: [clanId], references: [id], onDelete: Cascade)
 
+  // Date-only field for daily deduplication (one snapshot per clan per day)
+  snapshotDate           DateTime? @map("snapshot_date") @db.Date
+
+  @@unique([clanId, snapshotDate])
   @@index([clanId, snapshotAt(sort: Desc)])
   @@map("clan_snapshots")
 }
@@ -344,10 +348,37 @@ model Rs3PlayerSkillSnapshot {
 
   snapshotAt                DateTime  @default(now()) @map("snapshot_at")
 
+  // Source of snapshot data: "daily" (automated), "runemetrics_backfill", "manual"
+  source                    String    @default("daily")
+
+  // Date-only field for daily deduplication (one snapshot per player per day)
+  snapshotDate              DateTime? @map("snapshot_date") @db.Date
+
   player Rs3Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
 
+  @@unique([playerId, snapshotDate])
   @@index([playerId, snapshotAt(sort: Desc)])
   @@map("rs3_player_skill_snapshots")
+}
+
+// ─── Activity Events (change detection infrastructure) ───
+
+model ActivityEvent {
+  id          String   @id @default(cuid())
+  eventType   String   @map("event_type")
+  entityType  String   @map("entity_type")  // "player" or "clan"
+  entityId    String   @map("entity_id")
+  playerId    String?  @map("player_id")
+  clanId      String?  @map("clan_id")
+  metadata    Json?
+  occurredAt  DateTime @default(now()) @map("occurred_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([entityType, entityId, occurredAt(sort: Desc)])
+  @@index([playerId, occurredAt(sort: Desc)])
+  @@index([clanId, occurredAt(sort: Desc)])
+  @@index([eventType, occurredAt(sort: Desc)])
+  @@map("activity_events")
 }
 
 // ─── News Posts ───

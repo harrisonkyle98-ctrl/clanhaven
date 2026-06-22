@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.database import connect_db, disconnect_db, db
-from app.routes import admin, auth, clans, health, members, mod, users
+from app.routes import admin, auth, clans, health, members, mod, players, users
 
 
 @asynccontextmanager
@@ -189,6 +189,7 @@ app.include_router(clans.router, prefix="/api/clans", tags=["clans"])
 app.include_router(members.router, prefix="/api/members", tags=["members"])
 app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 app.include_router(mod.router, prefix="/api/mod", tags=["mod"])
+app.include_router(players.router, prefix="/api/players", tags=["players"])
 
 from app.routes import news
 app.include_router(news.router, prefix="/api/news", tags=["news"])

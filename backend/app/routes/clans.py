@@ -160,6 +160,15 @@ async def get_clan_page(
     )
     members.sort(key=lambda m: (_rank_sort_key(m.clanRank), (m.rsn or "").lower()))
 
+    # Get player account types for ironman icons
+    player_ids = [m.playerId for m in members if m.playerId]
+    player_types: dict[str, str] = {}
+    if player_ids:
+        players = await db.rs3player.find_many(
+            where={"id": {"in": player_ids}},
+        )
+        player_types = {p.id: p.accountType for p in players if p.accountType and p.accountType != "normal"}
+
     roster = [
         {
             "id": m.id,
@@ -167,6 +176,7 @@ async def get_clan_page(
             "clanRank": m.clanRank,
             "clanXp": m.clanXp,
             "kills": m.kills,
+            "accountType": player_types.get(m.playerId, None) if m.playerId else None,
         }
         for m in members
     ]

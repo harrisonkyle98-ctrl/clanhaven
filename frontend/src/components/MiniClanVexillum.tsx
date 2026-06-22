@@ -7,8 +7,8 @@ type MiniClanVexillumProps = {
 }
 
 export function MiniClanVexillum({
-  primaryColor = "#2f3f7f",
-  secondaryColor = "#7d5a24",
+  primaryColor = "#414fa4",
+  secondaryColor = "#919ad3",
   accentColor = "#c9a24a",
   size = 72,
   className,

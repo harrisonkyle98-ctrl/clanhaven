@@ -10,6 +10,7 @@ import ModPanel from "@/pages/ModPanel"
 import SettingsPage from "@/pages/SettingsPage"
 import ClanDiscovery from "@/pages/ClanDiscovery"
 import ClanPage from "@/pages/ClanPage"
+import PlayerProfile from "@/pages/PlayerProfile"
 
 export default function App() {
   return (
@@ -33,6 +34,9 @@ export default function App() {
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/mod" element={<ModPanel />} />
             <Route path="/settings" element={<SettingsPage />} />
+
+            {/* Player profile page */}
+            <Route path="/player/:rsn" element={<PlayerProfile />} />
 
             {/* Clan page — must be after all named routes */}
             <Route path="/:slug" element={<ClanPage />} />

@@ -20,6 +20,7 @@ RUN poetry install --only main --no-root --no-interaction
 
 COPY backend/app ./app
 COPY backend/prisma ./prisma
+COPY backend/refresh_hiscores.py ./refresh_hiscores.py
 
 # Generate Prisma client
 RUN python -m prisma generate
