@@ -4478,10 +4478,6 @@ body {
   cursor: default;
 }
 
-.ch-profile-prog-row:hover {
-  background-color: rgba(22, 19, 14, 0.8);
-}
-
 /* Fixed level width so the chevron divider lands at the same x on every row */
 .ch-profile-prog-row .ch-player-skill-row-level {
   min-width: 3.25rem;
