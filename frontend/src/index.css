@@ -4469,6 +4469,12 @@ body {
   min-width: 0;
 }
 
+/* Fixed level width so the chevron divider lands at the same x on every row */
+.ch-profile-prog-row .ch-player-skill-row-level {
+  min-width: 3.25rem;
+  width: 3.25rem;
+}
+
 /* ─── Player Profile Tabs ─── */
 .ch-player-tabs {
   display: flex;
