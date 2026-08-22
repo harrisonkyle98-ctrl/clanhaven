@@ -4340,6 +4340,11 @@ body {
   flex-direction: column;
 }
 
+.ch-profile-card.ch-stat-cell:hover,
+.ch-profile-card .ch-stat-cell:hover {
+  background: rgba(22, 19, 14, 0.8);
+}
+
 .ch-profile-module {
   padding: 0.9rem 1rem;
   position: relative;
@@ -4467,6 +4472,14 @@ body {
 .ch-profile-prog-row,
 .ch-profile-prog-row .ch-player-skill-row-content {
   min-width: 0;
+}
+
+.ch-profile-prog-row {
+  cursor: default;
+}
+
+.ch-profile-prog-row:hover {
+  background-color: rgba(22, 19, 14, 0.8);
 }
 
 /* Fixed level width so the chevron divider lands at the same x on every row */
