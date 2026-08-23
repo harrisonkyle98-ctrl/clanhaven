@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import { apiFetch } from "@/lib/api"
 import CollapsiblePanel from "@/components/CollapsiblePanel"
@@ -12,6 +12,8 @@ interface PlayerData {
   totalLevel: number
   totalXp: number
   combatLevel: number
+  questPoints?: number | null
+  runeScore?: number | null
   currentClanId: string | null
   currentClanName: string | null
 }
@@ -41,14 +43,6 @@ interface PlayerProfileResponse {
 }
 
 
-
-function formatXp(xp: number, hasStats: boolean): string {
-  if (!hasStats) return "-"
-  if (xp >= 1_000_000_000) return `${(xp / 1_000_000_000).toFixed(1)}B`
-  if (xp >= 1_000_000) return `${(xp / 1_000_000).toFixed(1)}M`
-  if (xp >= 1_000) return `${(xp / 1_000).toFixed(1)}K`
-  return xp.toLocaleString()
-}
 
 function formatXpFull(xp: number, hasStats: boolean): string {
   if (!hasStats) return "-"
@@ -129,6 +123,78 @@ function getSkillMilestone(level: number, xp: number): string | null {
   if (level >= 120) return "120"
   if (level >= 99) return "99"
   return null
+}
+
+function getTotalLevelMilestone(totalXp: number): string {
+  if (totalXp >= 5_800_000_000) return "200m"
+  if (totalXp >= 3_000_000_000) return "120"
+  if (totalXp >= 1_000_000_000) return "99"
+  return "neutral"
+}
+
+function formatCount(value: number | null | undefined): string {
+  return value == null ? "-" : value.toLocaleString()
+}
+
+function getRsAvatarUrl(rsn: string): string {
+  return `https://secure.runescape.com/m=avatar-rs/${encodeURIComponent(rsn)}/chat.png`
+}
+
+/** Clan name under the header vexillum, shrunk to fit the fixed vexillum width */
+function VexillumName({ name }: { name: string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const base = 0.5625
+    el.style.fontSize = `${base}rem`
+    const available = el.clientWidth
+    const needed = el.scrollWidth
+    if (available > 0 && needed > available) {
+      el.style.fontSize = `${Math.max(0.4, (available / needed) * base)}rem`
+    }
+  }, [name])
+
+  return (
+    <span ref={ref} className="ch-discovery-stat-label ch-profile-vexillum-name">
+      {name}
+    </span>
+  )
+}
+
+/** Progression stat row — same markup/styling as the Skills tab rows */
+function ProgressionRow({
+  iconSrc,
+  iconBlockClass,
+  name,
+  value,
+  milestone,
+}: {
+  iconSrc: string
+  iconBlockClass: string
+  name: string
+  value: string
+  milestone: string
+}) {
+  return (
+    <div className="ch-log-row ch-player-skill-row ch-profile-prog-row" style={{ "--row-accent": "#a49680" } as React.CSSProperties}>
+      <div className={`ch-skill-icon-col ${iconBlockClass}`}>
+        <img src={iconSrc} alt={name} className="ch-player-skill-icon" />
+      </div>
+      <div className="ch-player-skill-row-content">
+        <span className="ch-player-skill-row-name">{name}</span>
+        <div className="ch-skill-row-notch">
+          <div className="ch-skill-row-notch-mid">
+            <div className="ch-skill-row-notch-fill"></div>
+          </div>
+        </div>
+        <div className={`ch-skill-level-section ch-profile-level--${milestone}`}>
+          <span className="ch-player-skill-row-level">{value}</span>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function getSkillIconStyle(name: string): React.CSSProperties {
@@ -227,77 +293,86 @@ export default function PlayerProfile() {
       <div className="ch-page-content p-4 lg:p-6">
         {/* Two-column layout: sidebar (30%) + skills (70%) */}
         <div className="ch-player-layout">
-          {/* Left sidebar: Clan banner + Player info card */}
+          {/* Left sidebar: identity + progression card */}
           <div className="ch-player-sidebar">
-            {clan && (
-              <Link to={`/${clan.slug}`} className="ch-stat-cell ch-player-clan-banner" style={{ textDecoration: "none", display: "block" }}>
-                <div className="ch-discovery-card-header">
-                  <img src="/images/clancardbg.png" alt="" className="ch-discovery-card-header-bg" />
-                  <div className="ch-discovery-card-header-overlay" />
-                  <div className="ch-discovery-card-header-content">
-                    <div className="ch-discovery-card-header-center">
-                      <div className="ch-discovery-card-name">{clan.name}</div>
-                    </div>
+            <div className="ch-stat-cell ch-profile-card">
+              <div className={`ch-profile-module ch-profile-header-module${clan ? " ch-profile-header-module--has-clan" : ""}`}>
+                <div className="ch-profile-avatar-frame ch-discovery-stat ch-stat-cell">
+                  <img
+                    src={getRsAvatarUrl(player.rsn)}
+                    alt={player.rsn}
+                    className="ch-profile-avatar-img"
+                    onError={(e) => { e.currentTarget.src = "/images/default-avatar.png" }}
+                  />
+                </div>
+                <div className="ch-profile-identity">
+                  <h2 className="ch-profile-identity-name">
+                    {player.rsn}
+                    {accountIcon && (
+                      <img
+                        src={accountIcon}
+                        alt={accountLabel || ""}
+                        title={accountLabel || ""}
+                        className="ch-profile-identity-account-icon"
+                      />
+                    )}
+                  </h2>
+                  <div className="ch-profile-identity-badges">
+                    <span className="ch-player-tag ch-player-tag--rs3">RS3</span>
+                    {accountLabel && (
+                      <span className="ch-player-tag ch-player-tag--ironman">{accountLabel}</span>
+                    )}
                   </div>
-                  <div className="ch-discovery-card-vexillum">
+                </div>
+                {clan && (
+                  <Link
+                    to={`/${clan.slug}`}
+                    className="ch-profile-header-vexillum ch-discovery-stat ch-stat-cell"
+                    title={clan.name}
+                    aria-label={clan.name}
+                  >
+                    <VexillumName name={clan.name} />
                     <MiniClanVexillum
                       primaryColor={clan.primaryColor ?? undefined}
                       secondaryColor={clan.secondaryColor ?? undefined}
-                      size={72}
+                      size={46}
                     />
-                  </div>
-                </div>
-              </Link>
-            )}
-            <div className="ch-stat-cell ch-player-sidebar-card">
-              <div className="ch-player-sidebar-header">
-                <h2 className="ch-player-name">
-                  {player.rsn}
-                  {accountIcon && (
-                    <img
-                      src={accountIcon}
-                      alt={accountLabel || ""}
-                      title={accountLabel || ""}
-                      style={{ width: "12px", height: "12px", objectFit: "contain", marginLeft: "3px", verticalAlign: "middle" }}
-                    />
-                  )}
-                </h2>
-                <div className="ch-player-tags">
-                  <span className="ch-player-tag ch-player-tag--rs3">RS3</span>
-                  {accountLabel && (
-                    <span className="ch-player-tag ch-player-tag--ironman">{accountLabel}</span>
-                  )}
-                </div>
+                  </Link>
+                )}
               </div>
 
-              {clan && clan.rank && (
-                <div className="ch-player-sidebar-clan">
-                  <span className="ch-player-sidebar-label">Clan Rank</span>
-                  <span className="ch-player-clan-rank">{clan.rank}</span>
-                </div>
-              )}
-
-              <div className="ch-player-sidebar-stats">
-                <div className="ch-player-sidebar-stat">
-                  <span className="ch-player-sidebar-label">Total Level</span>
-                  <span className="ch-player-sidebar-value">{formatLevel(player.totalLevel, hasStats)}</span>
-                </div>
-                <div className="ch-player-sidebar-stat">
-                  <span className="ch-player-sidebar-label">Total XP</span>
-                  <span className="ch-player-sidebar-value ch-xp-green">{formatXp(player.totalXp, hasStats)}</span>
-                </div>
-                <div className="ch-player-sidebar-stat">
-                  <span className="ch-player-sidebar-label">Combat Level</span>
-                  <span className="ch-player-sidebar-value">{formatLevel(player.combatLevel, hasStats)}</span>
+              <div className="ch-profile-module ch-profile-module--progression">
+                <div className="ch-profile-prog-grid">
+                  <ProgressionRow
+                    iconSrc="/images/stats/total-level.png"
+                    iconBlockClass="ch-skill-icon-block--blue"
+                    name="Total Level"
+                    value={formatLevel(player.totalLevel, hasStats)}
+                    milestone={getTotalLevelMilestone(player.totalXp)}
+                  />
+                  <ProgressionRow
+                    iconSrc="/images/stats/combat-level.png"
+                    iconBlockClass="ch-skill-icon-block--red"
+                    name="Combat Level"
+                    value={formatLevel(player.combatLevel, hasStats)}
+                    milestone="neutral"
+                  />
+                  <ProgressionRow
+                    iconSrc="/images/stats/quest.png"
+                    iconBlockClass="ch-skill-icon-block--green"
+                    name="Quest Points"
+                    value={formatCount(player.questPoints)}
+                    milestone="neutral"
+                  />
+                  <ProgressionRow
+                    iconSrc="/images/stats/runescore.png"
+                    iconBlockClass="ch-skill-icon-block--purple"
+                    name="RuneScore"
+                    value={formatCount(player.runeScore)}
+                    milestone="neutral"
+                  />
                 </div>
               </div>
-
-              {data.hasHistory && (
-                <div className="ch-player-sidebar-stat" style={{ marginTop: "0.5rem", paddingTop: "0.5rem", borderTop: "1px solid rgba(68, 58, 44, 0.3)" }}>
-                  <span className="ch-player-sidebar-label">Snapshots</span>
-                  <span className="ch-player-sidebar-value">{data.snapshotCount}</span>
-                </div>
-              )}
             </div>
           </div>
 
